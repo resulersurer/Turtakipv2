@@ -1,7 +1,7 @@
 import TourEditor from '@/components/admin/TourEditor';
 
-export default function AdminPage(props: any) {
-  const { searchParams } = props;
+export default async function AdminPage(props: any) {
+  const searchParams = await props.searchParams;
 
   return (
     <main className="min-h-screen bg-[#040815] px-4 py-8 sm:px-6 lg:px-10">
