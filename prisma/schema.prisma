@@ -1,0 +1,35 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Tour {
+  id        String    @id @default(cuid())
+  name      String
+  startDate String
+  endDate   String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  days      TourDay[]
+}
+
+model TourDay {
+  id        String  @id @default(cuid())
+  tourId    String
+  dayNumber Int
+  date      String
+  hour      String?
+  city      String?
+  country   String?
+  photoUrl  String?
+  activity  String?
+  lat       Float?
+  lng       Float?
+  tour      Tour    @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
+  @@index([tourId])
+}
