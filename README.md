@@ -7,6 +7,7 @@ TURTAKIP Next, turizm şirketleri için modern bir tur programı ve yolcu takip 
 - Next.js 15 App Router ile tek uygulama
 - TypeScript + Tailwind CSS
 - Prisma ORM ve PostgreSQL uyumu
+- Neon PostgreSQL bağlantısına hazır yapı
 - Admin panelde tur oluşturma, düzenleme, çoğaltma ve silme
 - React Leaflet harita, rota çizimi ve seçilebilir markerlar
 - Nominatim proxy geocoding route
@@ -23,26 +24,30 @@ TURTAKIP Next, turizm şirketleri için modern bir tur programı ve yolcu takip 
 npm install
 ```
 
-2. `.env.local` dosyasını oluşturun (`.env.example`'dan kopyalayın)
+2. Ortam değişkenlerini hazırlayın
 ```bash
 cp .env.example .env.local
 ```
+`.env.local` içindeki `DATABASE_URL`, `DIRECT_URL` ve `NEXT_PUBLIC_APP_URL` değerlerini Neon'dan alınan connection strings ile doldurun:
+- `DATABASE_URL`: Neon pooled connection string (runtime için)
+- `DIRECT_URL`: Neon direct connection string (migration için)
 
-3. Neon PostgreSQL connection strings'ı `.env.local`'e ekleyin
-   - `DATABASE_URL`: Neon pooled connection string (runtime için)
-   - `DIRECT_URL`: Neon direct connection string (migration için)
-
-4. Prisma istemcisini oluşturun
+3. Prisma istemcisini oluşturun
 ```bash
 npm run db:generate
 ```
 
-5. Veritabanı şemasını push edin
+4. Veritabanı şemasını push edin
 ```bash
 npm run db:push
 ```
 
-6. Geliştirme sunucusunu başlatın
+Alternatif olarak migration tabanlı akış kullanacaksanız:
+```bash
+npm run db:migrate -- --name init
+```
+
+5. Geliştirme sunucusunu başlatın
 ```bash
 npm run dev
 ```
@@ -96,7 +101,31 @@ Vercel Settings → Environment Variables içinde aynı değişkenleri set edin:
 npm run build
 ```
 
+<<<<<<< HEAD
 Prisma Client otomatik generate edilir, sonra Next.js static ve dynamic page'leri build edilir.
+=======
+## Neon PostgreSQL Bağlantısı
+
+Bu proje Prisma datasource içinde PostgreSQL kullanır ve iki bağlantı adresi bekler:
+
+- `DATABASE_URL`: Uygulamanın runtime sırasında kullanacağı Neon pooled connection string.
+- `DIRECT_URL`: Prisma migration ve schema işlemleri için Neon direct/non-pooled connection string.
+
+Neon panelinde proje oluşturduktan sonra bağlantı ekranından:
+
+1. Pooled connection string'i `DATABASE_URL` olarak ekleyin.
+2. Direct connection string'i `DIRECT_URL` olarak ekleyin.
+3. Her iki URL'de de `sslmode=require` olduğundan emin olun.
+4. Lokal geliştirme için `.env` dosyasına, production için Vercel Environment Variables alanına ekleyin.
+
+Örnek format:
+
+```env
+DATABASE_URL="postgresql://USER:PASSWORD@HOST/DB?sslmode=require"
+DIRECT_URL="postgresql://USER:PASSWORD@HOST/DB?sslmode=require"
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+```
+>>>>>>> ffc4984c2001926a9db0baecfb7ab02f37b1ac84
 
 ## Vercel Deploy
 
@@ -115,12 +144,28 @@ npx prisma migrate deploy
 
 1. Vercel hesabınıza bağlanın.
 2. Yeni proje ekleyin ve bu repo dizinini seçin.
-3. Environment variables ekleyin.
+3. Environment variables ekleyin:
+   - `DATABASE_URL`
+   - `DIRECT_URL`
+   - `NEXT_PUBLIC_APP_URL`
 4. Deploy butonuna tıklayın.
+
+Deploy öncesinde Neon veritabanına şemayı uygulamak için lokalden şu komutu çalıştırabilirsiniz:
+
+```bash
+npm run db:push
+```
+
+Migration dosyalarıyla ilerliyorsanız production için:
+
+```bash
+npm run db:deploy
+```
 
 ## Environment Variables
 
-- `DATABASE_URL` - PostgreSQL bağlantı adresi
+- `DATABASE_URL` - Neon/PostgreSQL pooled bağlantı adresi
+- `DIRECT_URL` - Prisma migration işlemleri için Neon/PostgreSQL direct bağlantı adresi
 - `NEXT_PUBLIC_APP_URL` - uygulama URL'si
 
 ## Admin Kullanımı
