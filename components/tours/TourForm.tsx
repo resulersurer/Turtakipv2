@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Save, Plus, Trash2, Wand2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { slugify } from "@/lib/slug";
@@ -48,6 +48,7 @@ export function TourForm({ initial }: { initial?: Partial<TourFormData> }) {
   const [activeDay, setActiveDay] = useState(tour.days[0]?.dayNumber || 1);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const autoGeocoded = useRef(new Set<string>());
   const orderedDays = useMemo(() => [...tour.days].sort((a, b) => a.sortOrder - b.sortOrder), [tour.days]);
 
   function patch<K extends keyof TourFormData>(key: K, value: TourFormData[K]) {
@@ -76,7 +77,9 @@ export function TourForm({ initial }: { initial?: Partial<TourFormData> }) {
   async function suggest(dayNumber: number) {
     const day = tour.days.find((item) => item.dayNumber === dayNumber);
     if (!day) return;
-    const response = await fetch(`/api/geocode?q=${encodeURIComponent([day.city, day.country].filter(Boolean).join(" "))}`);
+    const query = [day.city, day.country].filter(Boolean).join(" ");
+    if (!query) return;
+    const response = await fetch(`/api/geocode?q=${encodeURIComponent(query)}`);
     const data = await response.json();
     const hit = data.results?.[0];
     if (hit) {
@@ -86,6 +89,31 @@ export function TourForm({ initial }: { initial?: Partial<TourFormData> }) {
       );
     }
   }
+
+  useEffect(() => {
+    const missing = tour.days.find((day) => {
+      const query = [day.city, day.country].filter(Boolean).join(" ");
+      const key = `${day.dayNumber}:${query}`;
+      return query && (day.lat == null || day.lng == null) && !autoGeocoded.current.has(key);
+    });
+    if (!missing) return;
+    const query = [missing.city, missing.country].filter(Boolean).join(" ");
+    const key = `${missing.dayNumber}:${query}`;
+    autoGeocoded.current.add(key);
+    const timer = window.setTimeout(async () => {
+      const response = await fetch(`/api/geocode?q=${encodeURIComponent(query)}`);
+      const data = await response.json();
+      const hit = data.results?.[0];
+      if (hit) {
+        setTour((current) => ({
+          ...current,
+          days: current.days.map((day) => (day.dayNumber === missing.dayNumber ? { ...day, lat: hit.lat, lng: hit.lng } : day))
+        }));
+        setActiveDay(missing.dayNumber);
+      }
+    }, 350);
+    return () => window.clearTimeout(timer);
+  }, [tour.days]);
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_420px]">
