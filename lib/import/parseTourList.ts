@@ -6,8 +6,12 @@ function collectTourLinks(html: string, sourceUrl: string, links: Set<string>) {
   function addLink(href: string) {
     try {
       const url = new URL(href.replace(/&amp;/g, "&").replace(/\s+/g, ""), sourceUrl);
-      if (!/\.html/i.test(url.pathname)) return;
-      if (!url.searchParams.get("syprdky") && !/_\d+\.html/i.test(url.pathname)) return;
+      const isTourDetail =
+        /\/(?:T%C3%BCm-Turlar|Tüm-Turlar|Tum-Turlar)\//i.test(url.pathname) &&
+        /_23\.html$/i.test(url.pathname) &&
+        Boolean(url.searchParams.get("syprdky"));
+      if (!isTourDetail) return;
+      if (!url.searchParams.get("stpcty")) url.searchParams.set("stpcty", "1");
       links.add(url.toString());
     } catch {
       // ignore malformed links
@@ -20,7 +24,8 @@ function collectTourLinks(html: string, sourceUrl: string, links: Set<string>) {
     if (/\.html/i.test(href) || /TourDetail|Tour_Detail|Tüm-Turlar|Tum-Turlar/i.test(href)) addLink(href);
   });
 
-  const rawMatches = html.match(/(?:https?:\/\/www\.ejderturizm\.com\.tr)?\/[^"'<>\\\s]+_+\d+\.html(?:\?[^"'<>\\\s]+)?/gi) || [];
+  const rawMatches =
+    html.match(/(?:https?:\/\/www\.ejderturizm\.com\.tr)?\/(?:T%C3%BCm-Turlar|Tüm-Turlar|Tum-Turlar)\/[^"'<>\\\s]+_23\.html\?[^"'<>\\\s]*syprdky=[^"'<>\\\s]+/gi) || [];
   for (const href of rawMatches) addLink(href);
 }
 
@@ -37,8 +42,7 @@ export async function parseTourList(sourceUrl: string) {
 
   const url = new URL(sourceUrl);
   if (/TourList\.aspx/i.test(url.pathname)) {
-    for (let page = 0; page < 8; page += 1) {
-      const before = links.size;
+    for (let page = 0; page < 3; page += 1) {
       const center = new URL("/TourList_Center.aspx", url.origin);
       center.searchParams.set("fsrt", "0");
       center.searchParams.set("sypgno", String(page));
@@ -49,7 +53,6 @@ export async function parseTourList(sourceUrl: string) {
       for (const [key, value] of url.searchParams.entries()) center.searchParams.set(key, value);
       const centerHtml = await fetchText(center.toString());
       collectTourLinks(centerHtml, center.toString(), links);
-      if (links.size === before && page > 0) break;
     }
   }
 
