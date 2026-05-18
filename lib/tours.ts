@@ -107,6 +107,27 @@ export async function deleteTour(id: string) {
   });
 }
 
+export async function deleteToursByStatus(status: TourStatus) {
+  return prisma.$transaction(
+    async (tx) => {
+      const tours = await tx.tour.findMany({ where: { status }, select: { id: true } });
+      const ids = tours.map((tour) => tour.id);
+      if (!ids.length) return 0;
+      await tx.importLog.updateMany({ where: { tourId: { in: ids } }, data: { tourId: null } });
+      await tx.tourPrice.deleteMany({ where: { tourId: { in: ids } } });
+      await tx.tourImage.deleteMany({ where: { tourId: { in: ids } } });
+      await tx.tourDay.deleteMany({ where: { tourId: { in: ids } } });
+      await tx.tourDeparture.deleteMany({ where: { tourId: { in: ids } } });
+      const result = await tx.tour.deleteMany({ where: { id: { in: ids } } });
+      return result.count;
+    },
+    {
+      maxWait: 10000,
+      timeout: 30000
+    }
+  );
+}
+
 export async function upsertImportedTour(parsed: ParsedTour) {
   const existing = await prisma.tour.findFirst({
     where: {

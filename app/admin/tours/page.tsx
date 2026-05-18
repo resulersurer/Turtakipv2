@@ -15,8 +15,10 @@ export default async function AdminToursPage({ searchParams }: { searchParams: P
   if (!(await isAdmin())) return <AdminLogin />;
   const params = await searchParams;
   let tours: any[];
+  let publishedCount = 0;
   try {
     tours = serializeTour(await prisma.tour.findMany({ include: tourInclude, orderBy: { updatedAt: "desc" } })) as any[];
+    publishedCount = tours.filter((tour) => tour.status === "PUBLISHED").length;
   } catch (error) {
     if (isPrismaSetupError(error)) return <SetupNotice />;
     throw error;
@@ -33,7 +35,15 @@ export default async function AdminToursPage({ searchParams }: { searchParams: P
     <main className="page-shell space-y-5">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div><h1 className="text-2xl font-semibold">Turlar</h1><p className="text-slate-400">Arama, durum ve takvim filtreleriyle operasyon listesi.</p></div>
-        <div className="flex gap-2"><Link className="btn" href="/admin/import">Import</Link><Link className="btn-primary rounded-md" href="/admin/tours/new">Yeni tur</Link></div>
+        <div className="flex flex-wrap gap-2">
+          {publishedCount > 0 ? (
+            <form action="/api/tours/delete-published" method="post">
+              <button className="btn" type="submit">Yayındakileri toplu sil ({publishedCount})</button>
+            </form>
+          ) : null}
+          <Link className="btn" href="/admin/import">Import</Link>
+          <Link className="btn-primary rounded-md" href="/admin/tours/new">Yeni tur</Link>
+        </div>
       </header>
       <form className="panel grid gap-3 rounded-lg p-4 md:grid-cols-5">
         <input className="input" name="q" defaultValue={params.q} placeholder="Tur veya şehir ara" />

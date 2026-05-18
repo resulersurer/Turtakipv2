@@ -53,6 +53,11 @@ export default async function AdminPage() {
           <p className="text-slate-400">Import, yayın ve tur takip operasyonları.</p>
         </div>
         <div className="flex flex-wrap gap-2">
+          {published > 0 ? (
+            <form action="/api/tours/delete-published" method="post">
+              <button className="btn" type="submit">Yayındakileri sil</button>
+            </form>
+          ) : null}
           {drafts > 0 ? (
             <form action="/api/tours/publish-drafts" method="post">
               <button className="btn-primary rounded-md" type="submit">Tüm taslakları yayınla</button>
