@@ -1,7 +1,6 @@
 export type DepartureLike = {
   startDate: string | Date;
   endDate?: string | Date | null;
-  firstDayHour?: string | null;
 };
 
 const TIME_ZONE = "Europe/Istanbul";
@@ -30,33 +29,12 @@ function daysBetween(a: Date, b: Date) {
   return Math.round((dateFromDayKey(dayKey(a)).getTime() - dateFromDayKey(dayKey(b)).getTime()) / 86400000);
 }
 
-function istanbulMinutes(date: Date) {
-  const parts = new Intl.DateTimeFormat("tr-TR", {
-    timeZone: TIME_ZONE,
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false
-  }).formatToParts(date);
-  const hour = Number(parts.find((part) => part.type === "hour")?.value || 0);
-  const minute = Number(parts.find((part) => part.type === "minute")?.value || 0);
-  return hour * 60 + minute;
-}
-
-function hourToMinutes(hour?: string | null) {
-  const match = hour?.match(/\b([01]?\d|2[0-3]):([0-5]\d)\b/);
-  return match ? Number(match[1]) * 60 + Number(match[2]) : null;
-}
-
 export function classifyDeparture(departure: DepartureLike, now = new Date()) {
   const start = new Date(departure.startDate);
   const end = new Date(departure.endDate || departure.startDate);
   const startCompare = compareDay(start, now);
   const endCompare = compareDay(end, now);
-  if (startCompare === 0) {
-    const firstDayMinutes = hourToMinutes(departure.firstDayHour);
-    if (firstDayMinutes != null && istanbulMinutes(now) >= firstDayMinutes) return "ongoing";
-    return "today";
-  }
+  if (startCompare === 0) return "today";
   if (startCompare < 0 && endCompare >= 0) return "ongoing";
   if (startCompare > 0) return "future";
   return "past";
