@@ -28,7 +28,17 @@ const localHints: Record<string, GeocodeResult> = {
   hobbiton: { label: "Hobbiton Movie Set, New Zealand", lat: -37.8722, lng: 175.6839, country: "Yeni Zelanda", city: "Hobbiton" },
   "port arthur": { label: "Port Arthur, Tasmania, Australia", lat: -43.1416, lng: 147.8507, country: "Avustralya", city: "Port Arthur" },
   "blue mountains": { label: "Blue Mountains, Australia", lat: -33.4098, lng: 150.3031, country: "Avustralya", city: "Blue Mountains" },
-  "philip island": { label: "Phillip Island, Australia", lat: -38.4899, lng: 145.232, country: "Avustralya", city: "Philip Island" }
+  "philip island": { label: "Phillip Island, Australia", lat: -38.4899, lng: 145.232, country: "Avustralya", city: "Philip Island" },
+  xian: { label: "Xi'an, China", lat: 34.3416, lng: 108.9398, country: "Çin", city: "Xi'an" },
+  "xi'an": { label: "Xi'an, China", lat: 34.3416, lng: 108.9398, country: "Çin", city: "Xi'an" },
+  "xi’an": { label: "Xi'an, China", lat: 34.3416, lng: 108.9398, country: "Çin", city: "Xi'an" },
+  pekin: { label: "Beijing, China", lat: 39.9042, lng: 116.4074, country: "Çin", city: "Pekin" },
+  beijing: { label: "Beijing, China", lat: 39.9042, lng: 116.4074, country: "Çin", city: "Pekin" },
+  "şanghay": { label: "Shanghai, China", lat: 31.2304, lng: 121.4737, country: "Çin", city: "Şanghay" },
+  shanghai: { label: "Shanghai, China", lat: 31.2304, lng: 121.4737, country: "Çin", city: "Şanghay" },
+  shangai: { label: "Shanghai, China", lat: 31.2304, lng: 121.4737, country: "Çin", city: "Şanghay" },
+  chengdu: { label: "Chengdu, China", lat: 30.5728, lng: 104.0668, country: "Çin", city: "Chengdu" },
+  mutianyu: { label: "Mutianyu Great Wall, China", lat: 40.4319, lng: 116.5704, country: "Çin", city: "Mutianyu" }
 };
 
 export async function geocode(query: string): Promise<GeocodeResult[]> {

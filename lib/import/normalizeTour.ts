@@ -63,7 +63,13 @@ export function makeParsedBase(sourceUrl: string, name: string): Pick<ParsedTour
 }
 
 export function inferCityCountry(title: string) {
-  const cleaned = title.replace(/^\d+\.\s*g(?:u|ü)n\s*[:/]?\s*/i, "").replace(/^[\s/:|-]+/, "").trim();
+  const cleaned = title
+    .replace(/^\d+\.\s*g(?:u|ü)n\s*[:/]?\s*/i, "")
+    .replace(/^[\s/:|—–-]+/, "")
+    .replace(/şangay/gi, "Şanghay")
+    .replace(/shangai/gi, "Şanghay")
+    .replace(/shanghai/gi, "Şanghay")
+    .trim();
   const knownCities = [
     "İSTANBUL",
     "ISTANBUL",
@@ -88,11 +94,22 @@ export function inferCityCountry(title: string) {
     "HOBBITON",
     "PORT ARTHUR",
     "BLUE MOUNTAINS",
-    "PHILIP ISLAND"
+    "PHILIP ISLAND",
+    "XI'AN",
+    "XIAN",
+    "XI’AN",
+    "PEKİN",
+    "PEKIN",
+    "BEIJING",
+    "ŞANGHAY",
+    "SHANGHAI",
+    "CHENGDU",
+    "MUTIANYU"
   ];
   const hits = knownCities
     .flatMap((city) => {
-      const match = cleaned.match(new RegExp(`\\b${city.replace(/\s+/g, "\\s+")}\\b`, "i"));
+      const escaped = city.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+");
+      const match = cleaned.match(new RegExp(`\\b${escaped}\\b`, "i"));
       return match?.index == null ? [] : [{ city, index: match.index }];
     })
     .sort((a, b) => a.index - b.index)
@@ -107,7 +124,17 @@ export function inferCityCountry(title: string) {
       city = hits[hits.length - 1];
     }
   }
-  city = city === "SEOUL" ? "SEUL" : city;
+
+  const cityMap: Record<string, string> = {
+    SEOUL: "SEUL",
+    XIAN: "XI'AN",
+    "XI’AN": "XI'AN",
+    PEKIN: "PEKİN",
+    BEIJING: "PEKİN",
+    SHANGHAI: "ŞANGHAY",
+    MUTIANYU: "PEKİN"
+  };
+  city = city ? cityMap[city] || city : null;
   const target = city || cleaned;
   const country = /seul|seoul|busan|kore/i.test(target)
     ? "Güney Kore"
@@ -117,7 +144,9 @@ export function inferCityCountry(title: string) {
         ? "Avustralya"
         : /auckland|rotorua|waitomo|taupo|hobbiton|yeni zelanda/i.test(target)
           ? "Yeni Zelanda"
-          : null;
+          : /xi'?an|xian|pekin|beijing|şanghay|shanghai|chengdu|mutianyu|çin/i.test(target)
+            ? "Çin"
+            : null;
   return { city, country };
 }
 

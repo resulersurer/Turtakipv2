@@ -56,6 +56,29 @@ function extractLabel(text: string, labels: string[]) {
   return null;
 }
 
+function inferAirline(title: string, text: string) {
+  const source = `${title} ${text}`;
+  if (/\b3U\b|Sichuan Airlines|SICHUAN AIRLINES/i.test(source)) return "SICHUAN AIRLINES";
+  if (/\bTHY\b|\bTK\b|Türk Hava Yolları|Turkish Airlines/i.test(source)) return "TÜRK HAVA YOLLARI";
+  if (/Qatar Airways|QATAR AIRWAYS/i.test(source)) return "QATAR AIRWAYS";
+  if (/Pegasus/i.test(source)) return "PEGASUS";
+  if (/Emirates/i.test(source)) return "EMIRATES";
+  if (/AJet/i.test(source)) return "AJET";
+  const extracted = extractLabel(text, ["Havayolu", "Hava Yolu", "Uçak", "Ucak"]);
+  if (extracted && !/tarife|değişiklik|kosul|koşul|mücbir|mucbir|doğrultusunda/i.test(extracted)) return extracted;
+  return null;
+}
+
+function inferVisa(text: string) {
+  if (/vizesiz/i.test(text)) return "VİZESİZ";
+  if (/çin vizesi|cin vizesi/i.test(text)) return "ÇİN VİZESİ";
+  if (/avustralya vizesi/i.test(text) && /yeni zelanda/i.test(text)) return "AVUSTRALYA VİZESİ - YENİ ZELANDA";
+  if (/avustralya vizesi/i.test(text)) return "AVUSTRALYA VİZESİ";
+  const extracted = extractLabel(text, ["Vize Durumu", "Vize"]);
+  if (extracted && extracted.length <= 80 && !/ücreti|ucreti|bahşiş|bahsis|yemek|dahil/i.test(extracted)) return extracted;
+  return null;
+}
+
 function extractDays($: cheerio.CheerioAPI) {
   const bodyText = normalizeText($("body").text());
   const chunks = bodyText.split(/(?=\b\d{1,2}\.\s*G(?:Ü|U)N\b)/i).filter((chunk) => /^\d{1,2}\.\s*G(?:Ü|U)N/i.test(chunk));
@@ -124,14 +147,21 @@ export async function parseTourHtml(html: string, sourceUrl: string): Promise<Pa
     ...makeParsedBase(sourceUrl, title),
     durationDays: inferDuration(`${title} ${pageText}`),
     departureCity: extractLabel(pageText, ["Kalkış", "Kalkis", "Kalkış Yeri", "Kalkış Şehri"]) || null,
-    airline: extractLabel(pageText, ["Havayolu", "Hava Yolu", "Uçak", "Ucak"]) || (title.match(/\b(THY|TK|Pegasus|Emirates|Qatar|AJet)\b/i)?.[1] ?? null),
-    visaStatus: extractLabel(pageText, ["Vize Durumu", "Vize"]) || null,
+    airline: inferAirline(title, pageText),
+    visaStatus: inferVisa(pageText),
     coverImageUrl: null,
     departures: [] as ParsedTour["departures"],
     days: [] as ParsedTour["days"],
     images: [] as ParsedTour["images"],
     prices: [] as ParsedTour["prices"]
   };
+
+  const metaImage =
+    $("meta[property='og:image']").attr("content") ||
+    $("meta[name='twitter:image']").attr("content") ||
+    $("link[rel='image_src']").attr("href");
+  const metaImageUrl = metaImage ? absolutize(metaImage, sourceUrl) : null;
+  if (metaImageUrl) parsed.images.push({ url: metaImageUrl, alt: title, sortOrder: 0 });
 
   $("img").each((index, element) => {
     const src = $(element).attr("src") || $(element).attr("data-src");
