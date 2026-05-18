@@ -36,6 +36,7 @@ function parseTurkishDate(raw: string) {
 
 function absolutize(url: string, sourceUrl: string) {
   try {
+    if (/^(file|data):/i.test(url)) return null;
     return new URL(url, sourceUrl).toString();
   } catch {
     return null;
@@ -45,7 +46,7 @@ function absolutize(url: string, sourceUrl: string) {
 function extractLabel(text: string, labels: string[]) {
   for (const label of labels) {
     const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const match = text.match(new RegExp(`${escaped}\\s*:?\\s*([^|\\n\\r]{2,160})`, "i"));
+    const match = text.match(new RegExp(`${escaped}\\s*:?\\s*([^|\\n\\r]{2,220})`, "i"));
     if (match?.[1]) {
       return normalizeText(match[1])
         .replace(/\s*(Vize|Vize Durumu|Havayolu|Hava Yolu|Kalkış|Kalkis|Lütfen|Tura Katılmak|Tur Tarihleri|Fiyat|Program).*$/i, "")
@@ -57,14 +58,14 @@ function extractLabel(text: string, labels: string[]) {
 
 function extractDays($: cheerio.CheerioAPI) {
   const bodyText = normalizeText($("body").text());
-  const chunks = bodyText.split(/(?=\b\d{1,2}\.\s*G[ÜU]N\b)/i).filter((chunk) => /^\d{1,2}\.\s*G[ÜU]N/i.test(chunk));
-  return chunks.map((chunk, index) => {
-    const titleMatch = chunk.match(/^(\d{1,2})\.\s*G[ÜU]N\s*[:|-]?\s*([^\.]{0,120})/i);
+  const chunks = bodyText.split(/(?=\b\d{1,2}\.\s*G(?:Ü|U)N\b)/i).filter((chunk) => /^\d{1,2}\.\s*G(?:Ü|U)N/i.test(chunk));
+  const days = chunks.map((chunk, index) => {
+    const titleMatch = chunk.match(/^(\d{1,2})\.\s*G(?:Ü|U)N\s*[:/|-]?\s*([^\.]{0,160})/i);
     const dayNumber = titleMatch ? Number(titleMatch[1]) : index + 1;
-    const title = normalizeText(titleMatch?.[2] || `${dayNumber}. Gün`);
+    const title = normalizeText(titleMatch?.[2] || `${dayNumber}. Gün`).replace(/^[\s/:|-]+/, "");
     const { city, country } = inferCityCountry(title);
-    const hotel = chunk.match(/(?:📌\s*)?Otel\s*:?\s*([^\.]{4,160})/i)?.[1];
-    const flight = chunk.match(/(?:Uçuş Bilgileri|Ucus Bilgileri)\s*:?\s*([^\.]{4,180})/i)?.[1];
+    const hotel = chunk.match(/(?:📌\s*)?Otel(?:imiz)?\s*:?\s*([^\.]{4,180})/i)?.[1];
+    const flight = chunk.match(/(?:Uçuş Bilgisi|Uçuş Bilgileri|Ucus Bilgileri)\s*:?\s*([^\.]{4,220})/i)?.[1];
     return {
       dayNumber,
       title,
@@ -72,7 +73,7 @@ function extractDays($: cheerio.CheerioAPI) {
       hour: chunk.match(/\b([01]?\d|2[0-3]):[0-5]\d\b/)?.[0] || null,
       city,
       country,
-      description: normalizeText(chunk.slice(0, 1200)),
+      description: normalizeText(chunk.slice(0, 1600)),
       hotelInfo: normalizeText(hotel) || null,
       flightInfo: normalizeText(flight) || null,
       photoUrl: null,
@@ -81,6 +82,16 @@ function extractDays($: cheerio.CheerioAPI) {
       sortOrder: index
     };
   });
+
+  return Array.from(
+    days
+      .reduce((best, day) => {
+        const current = best.get(day.dayNumber);
+        if (!current || (day.description || "").length > (current.description || "").length) best.set(day.dayNumber, day);
+        return best;
+      }, new Map<number, (typeof days)[number]>())
+      .values()
+  ).map((day, index) => ({ ...day, sortOrder: index }));
 }
 
 function extractDepartureDateTexts(pageText: string) {
@@ -128,8 +139,7 @@ export async function parseTourHtml(html: string, sourceUrl: string): Promise<Pa
     const lower = url?.toLowerCase() || "";
     const looksLikeTourImage =
       url &&
-      !lower.includes("data:image") &&
-      !/logo|icon|sprite|loading|blank|whatsapp|facebook|instagram|layout|tursab|iata|develitema|thy_v/i.test(lower);
+      !/data:image|file:|logo|icon|sprite|loading|blank|whatsapp|facebook|instagram|layout|tursab|iata|develitema|thy_v|ckeditor\/image\/bu\.png/i.test(lower);
     if (looksLikeTourImage && !parsed.images.some((image) => image.url === url)) {
       parsed.images.push({ url, alt: normalizeText($(element).attr("alt")), sortOrder: index });
     }
@@ -140,7 +150,7 @@ export async function parseTourHtml(html: string, sourceUrl: string): Promise<Pa
   parsed.departures = uniqueDates.map((raw) => {
     const startDate = parseTurkishDate(raw) || new Date();
     const endDate = parsed.durationDays ? new Date(startDate.getTime() + (parsed.durationDays - 1) * 86400000) : null;
-    const nearbyPrice = parsePrice(pageText.slice(Math.max(0, pageText.indexOf(raw) - 120), pageText.indexOf(raw) + 240));
+    const nearbyPrice = parsePrice(pageText.slice(Math.max(0, pageText.indexOf(raw) - 120), pageText.indexOf(raw) + 260));
     return {
       startDate,
       endDate,

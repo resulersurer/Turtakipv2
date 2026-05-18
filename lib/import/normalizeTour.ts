@@ -43,7 +43,7 @@ export function normalizeText(input?: string | null) {
 }
 
 export function inferDuration(text: string) {
-  const match = text.match(/(\d+)\s*(?:g[uü]n|gece|gün)/i);
+  const match = text.match(/(\d+)\s*(?:gun|gün|gece)/i);
   return match ? Number(match[1]) : null;
 }
 
@@ -63,8 +63,10 @@ export function makeParsedBase(sourceUrl: string, name: string): Pick<ParsedTour
 }
 
 export function inferCityCountry(title: string) {
-  const cleaned = title.replace(/^\d+\.\s*g[uü]n\s*:?\s*/i, "").trim();
+  const cleaned = title.replace(/^\d+\.\s*g(?:u|ü)n\s*[:/]?\s*/i, "").replace(/^[\s/:|-]+/, "").trim();
   const knownCities = [
+    "İSTANBUL",
+    "ISTANBUL",
     "TOKYO",
     "OSAKA",
     "KYOTO",
@@ -76,10 +78,25 @@ export function inferCityCountry(title: string) {
     "SEUL",
     "SEOUL",
     "BUSAN",
-    "İSTANBUL",
-    "ISTANBUL"
+    "MELBOURNE",
+    "HOBART",
+    "SYDNEY",
+    "AUCKLAND",
+    "ROTORUA",
+    "WAITOMO",
+    "TAUPO",
+    "HOBBITON",
+    "PORT ARTHUR",
+    "BLUE MOUNTAINS",
+    "PHILIP ISLAND"
   ];
-  const hits = knownCities.filter((city) => new RegExp(`\\b${city}\\b`, "i").test(cleaned));
+  const hits = knownCities
+    .flatMap((city) => {
+      const match = cleaned.match(new RegExp(`\\b${city.replace(/\s+/g, "\\s+")}\\b`, "i"));
+      return match?.index == null ? [] : [{ city, index: match.index }];
+    })
+    .sort((a, b) => a.index - b.index)
+    .map((hit) => hit.city);
   let city = hits[0] || null;
   if (hits.length > 1) {
     if (/dönüş|donus|return/i.test(cleaned) && /istanbul/i.test(hits[hits.length - 1])) {
@@ -91,7 +108,16 @@ export function inferCityCountry(title: string) {
     }
   }
   city = city === "SEOUL" ? "SEUL" : city;
-  const country = /seul|seoul|busan|kore/i.test(city || cleaned) ? "Güney Kore" : /tokyo|osaka|kyoto|nara|kobe|fuji|hakone|kamakura|japon/i.test(city || cleaned) ? "Japonya" : null;
+  const target = city || cleaned;
+  const country = /seul|seoul|busan|kore/i.test(target)
+    ? "Güney Kore"
+    : /tokyo|osaka|kyoto|nara|kobe|fuji|hakone|kamakura|japon/i.test(target)
+      ? "Japonya"
+      : /melbourne|hobart|sydney|port arthur|blue mountains|philip island|avustralya|tasmania|tazmanya/i.test(target)
+        ? "Avustralya"
+        : /auckland|rotorua|waitomo|taupo|hobbiton|yeni zelanda/i.test(target)
+          ? "Yeni Zelanda"
+          : null;
   return { city, country };
 }
 
@@ -99,5 +125,7 @@ export function parsePrice(text: string) {
   const match = text.replace(/\./g, "").match(/(\d+(?:,\d+)?)\s*(EUR|EURO|USD|TL|TRY|₺|\$|€)/i);
   if (!match) return null;
   const currencyMap: Record<string, string> = { EURO: "EUR", "€": "EUR", "₺": "TRY", TL: "TRY", "$": "USD" };
-  return { amount: Number(match[1].replace(",", ".")), currency: currencyMap[match[2].toUpperCase()] || match[2].toUpperCase() };
+  const raw = match[1];
+  const amount = /,\d{3}$/.test(raw) ? Number(raw.replace(",", "")) : Number(raw.replace(",", "."));
+  return { amount, currency: currencyMap[match[2].toUpperCase()] || match[2].toUpperCase() };
 }
