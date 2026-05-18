@@ -23,8 +23,8 @@ export default async function PassengerPage() {
     tour.departures.map((departure: any) => ({
       tour,
       departure,
-      status: classifyDeparture(departure),
-      relative: departureRelativeLabel(departure),
+      status: classifyDeparture({ ...departure, firstDayHour: tour.days[0]?.hour }),
+      relative: departureRelativeLabel({ ...departure, firstDayHour: tour.days[0]?.hour }),
       range: formatDepartureRange(departure)
     }))
   );

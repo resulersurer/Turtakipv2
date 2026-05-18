@@ -83,6 +83,28 @@ function extractDays($: cheerio.CheerioAPI) {
   });
 }
 
+function extractDepartureDateTexts(pageText: string) {
+  const lower = pageText.toLocaleLowerCase("tr-TR");
+  const priceStartCandidates = ["Çift Kişilik Oda", "Cift Kisilik Oda", "Fiyat (Kişi Başı)", "Fiyat (Kisi Basi)", "Fiyatlar"];
+  const priceStart = priceStartCandidates
+    .map((label) => lower.indexOf(label.toLocaleLowerCase("tr-TR")))
+    .filter((index) => index >= 0)
+    .sort((a, b) => a - b)[0];
+  const programStart = lower.indexOf("tur programı");
+  const dateArea = priceStart != null ? pageText.slice(priceStart, programStart > priceStart ? programStart : undefined) : pageText;
+  const numericDates = dateArea.match(/\b\d{1,2}[./-]\d{1,2}[./-]20\d{2}\b/g) || [];
+  if (numericDates.length) return numericDates;
+
+  const selectorStart = lower.indexOf("lütfen tura katılmak istediğiniz tarihi seçiniz");
+  if (selectorStart >= 0) {
+    const selectorEnd = lower.indexOf("tur tarihi", selectorStart);
+    const selectorText = pageText.slice(selectorStart, selectorEnd > selectorStart ? selectorEnd : undefined);
+    return selectorText.match(/\d{1,2}\s+[A-Za-zÇĞİÖŞÜçğıöşü]+\s+20\d{2}/g) || [];
+  }
+
+  return pageText.match(/\d{1,2}\s+[A-Za-zÇĞİÖŞÜçğıöşü]+\s+20\d{2}/g) || [];
+}
+
 export async function parseTourHtml(html: string, sourceUrl: string): Promise<ParsedTour> {
   const $ = cheerio.load(html);
   const title = normalizeText($("h1").first().text()) || normalizeText($("title").text()).replace(/\|.*$/, "") || "İçe Aktarılan Tur";
@@ -114,10 +136,7 @@ export async function parseTourHtml(html: string, sourceUrl: string): Promise<Pa
   });
   parsed.coverImageUrl = parsed.images[0]?.url || null;
 
-  const textualDates = pageText.match(/\d{1,2}\s+[A-Za-zÇĞİÖŞÜçğıöşü]+\s+20\d{2}/g) || [];
-  const numericDates = pageText.match(/\b\d{1,2}[./-]\d{1,2}[./-]20\d{2}\b/g) || [];
-  const dateMatches = [...textualDates, ...numericDates];
-  const uniqueDates = Array.from(new Set(dateMatches));
+  const uniqueDates = Array.from(new Set(extractDepartureDateTexts(pageText)));
   parsed.departures = uniqueDates.map((raw) => {
     const startDate = parseTurkishDate(raw) || new Date();
     const endDate = parsed.durationDays ? new Date(startDate.getTime() + (parsed.durationDays - 1) * 86400000) : null;

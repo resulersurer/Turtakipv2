@@ -16,9 +16,8 @@ export default async function ImportPage() {
         <div><h1 className="text-2xl font-semibold">Tur import</h1><p className="text-slate-400">İçe aktarılan kayıtlar taslak oluşturur; yayın öncesi düzenlenir.</p></div>
         <Link className="btn" href="/admin">Dashboard</Link>
       </header>
-      <section className="grid gap-4 lg:grid-cols-2">
+      <section className="grid gap-4">
         <ImportPreview mode="tour" />
-        <ImportPreview mode="list" />
       </section>
     </main>
   );

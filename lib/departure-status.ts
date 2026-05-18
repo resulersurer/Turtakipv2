@@ -1,23 +1,64 @@
 export type DepartureLike = {
   startDate: string | Date;
   endDate?: string | Date | null;
+  firstDayHour?: string | null;
 };
 
-function startOfDay(date: Date) {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+const TIME_ZONE = "Europe/Istanbul";
+
+function dayKey(date: Date) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: TIME_ZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).formatToParts(date);
+  const get = (type: string) => parts.find((part) => part.type === type)?.value;
+  return `${get("year")}-${get("month")}-${get("day")}`;
+}
+
+function dateFromDayKey(key: string) {
+  const [year, month, day] = key.split("-").map(Number);
+  return new Date(Date.UTC(year, month - 1, day));
+}
+
+function compareDay(a: Date, b: Date) {
+  return dayKey(a).localeCompare(dayKey(b));
 }
 
 function daysBetween(a: Date, b: Date) {
-  return Math.round((startOfDay(a).getTime() - startOfDay(b).getTime()) / 86400000);
+  return Math.round((dateFromDayKey(dayKey(a)).getTime() - dateFromDayKey(dayKey(b)).getTime()) / 86400000);
+}
+
+function istanbulMinutes(date: Date) {
+  const parts = new Intl.DateTimeFormat("tr-TR", {
+    timeZone: TIME_ZONE,
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false
+  }).formatToParts(date);
+  const hour = Number(parts.find((part) => part.type === "hour")?.value || 0);
+  const minute = Number(parts.find((part) => part.type === "minute")?.value || 0);
+  return hour * 60 + minute;
+}
+
+function hourToMinutes(hour?: string | null) {
+  const match = hour?.match(/\b([01]?\d|2[0-3]):([0-5]\d)\b/);
+  return match ? Number(match[1]) * 60 + Number(match[2]) : null;
 }
 
 export function classifyDeparture(departure: DepartureLike, now = new Date()) {
-  const start = startOfDay(new Date(departure.startDate));
-  const end = startOfDay(new Date(departure.endDate || departure.startDate));
-  const today = startOfDay(now);
-  if (start.getTime() === today.getTime()) return "today";
-  if (start < today && end >= today) return "ongoing";
-  if (start > today) return "future";
+  const start = new Date(departure.startDate);
+  const end = new Date(departure.endDate || departure.startDate);
+  const startCompare = compareDay(start, now);
+  const endCompare = compareDay(end, now);
+  if (startCompare === 0) {
+    const firstDayMinutes = hourToMinutes(departure.firstDayHour);
+    if (firstDayMinutes != null && istanbulMinutes(now) >= firstDayMinutes) return "ongoing";
+    return "today";
+  }
+  if (startCompare < 0 && endCompare >= 0) return "ongoing";
+  if (startCompare > 0) return "future";
   return "past";
 }
 

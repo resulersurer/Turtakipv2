@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 
-export function ImportPreview({ mode }: { mode: "tour" | "list" }) {
+export function ImportPreview({ mode }: { mode: "tour" }) {
   const [url, setUrl] = useState("");
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<any>(null);
@@ -23,7 +23,7 @@ export function ImportPreview({ mode }: { mode: "tour" | "list" }) {
   return (
     <div className="panel rounded-lg p-4">
       <div className="flex flex-col gap-3 md:flex-row">
-        <input className="input" value={url} onChange={(event) => setUrl(event.target.value)} placeholder={mode === "tour" ? "Tur detay URL'si" : "Tur liste URL'si"} />
+        <input className="input" value={url} onChange={(event) => setUrl(event.target.value)} placeholder="Tur detay URL'si" />
         <button className="btn-primary rounded-md" onClick={run} disabled={busy || !url}>{busy ? "İçe aktarılıyor" : "İçe aktar"}</button>
       </div>
       {result ? (
