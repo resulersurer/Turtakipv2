@@ -9,6 +9,15 @@ import { classifyDeparture, departureRelativeLabel, formatDepartureRange } from 
 
 export const dynamic = "force-dynamic";
 
+const countryCenters: Record<string, { lat: number; lng: number; label: string }> = {
+  japonya: { lat: 36.2048, lng: 138.2529, label: "Japonya" },
+  "güney kore": { lat: 36.5, lng: 127.9, label: "Güney Kore" },
+  avustralya: { lat: -25.2744, lng: 133.7751, label: "Avustralya" },
+  "yeni zelanda": { lat: -40.9006, lng: 174.886, label: "Yeni Zelanda" },
+  çin: { lat: 35.8617, lng: 104.1954, label: "Çin" },
+  türkiye: { lat: 39.0, lng: 35.0, label: "Türkiye" }
+};
+
 function dayKey(date: Date) {
   const parts = new Intl.DateTimeFormat("en-CA", {
     timeZone: "Europe/Istanbul",
@@ -36,7 +45,7 @@ export default async function PassengerPage() {
   }
 
   const today = dayNumber(dayKey(new Date()));
-  const countriesThisWeek = new Set<string>();
+  const countriesThisWeek = new Map<string, { country: string; lat: number; lng: number; tourNames: Set<string> }>();
   for (const tour of tours) {
     for (const departure of tour.departures) {
       for (const day of tour.days) {
@@ -44,18 +53,29 @@ export default async function PassengerPage() {
         const date = new Date(departure.startDate);
         date.setDate(date.getDate() + (day.dateOffset ?? day.dayNumber - 1));
         const diff = dayNumber(dayKey(date)) - today;
-        if (diff >= 0 && diff <= 7) countriesThisWeek.add(day.country.toLocaleLowerCase("tr-TR"));
+        if (diff >= 0 && diff <= 7) {
+          const key = day.country.toLocaleLowerCase("tr-TR");
+          const fallback = countryCenters[key];
+          const lat = day.lat ?? fallback?.lat;
+          const lng = day.lng ?? fallback?.lng;
+          if (lat == null || lng == null) continue;
+          const current = countriesThisWeek.get(key) || { country: fallback?.label || day.country, lat, lng, tourNames: new Set<string>() };
+          current.tourNames.add(tour.name);
+          countriesThisWeek.set(key, current);
+        }
       }
     }
   }
-
-  const allDays = tours.flatMap((tour) =>
-    tour.days.map((day: any) => ({
-      ...day,
-      title: `${tour.name} • ${day.title}`,
-      highlightPulse: day.country ? countriesThisWeek.has(day.country.toLocaleLowerCase("tr-TR")) : false
-    }))
-  );
+  const weeklyCountryMarkers = Array.from(countriesThisWeek.values()).map((country, index) => ({
+    id: country.country,
+    dayNumber: index + 1,
+    title: `${country.country} • ${country.tourNames.size} tur`,
+    city: country.country,
+    country: country.country,
+    lat: country.lat,
+    lng: country.lng,
+    highlightPulse: true
+  }));
   const departures = tours.flatMap((tour) =>
     tour.departures.map((departure: any) => ({
       tour,
@@ -84,9 +104,9 @@ export default async function PassengerPage() {
       <section className="panel rounded-lg p-3">
         <div className="mb-2 flex flex-wrap items-center justify-between gap-2 px-1 text-sm text-slate-300">
           <span>Önümüzdeki 1 hafta içinde gidilecek ülkeler haritada yanıp söner.</span>
-          {countriesThisWeek.size ? <span className="text-mint">{Array.from(countriesThisWeek).join(", ")}</span> : <span className="text-slate-500">Bu hafta rota ülkesi yok</span>}
+          {countriesThisWeek.size ? <span className="text-mint">{Array.from(countriesThisWeek.values()).map((country) => country.country).join(", ")}</span> : <span className="text-slate-500">Bu hafta rota ülkesi yok</span>}
         </div>
-        <div className="h-[460px]"><PublicMap days={allDays} /></div>
+        <div className="h-[460px]"><PublicMap days={weeklyCountryMarkers} showRoute={false} /></div>
       </section>
       {groups.map((group) => (
         <section className="space-y-3" key={group.key}>

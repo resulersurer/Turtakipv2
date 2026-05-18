@@ -39,7 +39,19 @@ function FitBounds({ points }: { points: [number, number][] }) {
   return null;
 }
 
-export default function PassengerMap({ days, selectedDay, layer = "dark", onSelect }: { days: MapDay[]; selectedDay?: number; layer?: "dark" | "light" | "satellite"; onSelect?: (dayNumber: number) => void }) {
+export default function PassengerMap({
+  days,
+  selectedDay,
+  layer = "dark",
+  showRoute = true,
+  onSelect
+}: {
+  days: MapDay[];
+  selectedDay?: number;
+  layer?: "dark" | "light" | "satellite";
+  showRoute?: boolean;
+  onSelect?: (dayNumber: number) => void;
+}) {
   const points = days.filter((day) => day.lat != null && day.lng != null).map((day) => [day.lat as number, day.lng as number] as [number, number]);
   const tiles =
     layer === "satellite"
@@ -51,7 +63,7 @@ export default function PassengerMap({ days, selectedDay, layer = "dark", onSele
     <MapContainer className="h-full min-h-[360px] overflow-hidden rounded-md" center={points[0] || [39, 35]} zoom={points.length ? 4 : 2} scrollWheelZoom>
       <TileLayer attribution="&copy; OpenStreetMap contributors" url={tiles} />
       <FitBounds points={points} />
-      <Polyline positions={points} pathOptions={{ color: "#44d7b6", weight: 4 }} />
+      {showRoute && points.length > 1 ? <Polyline positions={points} pathOptions={{ color: "#44d7b6", weight: 4 }} /> : null}
       {days.map((day) =>
         day.lat != null && day.lng != null ? (
           <Marker key={day.id || day.dayNumber} position={[day.lat, day.lng]} icon={day.highlightPulse ? pulseIcon : icon} eventHandlers={{ click: () => onSelect?.(day.dayNumber) }}>
