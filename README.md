@@ -56,8 +56,9 @@ Supabase:
 1. Repo’yu Vercel’e bağlayın.
 2. Environment variables bölümüne `.env.example` içindeki değerleri ekleyin.
 3. Build command varsayılan olarak `npm run build`.
-4. `npm run build`, `prisma generate`, `prisma migrate deploy` ve `next build` adımlarını çalıştırır. Bu yüzden Vercel production ortamında `DATABASE_URL` deploy öncesinde tanımlı olmalıdır.
-5. Toplu import uzun sürebilir; Vercel planınızın serverless function timeout limitini kontrol edin.
+4. `npm run build`, `prisma generate`, varsa `prisma migrate deploy` ve `next build` adımlarını çalıştırır.
+5. Production’da uygulamanın çalışması için Vercel Project Settings > Environment Variables bölümünde `DATABASE_URL` mutlaka tanımlı olmalıdır. Tanımlı değilse build migration’ı atlar, uygulama production ayarları eksik ekranına düşer.
+6. Toplu import uzun sürebilir; Vercel planınızın serverless function timeout limitini kontrol edin.
 
 ## Prisma
 
