@@ -7,6 +7,8 @@ import { upsertImportedTour, serializeTour } from "@/lib/tours";
 import { prisma } from "@/lib/prisma";
 import { databaseMissingResponse, databaseSchemaMissingResponse, hasDatabaseUrl, isDatabaseSchemaReady } from "@/lib/db-ready";
 
+export const maxDuration = 300;
+
 export async function POST(request: NextRequest) {
   if (!hasDatabaseUrl()) return databaseMissingResponse();
   if (!(await isDatabaseSchemaReady())) return databaseSchemaMissingResponse();

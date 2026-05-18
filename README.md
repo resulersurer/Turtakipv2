@@ -56,7 +56,8 @@ Supabase:
 1. Repo’yu Vercel’e bağlayın.
 2. Environment variables bölümüne `.env.example` içindeki değerleri ekleyin.
 3. Build command varsayılan olarak `npm run build`.
-4. Deploy sonrası ilk migrate için lokalden prod `DATABASE_URL` ile `npx prisma migrate deploy` veya Vercel build pipeline’da ayrı migrate adımı kullanın.
+4. `npm run build`, `prisma generate`, `prisma migrate deploy` ve `next build` adımlarını çalıştırır. Bu yüzden Vercel production ortamında `DATABASE_URL` deploy öncesinde tanımlı olmalıdır.
+5. Toplu import uzun sürebilir; Vercel planınızın serverless function timeout limitini kontrol edin.
 
 ## Prisma
 
@@ -70,6 +71,12 @@ Production migration:
 
 ```bash
 npx prisma migrate deploy
+```
+
+Vercel deploy sırasında migration otomatik çalışır:
+
+```bash
+npm run build
 ```
 
 Prisma Studio:

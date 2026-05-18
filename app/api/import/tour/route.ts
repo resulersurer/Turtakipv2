@@ -6,6 +6,8 @@ import { parseTourPage } from "@/lib/import/parseTourPage";
 import { serializeTour, upsertImportedTour } from "@/lib/tours";
 import { databaseMissingResponse, databaseSchemaMissingResponse, hasDatabaseUrl, isDatabaseSchemaReady } from "@/lib/db-ready";
 
+export const maxDuration = 120;
+
 export async function POST(request: NextRequest) {
   if (!hasDatabaseUrl()) return databaseMissingResponse();
   if (!(await isDatabaseSchemaReady())) return databaseSchemaMissingResponse();
