@@ -96,6 +96,17 @@ export async function saveTour(input: unknown, id?: string) {
   );
 }
 
+export async function deleteTour(id: string) {
+  await prisma.$transaction(async (tx) => {
+    await tx.importLog.updateMany({ where: { tourId: id }, data: { tourId: null } });
+    await tx.tourPrice.deleteMany({ where: { tourId: id } });
+    await tx.tourImage.deleteMany({ where: { tourId: id } });
+    await tx.tourDay.deleteMany({ where: { tourId: id } });
+    await tx.tourDeparture.deleteMany({ where: { tourId: id } });
+    await tx.tour.delete({ where: { id } });
+  });
+}
+
 export async function upsertImportedTour(parsed: ParsedTour) {
   const existing = await prisma.tour.findFirst({
     where: {
