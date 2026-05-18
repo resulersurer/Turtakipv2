@@ -48,9 +48,12 @@ export function inferDuration(text: string) {
 }
 
 export function inferExternalId(sourceUrl: string) {
-  const path = new URL(sourceUrl).pathname;
+  const url = new URL(sourceUrl);
+  const syprdky = url.searchParams.get("syprdky");
+  if (syprdky) return syprdky;
+  const path = url.pathname;
   const htmlId = path.match(/_([0-9]+)\.html/i)?.[1];
-  const contpg = new URL(sourceUrl).searchParams.get("contpg");
+  const contpg = url.searchParams.get("contpg");
   return htmlId || contpg || slugify(path);
 }
 
@@ -61,17 +64,34 @@ export function makeParsedBase(sourceUrl: string, name: string): Pick<ParsedTour
 
 export function inferCityCountry(title: string) {
   const cleaned = title.replace(/^\d+\.\s*g[uü]n\s*:?\s*/i, "").trim();
-  const parts = cleaned
-    .split(/[-–|>]/)
-    .map((part) =>
-      normalizeText(part)
-        .replace(/\b(varis|varış|sehir turu|şehir turu|transfer|otel|konaklama|serbest zaman|ucus|uçuş)\b/gi, "")
-        .trim()
-    )
-    .filter(Boolean);
-  const destination = parts.length > 1 && /istanbul|ist/i.test(parts[0]) ? parts[parts.length - 1] : parts[0] || cleaned;
-  const city = destination?.split(/[,&/]/)[0]?.trim() || null;
-  const country = /japon/i.test(cleaned) ? "Japonya" : /kore|seul|busan/i.test(cleaned) ? "Güney Kore" : null;
+  const knownCities = [
+    "TOKYO",
+    "OSAKA",
+    "KYOTO",
+    "NARA",
+    "KOBE",
+    "FUJI",
+    "HAKONE",
+    "KAMAKURA",
+    "SEUL",
+    "SEOUL",
+    "BUSAN",
+    "İSTANBUL",
+    "ISTANBUL"
+  ];
+  const hits = knownCities.filter((city) => new RegExp(`\\b${city}\\b`, "i").test(cleaned));
+  let city = hits[0] || null;
+  if (hits.length > 1) {
+    if (/dönüş|donus|return/i.test(cleaned) && /istanbul/i.test(hits[hits.length - 1])) {
+      city = hits[0];
+    } else if (/istanbul/i.test(hits[0])) {
+      city = hits[1];
+    } else {
+      city = hits[hits.length - 1];
+    }
+  }
+  city = city === "SEOUL" ? "SEUL" : city;
+  const country = /seul|seoul|busan|kore/i.test(city || cleaned) ? "Güney Kore" : /tokyo|osaka|kyoto|nara|kobe|fuji|hakone|kamakura|japon/i.test(city || cleaned) ? "Japonya" : null;
   return { city, country };
 }
 

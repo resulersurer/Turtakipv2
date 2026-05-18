@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarDays, Copy, Eye, Pencil, Plane, Trash2 } from "lucide-react";
+import { CalendarDays, Copy, Eye, Pencil, Plane, Send, Trash2 } from "lucide-react";
 
 type Tour = {
   id: string;
@@ -39,7 +39,8 @@ export function TourCard({ tour, admin = false }: { tour: Tour; admin?: boolean 
           {admin ? (
             <>
               <Link className="btn" href={`/admin/tours/${tour.id}`} title="Düzenle"><Pencil size={16} />Düzenle</Link>
-              <Link className="btn" href={`/passenger/${tour.id}`} title="Yolcu görünümü"><Eye size={16} />Yolcu</Link>
+              {tour.status === "PUBLISHED" ? <Link className="btn" href={`/passenger/${tour.id}`} title="Yolcu görünümü"><Eye size={16} />Yolcu</Link> : null}
+              {tour.status !== "PUBLISHED" ? <form action={`/api/tours/${tour.id}/publish`} method="post"><button className="btn-primary rounded-md" title="Yayınla"><Send size={16} />Yayınla</button></form> : null}
               <form action={`/api/tours/${tour.id}/duplicate`} method="post"><button className="btn" title="Kopyala"><Copy size={16} />Kopyala</button></form>
               <button className="btn" data-delete-tour={tour.id} title="Sil"><Trash2 size={16} />Sil</button>
             </>

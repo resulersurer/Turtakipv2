@@ -45,8 +45,12 @@ function absolutize(url: string, sourceUrl: string) {
 function extractLabel(text: string, labels: string[]) {
   for (const label of labels) {
     const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const match = text.match(new RegExp(`${escaped}\\s*:?\\s*([^|\\n\\r]{2,80})`, "i"));
-    if (match?.[1]) return normalizeText(match[1]).replace(/\s{2,}.*/, "");
+    const match = text.match(new RegExp(`${escaped}\\s*:?\\s*([^|\\n\\r]{2,160})`, "i"));
+    if (match?.[1]) {
+      return normalizeText(match[1])
+        .replace(/\s*(Vize|Vize Durumu|Havayolu|Hava Yolu|Kalkış|Kalkis|Lütfen|Tura Katılmak|Tur Tarihleri|Fiyat|Program).*$/i, "")
+        .trim();
+    }
   }
   return null;
 }
@@ -59,8 +63,8 @@ function extractDays($: cheerio.CheerioAPI) {
     const dayNumber = titleMatch ? Number(titleMatch[1]) : index + 1;
     const title = normalizeText(titleMatch?.[2] || `${dayNumber}. Gün`);
     const { city, country } = inferCityCountry(title);
-    const hotel = chunk.match(/(?:otel|konaklama)\s*:?\s*([^\.]{4,120})/i)?.[1];
-    const flight = chunk.match(/(?:uçuş|ucus)\s*:?\s*([^\.]{4,120})/i)?.[1];
+    const hotel = chunk.match(/(?:📌\s*)?Otel\s*:?\s*([^\.]{4,160})/i)?.[1];
+    const flight = chunk.match(/(?:Uçuş Bilgileri|Ucus Bilgileri)\s*:?\s*([^\.]{4,180})/i)?.[1];
     return {
       dayNumber,
       title,
@@ -100,7 +104,10 @@ export async function parseTourHtml(html: string, sourceUrl: string): Promise<Pa
     const src = $(element).attr("src") || $(element).attr("data-src");
     const url = src ? absolutize(src, sourceUrl) : null;
     const lower = url?.toLowerCase() || "";
-    const looksLikeTourImage = url && !/logo|icon|sprite|loading|blank|whatsapp|facebook|instagram/.test(lower);
+    const looksLikeTourImage =
+      url &&
+      !lower.includes("data:image") &&
+      !/logo|icon|sprite|loading|blank|whatsapp|facebook|instagram|layout|tursab|iata|develitema|thy_v/i.test(lower);
     if (looksLikeTourImage && !parsed.images.some((image) => image.url === url)) {
       parsed.images.push({ url, alt: normalizeText($(element).attr("alt")), sortOrder: index });
     }
@@ -130,7 +137,7 @@ export async function parseTourHtml(html: string, sourceUrl: string): Promise<Pa
   });
 
   const globalPrice = parsePrice(pageText);
-  if (globalPrice) {
+  if (globalPrice && globalPrice.amount >= 100) {
     parsed.prices.push({ roomType: "İki Kişilik Odada Kişi Başı", adultPrice: globalPrice.amount, childPrice: null, currency: globalPrice.currency });
   }
 
