@@ -1,0 +1,117 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TourStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ImportStatus {
+  SUCCESS
+  FAILED
+  PARTIAL
+}
+
+model Tour {
+  id            String          @id @default(cuid())
+  externalId    String?         @unique
+  sourceUrl     String?         @unique
+  slug          String          @unique
+  name          String
+  durationDays  Int?
+  departureCity String?
+  airline       String?
+  visaStatus    String?
+  status        TourStatus      @default(DRAFT)
+  coverImageUrl String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  importedAt    DateTime?
+  departures    TourDeparture[]
+  days          TourDay[]
+  images        TourImage[]
+  prices        TourPrice[]
+  importLogs    ImportLog[]
+
+  @@index([status])
+  @@index([slug])
+}
+
+model TourDeparture {
+  id                 String      @id @default(cuid())
+  tourId             String
+  startDate          DateTime
+  endDate            DateTime?
+  label              String?
+  price              Decimal?    @db.Decimal(12, 2)
+  currency           String      @default("EUR")
+  availabilityStatus String?
+  tour               Tour        @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  prices             TourPrice[]
+
+  @@unique([tourId, startDate])
+  @@index([startDate])
+}
+
+model TourDay {
+  id          String   @id @default(cuid())
+  tourId      String
+  dayNumber   Int
+  title       String
+  dateOffset  Int      @default(0)
+  hour        String?
+  city        String?
+  country     String?
+  description String?
+  hotelInfo   String?
+  flightInfo  String?
+  photoUrl    String?
+  lat         Float?
+  lng         Float?
+  sortOrder   Int      @default(0)
+  tour        Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
+  @@unique([tourId, dayNumber])
+  @@index([sortOrder])
+}
+
+model TourImage {
+  id        String @id @default(cuid())
+  tourId    String
+  url       String
+  alt       String?
+  sortOrder Int    @default(0)
+  tour      Tour   @relation(fields: [tourId], references: [id], onDelete: Cascade)
+}
+
+model TourPrice {
+  id          String         @id @default(cuid())
+  tourId      String
+  departureId String?
+  roomType    String
+  adultPrice  Decimal?       @db.Decimal(12, 2)
+  childPrice  Decimal?       @db.Decimal(12, 2)
+  currency    String         @default("EUR")
+  tour        Tour           @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  departure   TourDeparture? @relation(fields: [departureId], references: [id], onDelete: SetNull)
+}
+
+model ImportLog {
+  id         String       @id @default(cuid())
+  sourceUrl  String
+  tourId     String?
+  status     ImportStatus
+  message    String
+  rawSummary Json?
+  createdAt  DateTime     @default(now())
+  tour       Tour?        @relation(fields: [tourId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+}

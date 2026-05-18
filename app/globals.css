@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import "leaflet/dist/leaflet.css";
+
+:root {
+  color-scheme: dark;
+  background: #071016;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at top left, rgba(68, 215, 182, 0.08), transparent 34rem),
+    linear-gradient(135deg, #071016 0%, #0d1b20 48%, #10231f 100%);
+  color: #ecfdf7;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.leaflet-container {
+  min-height: 100%;
+  width: 100%;
+  background: #0a161b;
+}
+
+@layer components {
+  .page-shell {
+    @apply mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8;
+  }
+
+  .panel {
+    @apply border border-line bg-panel/85 shadow-glow backdrop-blur;
+  }
+
+  .input {
+    @apply w-full rounded-md border border-line bg-ink/80 px-3 py-2 text-sm text-white outline-none ring-mint/20 placeholder:text-slate-500 focus:border-mint focus:ring-4;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-md border border-line bg-slate-900 px-3 py-2 text-sm font-medium text-white transition hover:border-mint hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-primary {
+    @apply border-mint/40 bg-mint px-3 py-2 text-sm font-semibold text-ink hover:bg-mint/90;
+  }
+
+  .badge {
+    @apply inline-flex items-center rounded-md border border-line bg-ink/70 px-2 py-1 text-xs text-slate-200;
+  }
+}
