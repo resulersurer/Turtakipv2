@@ -9,6 +9,22 @@ import { classifyDeparture, departureRelativeLabel, formatDepartureRange } from 
 
 export const dynamic = "force-dynamic";
 
+function dayKey(date: Date) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Istanbul",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).formatToParts(date);
+  const get = (type: string) => parts.find((part) => part.type === type)?.value;
+  return `${get("year")}-${get("month")}-${get("day")}`;
+}
+
+function dayNumber(key: string) {
+  const [year, month, day] = key.split("-").map(Number);
+  return Date.UTC(year, month - 1, day) / 86400000;
+}
+
 export default async function PassengerPage() {
   if (!hasDatabaseUrl() || !(await isDatabaseSchemaReady())) return <SetupNotice />;
   let tours: any[];
@@ -18,7 +34,28 @@ export default async function PassengerPage() {
     if (isPrismaSetupError(error)) return <SetupNotice />;
     throw error;
   }
-  const allDays = tours.flatMap((tour) => tour.days.map((day: any) => ({ ...day, title: `${tour.name} • ${day.title}` })));
+
+  const today = dayNumber(dayKey(new Date()));
+  const countriesThisWeek = new Set<string>();
+  for (const tour of tours) {
+    for (const departure of tour.departures) {
+      for (const day of tour.days) {
+        if (!day.country) continue;
+        const date = new Date(departure.startDate);
+        date.setDate(date.getDate() + (day.dateOffset ?? day.dayNumber - 1));
+        const diff = dayNumber(dayKey(date)) - today;
+        if (diff >= 0 && diff <= 7) countriesThisWeek.add(day.country.toLocaleLowerCase("tr-TR"));
+      }
+    }
+  }
+
+  const allDays = tours.flatMap((tour) =>
+    tour.days.map((day: any) => ({
+      ...day,
+      title: `${tour.name} • ${day.title}`,
+      highlightPulse: day.country ? countriesThisWeek.has(day.country.toLocaleLowerCase("tr-TR")) : false
+    }))
+  );
   const departures = tours.flatMap((tour) =>
     tour.departures.map((departure: any) => ({
       tour,
@@ -34,10 +71,23 @@ export default async function PassengerPage() {
     { key: "future", label: "Gelecek turlar" },
     { key: "past", label: "Geçmiş turlar" }
   ].map((group) => ({ ...group, items: departures.filter((item) => item.status === group.key) }));
+
   return (
     <main className="page-shell space-y-6">
-      <header className="flex items-center justify-between gap-3"><div><h1 className="text-2xl font-semibold">Yolcu tur takip</h1><p className="text-slate-400">Yayındaki turların rota ve timeline görünümü.</p></div><Link className="btn" href="/tours">Tur listesi</Link></header>
-      <section className="panel rounded-lg p-3"><div className="h-[460px]"><PublicMap days={allDays} /></div></section>
+      <header className="flex items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold">Yolcu tur takip</h1>
+          <p className="text-slate-400">Yayındaki turların rota ve timeline görünümü.</p>
+        </div>
+        <Link className="btn" href="/tours">Tur listesi</Link>
+      </header>
+      <section className="panel rounded-lg p-3">
+        <div className="mb-2 flex flex-wrap items-center justify-between gap-2 px-1 text-sm text-slate-300">
+          <span>Önümüzdeki 1 hafta içinde gidilecek ülkeler haritada yanıp söner.</span>
+          {countriesThisWeek.size ? <span className="text-mint">{Array.from(countriesThisWeek).join(", ")}</span> : <span className="text-slate-500">Bu hafta rota ülkesi yok</span>}
+        </div>
+        <div className="h-[460px]"><PublicMap days={allDays} /></div>
+      </section>
       {groups.map((group) => (
         <section className="space-y-3" key={group.key}>
           <h2 className="text-lg font-semibold">{group.label}</h2>

@@ -12,6 +12,7 @@ export type MapDay = {
   country?: string | null;
   lat?: number | null;
   lng?: number | null;
+  highlightPulse?: boolean;
 };
 
 const icon = new L.Icon({
@@ -19,6 +20,14 @@ const icon = new L.Icon({
   shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
   iconSize: [25, 41],
   iconAnchor: [12, 41]
+});
+
+const pulseIcon = L.divIcon({
+  className: "tour-pulse-marker",
+  html: '<span class="tour-pulse-marker__ring"></span><span class="tour-pulse-marker__dot"></span>',
+  iconSize: [34, 34],
+  iconAnchor: [17, 17],
+  popupAnchor: [0, -18]
 });
 
 function FitBounds({ points }: { points: [number, number][] }) {
@@ -45,7 +54,7 @@ export default function PassengerMap({ days, selectedDay, layer = "dark", onSele
       <Polyline positions={points} pathOptions={{ color: "#44d7b6", weight: 4 }} />
       {days.map((day) =>
         day.lat != null && day.lng != null ? (
-          <Marker key={day.id || day.dayNumber} position={[day.lat, day.lng]} icon={icon} eventHandlers={{ click: () => onSelect?.(day.dayNumber) }}>
+          <Marker key={day.id || day.dayNumber} position={[day.lat, day.lng]} icon={day.highlightPulse ? pulseIcon : icon} eventHandlers={{ click: () => onSelect?.(day.dayNumber) }}>
             <Popup>
               <strong>
                 {day.dayNumber}. Gün {selectedDay === day.dayNumber ? "•" : ""}

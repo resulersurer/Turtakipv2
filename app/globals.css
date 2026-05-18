@@ -31,6 +31,46 @@ a {
   background: #0a161b;
 }
 
+.tour-pulse-marker {
+  position: relative;
+}
+
+.tour-pulse-marker__dot,
+.tour-pulse-marker__ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border-radius: 9999px;
+  transform: translate(-50%, -50%);
+}
+
+.tour-pulse-marker__dot {
+  width: 14px;
+  height: 14px;
+  border: 2px solid #ecfdf7;
+  background: #44d7b6;
+  box-shadow: 0 0 18px rgba(68, 215, 182, 0.95);
+}
+
+.tour-pulse-marker__ring {
+  width: 34px;
+  height: 34px;
+  border: 2px solid rgba(68, 215, 182, 0.8);
+  background: rgba(68, 215, 182, 0.18);
+  animation: tour-pulse 1.35s ease-out infinite;
+}
+
+@keyframes tour-pulse {
+  0% {
+    opacity: 0.95;
+    transform: translate(-50%, -50%) scale(0.45);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.55);
+  }
+}
+
 @layer components {
   .page-shell {
     @apply mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8;
