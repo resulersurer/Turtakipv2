@@ -19,8 +19,21 @@ export function serializeTour<T>(tour: T): T {
   );
 }
 
+function uniqueBy<T>(items: T[], key: (item: T) => string) {
+  const seen = new Set<string>();
+  return items.filter((item) => {
+    const value = key(item);
+    if (seen.has(value)) return false;
+    seen.add(value);
+    return true;
+  });
+}
+
 export async function saveTour(input: unknown, id?: string) {
   const data = tourWriteSchema.parse(input);
+  const departures = uniqueBy(data.departures, (departure) => departure.startDate.toISOString());
+  const days = uniqueBy(data.days, (day) => String(day.dayNumber));
+  const images = uniqueBy(data.images, (image) => image.url);
   const base = {
     externalId: data.externalId,
     sourceUrl: data.sourceUrl,
@@ -43,9 +56,9 @@ export async function saveTour(input: unknown, id?: string) {
     await tx.tourDay.deleteMany({ where: { tourId: tour.id } });
     await tx.tourImage.deleteMany({ where: { tourId: tour.id } });
     await tx.tourPrice.deleteMany({ where: { tourId: tour.id } });
-    if (data.departures.length) {
+    if (departures.length) {
       await tx.tourDeparture.createMany({
-        data: data.departures.map((departure) => ({
+        data: departures.map((departure) => ({
           tourId: tour.id,
           startDate: departure.startDate,
           endDate: departure.endDate,
@@ -53,14 +66,15 @@ export async function saveTour(input: unknown, id?: string) {
           price: departure.price,
           currency: departure.currency,
           availabilityStatus: departure.availabilityStatus
-        }))
+        })),
+        skipDuplicates: true
       });
     }
-    if (data.days.length) {
-      await tx.tourDay.createMany({ data: data.days.map((day) => ({ ...day, tourId: tour.id })) });
+    if (days.length) {
+      await tx.tourDay.createMany({ data: days.map((day) => ({ ...day, tourId: tour.id })), skipDuplicates: true });
     }
-    if (data.images.length) {
-      await tx.tourImage.createMany({ data: data.images.map((image) => ({ ...image, tourId: tour.id })) });
+    if (images.length) {
+      await tx.tourImage.createMany({ data: images.map((image) => ({ ...image, tourId: tour.id })) });
     }
     if (data.prices.length) {
       await tx.tourPrice.createMany({

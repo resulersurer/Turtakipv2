@@ -124,6 +124,10 @@ export async function parseTourHtml(html: string, sourceUrl: string): Promise<Pa
       availabilityStatus: null
     };
   });
+  parsed.departures = parsed.departures.filter((departure, index, all) => {
+    const key = departure.startDate.toISOString().slice(0, 10);
+    return all.findIndex((item) => item.startDate.toISOString().slice(0, 10) === key) === index;
+  });
 
   const globalPrice = parsePrice(pageText);
   if (globalPrice) {
