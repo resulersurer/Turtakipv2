@@ -73,7 +73,7 @@ export function PassengerTracker({ tour }: { tour: { name: string; days: Day[]; 
         <TourTimeline days={ordered} selected={selected} onSelect={setSelected} />
       </aside>
       <section className="grid gap-4 lg:grid-rows-[minmax(360px,1fr)_auto]">
-        <div className="panel rounded-lg p-3"><PassengerMap days={ordered} selectedDay={selected} layer={layer} onSelect={setSelected} /></div>
+        <div className="panel rounded-lg p-3"><PassengerMap days={ordered} selectedDay={selected} layer={layer} followSelected onSelect={setSelected} /></div>
         {current ? (
           <article className="panel grid gap-4 rounded-lg p-4 md:grid-cols-[220px_minmax(0,1fr)]">
             {current.photoUrl ? <div className="h-44 rounded-md bg-cover bg-center" style={{ backgroundImage: `url(${current.photoUrl})` }} /> : <div className="h-44 rounded-md bg-ink" />}

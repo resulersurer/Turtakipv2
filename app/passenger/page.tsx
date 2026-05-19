@@ -108,7 +108,7 @@ export default async function PassengerPage() {
           <span>Önümüzdeki 1 hafta içinde gidilecek ülkeler haritada yanıp söner.</span>
           {countriesThisWeek.size ? <span className="text-mint">{Array.from(countriesThisWeek.values()).map((country) => country.country).join(", ")}</span> : <span className="text-slate-500">Bu hafta rota ülkesi yok</span>}
         </div>
-        <div className="h-[460px]"><PublicMap days={weeklyCountryMarkers} showRoute={false} /></div>
+        <div className="h-[460px]"><PublicMap days={weeklyCountryMarkers} showRoute={false} layer="light" /></div>
       </section>
       {groups.map((group) => (
         <section className="space-y-3" key={group.key}>

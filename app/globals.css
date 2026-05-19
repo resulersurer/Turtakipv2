@@ -48,15 +48,15 @@ a {
   width: 14px;
   height: 14px;
   border: 2px solid #ecfdf7;
-  background: #44d7b6;
-  box-shadow: 0 0 18px rgba(68, 215, 182, 0.95);
+  background: #ef4444;
+  box-shadow: 0 0 18px rgba(239, 68, 68, 0.95);
 }
 
 .tour-pulse-marker__ring {
   width: 34px;
   height: 34px;
-  border: 2px solid rgba(68, 215, 182, 0.8);
-  background: rgba(68, 215, 182, 0.18);
+  border: 2px solid rgba(239, 68, 68, 0.82);
+  background: rgba(239, 68, 68, 0.18);
   animation: tour-pulse 1.35s ease-out infinite;
 }
 
