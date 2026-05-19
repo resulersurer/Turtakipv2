@@ -26,10 +26,11 @@ export default async function PassengerTourPage({ params, searchParams }: { para
   return (
     <main className="p-3">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <div>
-          {departure ? <span className="badge">{formatDepartureRange(departure)} • {departureRelativeLabel(departure)}</span> : null}
+        <div>{departure ? <span className="badge">{formatDepartureRange(departure)} · {departureRelativeLabel(departure)}</span> : null}</div>
+        <div className="flex gap-2">
+          {tour.slug ? <Link className="btn" href={`/tour/${tour.slug}`}>Tur detayı</Link> : null}
+          <Link className="btn" href="/passenger">Tüm turlar</Link>
         </div>
-        <Link className="btn" href="/passenger">Tüm turlar</Link>
       </div>
       <PassengerTracker tour={{ ...tour, selectedDeparture: departure }} />
     </main>
