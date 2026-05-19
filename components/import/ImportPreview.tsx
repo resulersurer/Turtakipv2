@@ -10,7 +10,8 @@ type ImportResult = {
   error?: string;
 };
 
-const DEFAULT_BATCH_SIZE = 5;
+const DEFAULT_BATCH_SIZE = 3;
+const BATCH_PAUSE_MS = 2500;
 
 function titleFromUrl(url: string) {
   try {
@@ -34,6 +35,10 @@ export function ImportPreview({ mode }: { mode: "tour" | "list" }) {
   const successCount = imports.filter((item) => item.status === "SUCCESS").length;
   const failedCount = imports.filter((item) => item.status === "FAILED").length;
   const doneCount = successCount + failedCount;
+
+  function wait(ms: number) {
+    return new Promise((resolve) => window.setTimeout(resolve, ms));
+  }
 
   async function run() {
     setBusy(true);
@@ -103,8 +108,18 @@ export function ImportPreview({ mode }: { mode: "tour" | "list" }) {
       const urls = currentPending.slice(0, batchSize).map((item) => item.url);
       if (!urls.length) break;
       await importBatch(urls);
+      await wait(BATCH_PAUSE_MS);
       guard += 1;
     }
+    setBusy(false);
+  }
+
+  async function retryFailed() {
+    const urls = imports.filter((item) => item.status === "FAILED").slice(0, batchSize).map((item) => item.url);
+    setBusy(true);
+    setImports((current) => current.map((item) => urls.includes(item.url) ? { ...item, status: "PENDING", error: undefined } : item));
+    await wait(500);
+    await importBatch(urls);
     setBusy(false);
   }
 
@@ -113,7 +128,7 @@ export function ImportPreview({ mode }: { mode: "tour" | "list" }) {
       <div className="mb-3">
         <h2 className="font-semibold">{isList ? "Liste URL'den detay linklerini bul" : "Tek tur detay import"}</h2>
         <p className="text-sm text-slate-400">
-          {isList ? "Liste URL'si sadece detay linklerini çıkarır. İçe aktarma güvenli parçalar halinde yapılır." : "Tek bir tur detay URL'sini taslak olarak içe aktarır."}
+          {isList ? "Liste URL'si sadece detay linklerini çıkarır. İçe aktarma yavaşlatılmış güvenli partiler halinde yapılır." : "Tek bir tur detay URL'sini taslak olarak içe aktarır."}
         </p>
       </div>
       <div className="flex flex-col gap-3 md:flex-row">
@@ -136,19 +151,21 @@ export function ImportPreview({ mode }: { mode: "tour" | "list" }) {
                 <p>{result.found} tur detay linki bulundu.</p>
                 <div className="flex flex-wrap items-center gap-2">
                   <select className="input w-24" value={batchSize} onChange={(event) => setBatchSize(Number(event.target.value))} disabled={busy}>
+                    <option value={1}>1'li</option>
+                    <option value={2}>2'li</option>
                     <option value={3}>3'lü</option>
                     <option value={5}>5'li</option>
-                    <option value={8}>8'li</option>
                   </select>
                   <button className="btn" onClick={importNextBatch} disabled={busy || !pending.length}>Sıradaki partiyi aktar</button>
                   <button className="btn-primary rounded-md" onClick={importAllBatches} disabled={busy || !pending.length}>Tümünü partlarla aktar</button>
+                  <button className="btn" onClick={retryFailed} disabled={busy || !failedCount}>Hatalıları tekrar dene</button>
                 </div>
               </div>
               {imports.length ? (
                 <div className="rounded-md border border-line bg-ink p-3">
                   <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-slate-300">
                     <span>İlerleme: {doneCount}/{imports.length} tamamlandı · {successCount} başarılı · {failedCount} hatalı · {processingCount} işleniyor</span>
-                    <span className="text-xs text-slate-500">Her parti ayrı request olarak çalışır; hata diğer linkleri durdurmaz.</span>
+                    <span className="text-xs text-slate-500">Partiler arasında kısa bekleme var; hatalı linkler tekrar denenebilir.</span>
                   </div>
                   <div className="h-2 overflow-hidden rounded-full bg-slate-800">
                     <div className="h-full bg-mint transition-all" style={{ width: `${imports.length ? (doneCount / imports.length) * 100 : 0}%` }} />

@@ -9,8 +9,12 @@ import { databaseMissingResponse, databaseSchemaMissingResponse, hasDatabaseUrl,
 export const maxDuration = 120;
 
 const batchSchema = z.object({
-  urls: z.array(z.string().url()).min(1).max(10)
+  urls: z.array(z.string().url()).min(1).max(5)
 });
+
+function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 export async function POST(request: NextRequest) {
   if (!hasDatabaseUrl()) return databaseMissingResponse();
@@ -46,6 +50,7 @@ export async function POST(request: NextRequest) {
       await prisma.importLog.create({ data: { sourceUrl: url, status: "FAILED", message } });
       results.push({ url, status: "FAILED", error: message });
     }
+    await wait(900 + Math.floor(Math.random() * 700));
   }
 
   return NextResponse.json({

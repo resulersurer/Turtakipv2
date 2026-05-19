@@ -35,6 +35,33 @@ function parseTurkishDate(raw: string) {
   return new Date(Number(match[3]), month, Number(match[1]));
 }
 
+function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function fetchTourPageWithRetry(sourceUrl: string) {
+  const attempts = 4;
+  let lastError: unknown;
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      const response = await fetch(sourceUrl, {
+        headers: {
+          "User-Agent": "Mozilla/5.0 (compatible; EjderTourTracker/1.0; +https://ejderturizm.com.tr)",
+          Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+        },
+        cache: "no-store",
+        signal: AbortSignal.timeout(25000)
+      });
+      if (response.ok || (response.status < 500 && response.status !== 429)) return response;
+      lastError = new Error(`Sayfa alinamadi: ${response.status}`);
+    } catch (error) {
+      lastError = error;
+    }
+    if (attempt < attempts) await wait(1200 * attempt + Math.floor(Math.random() * 900));
+  }
+  throw lastError instanceof Error ? lastError : new Error("fetch failed");
+}
+
 function absolutize(url: string, sourceUrl: string) {
   try {
     if (/^(file|data):/i.test(url)) return null;
@@ -220,7 +247,7 @@ export async function parseTourHtml(html: string, sourceUrl: string): Promise<Pa
 }
 
 export async function parseTourPage(sourceUrl: string) {
-  const response = await fetch(sourceUrl, { headers: { "User-Agent": "ejder-tour-tracker-import/1.0" }, cache: "no-store" });
+  const response = await fetchTourPageWithRetry(sourceUrl);
   if (!response.ok) throw new Error(`Sayfa alınamadı: ${response.status}`);
   return parseTourHtml(await response.text(), sourceUrl);
 }
