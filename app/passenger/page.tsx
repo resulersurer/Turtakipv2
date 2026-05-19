@@ -158,20 +158,25 @@ export default async function PassengerPage() {
               {group.items.map(({ tour, departure, relative, range }) => {
                 const meta = compactTourMeta([tour.durationDays ? `${tour.durationDays} gün` : null, tour.departureCity, tour.airline]);
                 return (
-                  <Link className={`panel overflow-hidden rounded-lg border transition ${group.card}`} href={`/passenger/${tour.id}?departureId=${departure.id}`} key={`${tour.id}-${departure.id}`}>
-                    {tour.coverImageUrl ? <div className="h-32 bg-cover bg-center" style={{ backgroundImage: `url(${tour.coverImageUrl})` }} /> : <div className="h-2 bg-mint" />}
-                    <div className="p-4">
-                      <div className="flex items-center justify-between gap-3">
+                  <Link className={`panel group overflow-hidden rounded-lg border transition hover:-translate-y-0.5 ${group.card}`} href={`/passenger/${tour.id}?departureId=${departure.id}`} key={`${tour.id}-${departure.id}`}>
+                    <div className="relative flex aspect-[16/9] items-center justify-center overflow-hidden bg-slate-950">
+                      {tour.coverImageUrl ? <img src={tour.coverImageUrl} alt={tour.name} className="h-full w-full object-contain transition duration-500 group-hover:scale-[1.02]" /> : <div className="h-full w-full bg-gradient-to-br from-emerald-500/20 via-slate-900 to-sky-500/20" />}
+                      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-slate-950/85 to-transparent" />
+                    </div>
+                    <div className="relative space-y-4 p-5 pt-4">
+                      <div className="flex items-start justify-between gap-3">
                         <span className="badge">{range}</span>
-                        <span className="flex h-14 w-14 shrink-0 items-center justify-center overflow-visible">
-                          <img src={group.iconSrc} alt="" className="h-14 w-14 object-contain drop-shadow-[0_0_14px_rgba(255,255,255,0.18)]" />
+                        <span className="-mt-10 flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-slate-950/85 p-1.5 shadow-2xl backdrop-blur">
+                          <img src={group.iconSrc} alt="" className="h-full w-full object-contain drop-shadow-[0_0_12px_rgba(255,255,255,0.16)]" />
                         </span>
                       </div>
-                      <h3 className="mt-3 font-semibold">{tour.name}</h3>
-                      {meta ? <p className="mt-2 text-sm text-slate-400">{meta}</p> : null}
-                      <div className="mt-3 flex items-center justify-between gap-3 text-sm">
+                      <div>
+                        <h3 className="text-lg font-semibold leading-snug text-white">{tour.name}</h3>
+                        {meta ? <p className="mt-2 text-sm text-slate-400">{meta}</p> : null}
+                      </div>
+                      <div className="flex items-end justify-between gap-3 text-sm">
                         <p className="text-slate-300">{tour.days.length} günlük rota, {tour.days.filter((day: any) => day.lat != null && day.lng != null).length} harita noktası</p>
-                        <span className="text-xs font-semibold" style={{ color: group.color }}>{relative}</span>
+                        <span className="shrink-0 text-right text-xs font-semibold" style={{ color: group.color }}>{relative}</span>
                       </div>
                     </div>
                   </Link>

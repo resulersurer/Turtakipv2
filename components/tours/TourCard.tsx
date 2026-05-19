@@ -23,7 +23,9 @@ export function TourCard({ tour, admin = false }: { tour: Tour; admin?: boolean 
 
   return (
     <article className="panel overflow-hidden rounded-lg">
-      {tour.coverImageUrl ? <div className="h-36 bg-cover bg-center" style={{ backgroundImage: `url(${tour.coverImageUrl})` }} /> : <div className="h-2 bg-mint" />}
+      <div className="flex aspect-[16/9] items-center justify-center overflow-hidden bg-slate-950">
+        {tour.coverImageUrl ? <img src={tour.coverImageUrl} alt={tour.name} className="h-full w-full object-contain" /> : <div className="h-full w-full bg-gradient-to-br from-emerald-500/20 via-slate-900 to-sky-500/20" />}
+      </div>
       <div className="space-y-4 p-4">
         <div className="flex items-start justify-between gap-3">
           <div>
