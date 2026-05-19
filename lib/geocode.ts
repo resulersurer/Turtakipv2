@@ -1,3 +1,5 @@
+import { findCityInText } from "@/lib/location-data";
+
 export type GeocodeResult = {
   label: string;
   lat: number;
@@ -53,6 +55,18 @@ export async function geocode(query: string): Promise<GeocodeResult[]> {
   const key = query.trim().toLocaleLowerCase("tr-TR").replace("ı", "i");
   const hint = Object.keys(localHints).find((name) => key.includes(name));
   if (hint) return [localHints[hint]];
+  const cityMatch = findCityInText(query);
+  if (cityMatch) {
+    return [
+      {
+        label: `${cityMatch.city}, ${cityMatch.country || cityMatch.countryCode}`,
+        lat: cityMatch.lat,
+        lng: cityMatch.lng,
+        country: cityMatch.country || cityMatch.countryCode,
+        city: cityMatch.city
+      }
+    ];
+  }
   const url = new URL("https://nominatim.openstreetmap.org/search");
   url.searchParams.set("q", query);
   url.searchParams.set("format", "json");

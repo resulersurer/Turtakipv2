@@ -1,4 +1,5 @@
 import { slugify } from "@/lib/slug";
+import { findCityInText } from "@/lib/location-data";
 
 export type ParsedTour = {
   externalId?: string | null;
@@ -175,9 +176,10 @@ export function inferCityCountry(title: string) {
     MUTIANYU: "PEKİN",
     "VIÑALES": "VINALES"
   };
-  city = city ? cityMap[city] || city : genericCityCandidate(cleaned);
+  const cityMatch = findCityInText(cleaned);
+  city = city ? cityMap[city] || city : cityMatch?.city || genericCityCandidate(cleaned);
   const target = city || cleaned;
-  const country = /seul|seoul|busan|kore/i.test(target)
+  const country = cityMatch?.country || (/seul|seoul|busan|kore/i.test(target)
     ? "Güney Kore"
     : /tokyo|osaka|kyoto|nara|kobe|fuji|hakone|kamakura|japon/i.test(target)
       ? "Japonya"
@@ -189,7 +191,7 @@ export function inferCityCountry(title: string) {
             ? "Çin"
             : /havana|pinar del rio|vinales|viñales|trinidad|santa clara|varadero|cienfuegos|kuba|küba|cuba/i.test(target)
               ? "Küba"
-              : null;
+              : null);
   return { city, country };
 }
 
