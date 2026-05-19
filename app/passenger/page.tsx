@@ -26,28 +26,32 @@ const statusUi = {
     count: "text-sky-200 bg-sky-500/15 border-sky-400/50",
     heading: "text-sky-200",
     card: "hover:border-sky-300 border-sky-400/50",
-    color: "#7dd3fc"
+    color: "#7dd3fc",
+    iconSrc: "/icons/tour-status/today.svg"
   },
   ongoing: {
     label: "Şu an gezen turlar",
     count: "text-amber-200 bg-amber-500/15 border-amber-400/50",
     heading: "text-amber-200",
     card: "hover:border-amber-300 border-amber-400/45",
-    color: "#fbbf24"
+    color: "#fbbf24",
+    iconSrc: "/icons/tour-status/ongoing.svg"
   },
   future: {
     label: "Gelecek turlar",
     count: "text-emerald-200 bg-emerald-500/15 border-emerald-400/50",
     heading: "text-emerald-200",
     card: "hover:border-emerald-300 border-emerald-400/45",
-    color: "#34d399"
+    color: "#34d399",
+    iconSrc: "/icons/tour-status/future.svg"
   },
   past: {
     label: "Geçmiş turlar",
     count: "text-slate-200 bg-slate-500/15 border-slate-400/40",
     heading: "text-slate-300",
     card: "hover:border-slate-300 border-line",
-    color: "#cbd5e1"
+    color: "#cbd5e1",
+    iconSrc: "/icons/tour-status/past.svg"
   }
 } as const;
 
@@ -159,7 +163,9 @@ export default async function PassengerPage() {
                     <div className="p-4">
                       <div className="flex items-center justify-between gap-3">
                         <span className="badge">{range}</span>
-                        <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: group.color, boxShadow: `0 0 14px ${group.color}` }} />
+                        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border bg-slate-950/70 p-1.5 shadow-lg" style={{ borderColor: group.color, boxShadow: `0 0 18px ${group.color}55` }}>
+                          <img src={group.iconSrc} alt="" className="h-full w-full object-contain" />
+                        </span>
                       </div>
                       <h3 className="mt-3 font-semibold">{tour.name}</h3>
                       {meta ? <p className="mt-2 text-sm text-slate-400">{meta}</p> : null}
