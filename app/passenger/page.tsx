@@ -6,6 +6,7 @@ import { hasDatabaseUrl, isDatabaseSchemaReady } from "@/lib/db-ready";
 import { SetupNotice } from "@/components/SetupNotice";
 import { isPrismaSetupError } from "@/lib/db-errors";
 import { classifyDeparture, departureRelativeLabel, formatDepartureRange } from "@/lib/departure-status";
+import { compactTourMeta } from "@/lib/display";
 
 export const dynamic = "force-dynamic";
 
@@ -113,20 +114,23 @@ export default async function PassengerPage() {
           <h2 className="text-lg font-semibold">{group.label}</h2>
           {group.items.length ? (
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {group.items.map(({ tour, departure, relative, range }) => (
-                <Link className="panel overflow-hidden rounded-lg transition hover:border-mint" href={`/passenger/${tour.id}?departureId=${departure.id}`} key={`${tour.id}-${departure.id}`}>
-                  {tour.coverImageUrl ? <div className="h-32 bg-cover bg-center" style={{ backgroundImage: `url(${tour.coverImageUrl})` }} /> : <div className="h-2 bg-mint" />}
-                  <div className="p-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="badge">{range}</span>
-                      <span className="text-xs text-mint">{relative}</span>
+              {group.items.map(({ tour, departure, relative, range }) => {
+                const meta = compactTourMeta([tour.durationDays ? `${tour.durationDays} gün` : null, tour.departureCity, tour.airline]);
+                return (
+                  <Link className="panel overflow-hidden rounded-lg transition hover:border-mint" href={`/passenger/${tour.id}?departureId=${departure.id}`} key={`${tour.id}-${departure.id}`}>
+                    {tour.coverImageUrl ? <div className="h-32 bg-cover bg-center" style={{ backgroundImage: `url(${tour.coverImageUrl})` }} /> : <div className="h-2 bg-mint" />}
+                    <div className="p-4">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="badge">{range}</span>
+                        <span className="text-xs text-mint">{relative}</span>
+                      </div>
+                      <h3 className="mt-3 font-semibold">{tour.name}</h3>
+                      {meta ? <p className="mt-1 text-sm text-slate-400">{meta}</p> : null}
+                      <p className="mt-2 text-sm text-slate-300">{tour.days.length} günlük rota, {tour.days.filter((day: any) => day.lat != null && day.lng != null).length} harita noktası</p>
                     </div>
-                    <h3 className="mt-3 font-semibold">{tour.name}</h3>
-                    <p className="mt-1 text-sm text-slate-400">{[tour.durationDays ? `${tour.durationDays} gün` : null, tour.departureCity, tour.airline].filter(Boolean).join(" • ")}</p>
-                    <p className="mt-2 text-sm text-slate-300">{tour.days.length} günlük rota, {tour.days.filter((day: any) => day.lat != null && day.lng != null).length} harita noktası</p>
-                  </div>
-                </Link>
-              ))}
+                  </Link>
+                );
+              })}
             </div>
           ) : (
             <div className="panel rounded-lg p-5 text-sm text-slate-400">Bu bölümde tur çıkışı yok.</div>

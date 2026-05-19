@@ -51,6 +51,76 @@ function titleLocation(title?: string | null) {
   return { city: match[1].trim(), country: match[2].trim() };
 }
 
+const locationHints = [
+  { city: "İstanbul", country: "Türkiye", keys: ["istanbul"] },
+  { city: "Tokyo", country: "Japonya", keys: ["tokyo"] },
+  { city: "Osaka", country: "Japonya", keys: ["osaka"] },
+  { city: "Kyoto", country: "Japonya", keys: ["kyoto"] },
+  { city: "Nara", country: "Japonya", keys: ["nara"] },
+  { city: "Kobe", country: "Japonya", keys: ["kobe"] },
+  { city: "Fuji", country: "Japonya", keys: ["fuji"] },
+  { city: "Hakone", country: "Japonya", keys: ["hakone"] },
+  { city: "Kamakura", country: "Japonya", keys: ["kamakura"] },
+  { city: "Seul", country: "Güney Kore", keys: ["seul", "seoul"] },
+  { city: "Busan", country: "Güney Kore", keys: ["busan"] },
+  { city: "Melbourne", country: "Avustralya", keys: ["melbourne"] },
+  { city: "Hobart", country: "Avustralya", keys: ["hobart"] },
+  { city: "Sydney", country: "Avustralya", keys: ["sydney"] },
+  { city: "Port Arthur", country: "Avustralya", keys: ["port arthur"] },
+  { city: "Blue Mountains", country: "Avustralya", keys: ["blue mountains"] },
+  { city: "Philip Island", country: "Avustralya", keys: ["philip island", "phillip island"] },
+  { city: "Auckland", country: "Yeni Zelanda", keys: ["auckland"] },
+  { city: "Rotorua", country: "Yeni Zelanda", keys: ["rotorua"] },
+  { city: "Waitomo", country: "Yeni Zelanda", keys: ["waitomo"] },
+  { city: "Taupo", country: "Yeni Zelanda", keys: ["taupo"] },
+  { city: "Hobbiton", country: "Yeni Zelanda", keys: ["hobbiton"] },
+  { city: "Xi'an", country: "Çin", keys: ["xi'an", "xi’an", "xian"] },
+  { city: "Pekin", country: "Çin", keys: ["pekin", "beijing"] },
+  { city: "Şanghay", country: "Çin", keys: ["şanghay", "sanghay", "shanghai", "shangai"] },
+  { city: "Chengdu", country: "Çin", keys: ["chengdu"] },
+  { city: "Pekin", country: "Çin", keys: ["mutianyu"] }
+];
+
+function normalizeLocationText(value: string) {
+  return value
+    .toLocaleLowerCase("tr-TR")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[’`]/g, "'")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function inferTitleLocation(title?: string | null) {
+  const direct = titleLocation(title);
+  if (direct) return direct;
+  const clean = (title || "")
+    .replace(/^\d+\.\s*g(?:u|ü)n\s*[•:\/-]?\s*/i, "")
+    .replace(/^[\s/:|—–-]+/, "")
+    .trim();
+  const normalized = normalizeLocationText(clean);
+  const hits = locationHints
+    .flatMap((hint) =>
+      hint.keys.flatMap((key) => {
+        const escaped = normalizeLocationText(key).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const index = normalized.search(new RegExp(`\\b${escaped}\\b`, "i"));
+        return index < 0 ? [] : [{ ...hint, index }];
+      })
+    )
+    .sort((a, b) => a.index - b.index);
+  if (!hits.length) return null;
+  if (hits.length === 1) return { city: hits[0].city, country: hits[0].country };
+
+  const firstNonIstanbul = hits.find((hit) => normalizeLocationText(hit.city) !== "istanbul");
+  if (/donus|dönüş|varis|varış|istanbul'a|istanbula/.test(normalized) && firstNonIstanbul) {
+    return { city: firstNonIstanbul.city, country: firstNonIstanbul.country };
+  }
+  if (normalizeLocationText(hits[0].city) === "istanbul") {
+    return { city: hits[1].city, country: hits[1].country };
+  }
+  return { city: hits[hits.length - 1].city, country: hits[hits.length - 1].country };
+}
+
 export function TourForm({ initial }: { initial?: Partial<TourFormData> }) {
   const router = useRouter();
   const [tour, setTour] = useState<TourFormData>({ ...blank, ...initial } as TourFormData);
@@ -101,11 +171,11 @@ export function TourForm({ initial }: { initial?: Partial<TourFormData> }) {
 
   useEffect(() => {
     const fillable = tour.days.find((day) => {
-      const location = titleLocation(day.title);
+      const location = inferTitleLocation(day.title);
       return location && (!day.city || !day.country);
     });
     if (fillable) {
-      const location = titleLocation(fillable.title);
+      const location = inferTitleLocation(fillable.title);
       if (location) {
         setTour((current) => ({
           ...current,

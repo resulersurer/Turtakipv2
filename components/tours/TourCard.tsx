@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CalendarDays, Copy, Eye, Pencil, Plane, Send, Trash2 } from "lucide-react";
+import { compactTourMeta } from "@/lib/display";
 
 type Tour = {
   id: string;
@@ -18,6 +19,8 @@ export function TourCard({ tour, admin = false }: { tour: Tour; admin?: boolean 
   const starts = (tour.departures || []).map((departure) => new Date(departure.startDate)).sort((a, b) => a.getTime() - b.getTime());
   const first = starts[0]?.toLocaleDateString("tr-TR", { day: "2-digit", month: "short", year: "numeric" });
   const last = starts.at(-1)?.toLocaleDateString("tr-TR", { day: "2-digit", month: "short", year: "numeric" });
+  const meta = compactTourMeta([tour.durationDays ? `${tour.durationDays} gün` : null, tour.departureCity, tour.airline]);
+
   return (
     <article className="panel overflow-hidden rounded-lg">
       {tour.coverImageUrl ? <div className="h-36 bg-cover bg-center" style={{ backgroundImage: `url(${tour.coverImageUrl})` }} /> : <div className="h-2 bg-mint" />}
@@ -25,7 +28,7 @@ export function TourCard({ tour, admin = false }: { tour: Tour; admin?: boolean 
         <div className="flex items-start justify-between gap-3">
           <div>
             <h3 className="text-base font-semibold text-white">{tour.name}</h3>
-            <p className="mt-1 text-sm text-slate-400">{[tour.durationDays ? `${tour.durationDays} gün` : null, tour.departureCity, tour.airline].filter(Boolean).join(" • ")}</p>
+            {meta ? <p className="mt-1 text-sm text-slate-400">{meta}</p> : null}
           </div>
           <span className="badge">{tour.status}</span>
         </div>

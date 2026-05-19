@@ -1,5 +1,6 @@
 import * as cheerio from "cheerio";
 import { geocode } from "@/lib/geocode";
+import { cleanImportedText } from "@/lib/display";
 import { inferCityCountry, inferDuration, makeParsedBase, normalizeText, ParsedTour, parsePrice } from "./normalizeTour";
 
 const dateMonths: Record<string, number> = {
@@ -48,9 +49,9 @@ function extractLabel(text: string, labels: string[]) {
     const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const match = text.match(new RegExp(`${escaped}\\s*:?\\s*([^|\\n\\r]{2,220})`, "i"));
     if (match?.[1]) {
-      return normalizeText(match[1])
+      return cleanImportedText(normalizeText(match[1])
         .replace(/\s*(Vize|Vize Durumu|Havayolu|Hava Yolu|Kalkış|Kalkis|Lütfen|Tura Katılmak|Tur Tarihleri|Fiyat|Program).*$/i, "")
-        .trim();
+        .trim());
     }
   }
   return null;

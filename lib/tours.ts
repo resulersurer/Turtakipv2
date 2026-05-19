@@ -2,6 +2,7 @@ import { Prisma, TourStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { tourWriteSchema } from "@/lib/validators";
 import type { ParsedTour } from "@/lib/import/normalizeTour";
+import { cleanImportedText } from "@/lib/display";
 
 export const tourInclude = {
   departures: { orderBy: { startDate: "asc" } },
@@ -40,9 +41,9 @@ export async function saveTour(input: unknown, id?: string) {
     slug: data.slug,
     name: data.name,
     durationDays: data.durationDays,
-    departureCity: data.departureCity,
-    airline: data.airline,
-    visaStatus: data.visaStatus,
+    departureCity: cleanImportedText(data.departureCity),
+    airline: cleanImportedText(data.airline),
+    visaStatus: cleanImportedText(data.visaStatus),
     status: data.status as TourStatus,
     coverImageUrl: data.coverImageUrl
   };
