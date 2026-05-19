@@ -163,8 +163,8 @@ export default async function PassengerPage() {
                     <div className="p-4">
                       <div className="flex items-center justify-between gap-3">
                         <span className="badge">{range}</span>
-                        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border bg-slate-950/70 p-1.5 shadow-lg" style={{ borderColor: group.color, boxShadow: `0 0 18px ${group.color}55` }}>
-                          <img src={group.iconSrc} alt="" className="h-full w-full object-contain" />
+                        <span className="flex h-14 w-14 shrink-0 items-center justify-center overflow-visible">
+                          <img src={group.iconSrc} alt="" className="h-14 w-14 object-contain drop-shadow-[0_0_14px_rgba(255,255,255,0.18)]" />
                         </span>
                       </div>
                       <h3 className="mt-3 font-semibold">{tour.name}</h3>
