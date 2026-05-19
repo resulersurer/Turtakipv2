@@ -35,6 +35,35 @@ a {
   position: relative;
 }
 
+.tour-red-pin {
+  position: relative;
+}
+
+.tour-red-pin__pin {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 28px;
+  height: 28px;
+  border: 3px solid #fff;
+  border-radius: 50% 50% 50% 0;
+  background: #d8453f;
+  box-shadow: 0 7px 12px rgba(20, 31, 46, 0.3);
+  transform: translateX(-50%) rotate(-45deg);
+}
+
+.tour-red-pin__pin::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: #fff;
+  transform: translate(-50%, -50%);
+}
+
 .tour-pulse-marker__dot,
 .tour-pulse-marker__ring {
   position: absolute;

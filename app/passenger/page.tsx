@@ -68,7 +68,9 @@ export default async function PassengerPage() {
       }
     }
   }
-  const weeklyCountryMarkers = Array.from(countriesThisWeek.values()).map((country, index) => ({
+
+  const weeklyCountries = Array.from(countriesThisWeek.values());
+  const weeklyCountryMarkers = weeklyCountries.map((country, index) => ({
     id: country.country,
     dayNumber: index + 1,
     title: `${country.country} • ${country.tourNames.size} tur`,
@@ -76,7 +78,8 @@ export default async function PassengerPage() {
     country: country.country,
     lat: country.lat,
     lng: country.lng,
-    highlightPulse: true
+    highlightPulse: true,
+    markerStyle: "pin" as const
   }));
   const departures = tours.flatMap((tour) =>
     tour.departures.map((departure: any) => ({
@@ -96,19 +99,17 @@ export default async function PassengerPage() {
 
   return (
     <main className="page-shell space-y-6">
-      <header className="flex items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold">Yolcu tur takip</h1>
-          <p className="text-slate-400">Yayındaki turların rota ve timeline görünümü.</p>
-        </div>
+      <header className="flex items-center justify-end gap-3">
         <Link className="btn" href="/tours">Tur listesi</Link>
       </header>
-      <section className="panel rounded-lg p-3">
-        <div className="mb-2 flex flex-wrap items-center justify-between gap-2 px-1 text-sm text-slate-300">
-          <span>Önümüzdeki 1 hafta içinde gidilecek ülkeler haritada yanıp söner.</span>
-          {countriesThisWeek.size ? <span className="text-mint">{Array.from(countriesThisWeek.values()).map((country) => country.country).join(", ")}</span> : <span className="text-slate-500">Bu hafta rota ülkesi yok</span>}
+      <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl">
+        <div className="relative z-[500] -mb-24 px-4 pt-4 text-center text-slate-800 sm:px-8">
+          <h1 className="text-2xl font-black tracking-normal sm:text-4xl">EjderTurizmle bu hafta dünyayı geziyoruz...</h1>
+          <p className="mt-3 text-sm font-bold uppercase tracking-normal text-slate-600 sm:text-base">
+            {weeklyCountries.length ? `${weeklyCountries.map((country) => country.country).join(", ")} · ${weeklyCountries.length} ülke` : "Bu hafta rota ülkesi yok"}
+          </p>
         </div>
-        <div className="h-[460px]"><PublicMap days={weeklyCountryMarkers} showRoute={false} layer="light" /></div>
+        <div className="h-[380px]"><PublicMap days={weeklyCountryMarkers} showRoute={false} layer="light" /></div>
       </section>
       {groups.map((group) => (
         <section className="space-y-3" key={group.key}>

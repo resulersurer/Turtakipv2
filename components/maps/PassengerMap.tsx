@@ -13,6 +13,7 @@ export type MapDay = {
   lat?: number | null;
   lng?: number | null;
   highlightPulse?: boolean;
+  markerStyle?: "pulse" | "pin";
 };
 
 const icon = new L.Icon({
@@ -28,6 +29,14 @@ const pulseIcon = L.divIcon({
   iconSize: [34, 34],
   iconAnchor: [17, 17],
   popupAnchor: [0, -18]
+});
+
+const redPinIcon = L.divIcon({
+  className: "tour-red-pin",
+  html: '<span class="tour-red-pin__pin"></span>',
+  iconSize: [34, 46],
+  iconAnchor: [17, 44],
+  popupAnchor: [0, -42]
 });
 
 function FitBounds({ points, pointsKey }: { points: [number, number][]; pointsKey: string }) {
@@ -81,7 +90,7 @@ export default function PassengerMap({
       {showRoute && points.length > 1 ? <Polyline positions={points} pathOptions={{ color: "#44d7b6", weight: 4 }} /> : null}
       {days.map((day) =>
         day.lat != null && day.lng != null ? (
-          <Marker key={day.id || day.dayNumber} position={[day.lat, day.lng]} icon={day.highlightPulse ? pulseIcon : icon} eventHandlers={{ click: () => onSelect?.(day.dayNumber) }}>
+          <Marker key={day.id || day.dayNumber} position={[day.lat, day.lng]} icon={day.markerStyle === "pin" ? redPinIcon : day.highlightPulse ? pulseIcon : icon} eventHandlers={{ click: () => onSelect?.(day.dayNumber) }}>
             <Popup>
               <strong>
                 {day.dayNumber}. Gün {selectedDay === day.dayNumber ? "•" : ""}
