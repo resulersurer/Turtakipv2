@@ -38,7 +38,15 @@ const localHints: Record<string, GeocodeResult> = {
   shanghai: { label: "Shanghai, China", lat: 31.2304, lng: 121.4737, country: "Çin", city: "Şanghay" },
   shangai: { label: "Shanghai, China", lat: 31.2304, lng: 121.4737, country: "Çin", city: "Şanghay" },
   chengdu: { label: "Chengdu, China", lat: 30.5728, lng: 104.0668, country: "Çin", city: "Chengdu" },
-  mutianyu: { label: "Mutianyu Great Wall, China", lat: 40.4319, lng: 116.5704, country: "Çin", city: "Mutianyu" }
+  mutianyu: { label: "Mutianyu Great Wall, China", lat: 40.4319, lng: 116.5704, country: "Çin", city: "Mutianyu" },
+  havana: { label: "Havana, Cuba", lat: 23.1136, lng: -82.3666, country: "Küba", city: "Havana" },
+  "pinar del rio": { label: "Pinar del Rio, Cuba", lat: 22.4122, lng: -83.6719, country: "Küba", city: "Pinar del Rio" },
+  vinales: { label: "Vinales, Cuba", lat: 22.6189, lng: -83.7069, country: "Küba", city: "Vinales" },
+  viñales: { label: "Vinales, Cuba", lat: 22.6189, lng: -83.7069, country: "Küba", city: "Vinales" },
+  trinidad: { label: "Trinidad, Cuba", lat: 21.8019, lng: -79.9842, country: "Küba", city: "Trinidad" },
+  "santa clara": { label: "Santa Clara, Cuba", lat: 22.4244, lng: -79.9417, country: "Küba", city: "Santa Clara" },
+  varadero: { label: "Varadero, Cuba", lat: 23.1568, lng: -81.2444, country: "Küba", city: "Varadero" },
+  cienfuegos: { label: "Cienfuegos, Cuba", lat: 22.1599, lng: -80.4438, country: "Küba", city: "Cienfuegos" }
 };
 
 export async function geocode(query: string): Promise<GeocodeResult[]> {

@@ -16,6 +16,7 @@ const countryCenters: Record<string, { lat: number; lng: number; label: string }
   avustralya: { lat: -25.2744, lng: 133.7751, label: "Avustralya" },
   "yeni zelanda": { lat: -40.9006, lng: 174.886, label: "Yeni Zelanda" },
   çin: { lat: 35.8617, lng: 104.1954, label: "Çin" },
+  küba: { lat: 21.5218, lng: -77.7812, label: "Küba" },
   türkiye: { lat: 39.0, lng: 35.0, label: "Türkiye" }
 };
 

@@ -62,6 +62,38 @@ export function makeParsedBase(sourceUrl: string, name: string): Pick<ParsedTour
   return { sourceUrl, externalId, slug: slugify(`${name}-${externalId || ""}`), name, warnings: [] };
 }
 
+function titleCaseLocation(value: string) {
+  return value
+    .toLocaleLowerCase("tr-TR")
+    .split(/\s+/)
+    .map((part) => (part.length <= 2 ? part.toLocaleUpperCase("tr-TR") : part.charAt(0).toLocaleUpperCase("tr-TR") + part.slice(1)))
+    .join(" ")
+    .replace(/\bDel\b/g, "del")
+    .replace(/\bDe\b/g, "de")
+    .replace(/\bDa\b/g, "da")
+    .replace(/\bRio\b/g, "Rio");
+}
+
+function genericCityCandidate(title: string) {
+  const cleaned = title
+    .replace(/^\d+\.\s*g(?:u|ü)n\s*[:/]?\s*/i, "")
+    .replace(/^[\s/:|—–-]+/, "")
+    .replace(/\([^)]*\)/g, " ")
+    .trim();
+  const parts = cleaned
+    .split(/\s*(?:—|–|->|➝|→|-|\||\/|&|\bve\b|\bile\b)\s*/i)
+    .map((part) =>
+      part
+        .replace(/\b(varış|varis|dönüş|donus|uçuş|ucus|şehir turu|sehir turu|turu|transfer|serbest zaman|otel|kahvaltı|kahvalti|vadisi|vadisi|uçak|ucak|thy|saat).*$/i, "")
+        .replace(/[^A-Za-zÇĞİÖŞÜçğıöşü'’.\s]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+    )
+    .filter((part) => part.length >= 3 && part.length <= 40 && !/^(gun|gün|sabah|aksam|akşam|bugun|bugün|otelimizde|otel)$/i.test(part));
+  const city = parts.findLast((part) => !/^istanbul$/i.test(part)) || parts[0];
+  return city ? titleCaseLocation(city.replace(/[’]/g, "'")) : null;
+}
+
 export function inferCityCountry(title: string) {
   const cleaned = title
     .replace(/^\d+\.\s*g(?:u|ü)n\s*[:/]?\s*/i, "")
@@ -104,7 +136,15 @@ export function inferCityCountry(title: string) {
     "ŞANGHAY",
     "SHANGHAI",
     "CHENGDU",
-    "MUTIANYU"
+    "MUTIANYU",
+    "HAVANA",
+    "PINAR DEL RIO",
+    "VINALES",
+    "VIÑALES",
+    "TRINIDAD",
+    "SANTA CLARA",
+    "VARADERO",
+    "CIENFUEGOS"
   ];
   const hits = knownCities
     .flatMap((city) => {
@@ -132,9 +172,10 @@ export function inferCityCountry(title: string) {
     PEKIN: "PEKİN",
     BEIJING: "PEKİN",
     SHANGHAI: "ŞANGHAY",
-    MUTIANYU: "PEKİN"
+    MUTIANYU: "PEKİN",
+    "VIÑALES": "VINALES"
   };
-  city = city ? cityMap[city] || city : null;
+  city = city ? cityMap[city] || city : genericCityCandidate(cleaned);
   const target = city || cleaned;
   const country = /seul|seoul|busan|kore/i.test(target)
     ? "Güney Kore"
@@ -146,7 +187,9 @@ export function inferCityCountry(title: string) {
           ? "Yeni Zelanda"
           : /xi'?an|xian|pekin|beijing|şanghay|shanghai|chengdu|mutianyu|çin/i.test(target)
             ? "Çin"
-            : null;
+            : /havana|pinar del rio|vinales|viñales|trinidad|santa clara|varadero|cienfuegos|kuba|küba|cuba/i.test(target)
+              ? "Küba"
+              : null;
   return { city, country };
 }
 

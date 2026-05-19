@@ -78,7 +78,14 @@ const locationHints = [
   { city: "Pekin", country: "Çin", keys: ["pekin", "beijing"] },
   { city: "Şanghay", country: "Çin", keys: ["şanghay", "sanghay", "shanghai", "shangai"] },
   { city: "Chengdu", country: "Çin", keys: ["chengdu"] },
-  { city: "Pekin", country: "Çin", keys: ["mutianyu"] }
+  { city: "Pekin", country: "Çin", keys: ["mutianyu"] },
+  { city: "Havana", country: "Küba", keys: ["havana"] },
+  { city: "Pinar del Rio", country: "Küba", keys: ["pinar del rio"] },
+  { city: "Vinales", country: "Küba", keys: ["vinales", "viñales"] },
+  { city: "Trinidad", country: "Küba", keys: ["trinidad"] },
+  { city: "Santa Clara", country: "Küba", keys: ["santa clara"] },
+  { city: "Varadero", country: "Küba", keys: ["varadero"] },
+  { city: "Cienfuegos", country: "Küba", keys: ["cienfuegos"] }
 ];
 
 function normalizeLocationText(value: string) {
@@ -89,6 +96,38 @@ function normalizeLocationText(value: string) {
     .replace(/[’`]/g, "'")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+function titleCaseLocation(value: string) {
+  return value
+    .toLocaleLowerCase("tr-TR")
+    .split(/\s+/)
+    .map((part) => (part.length <= 2 ? part.toLocaleUpperCase("tr-TR") : part.charAt(0).toLocaleUpperCase("tr-TR") + part.slice(1)))
+    .join(" ")
+    .replace(/\bDel\b/g, "del")
+    .replace(/\bDe\b/g, "de")
+    .replace(/\bDa\b/g, "da")
+    .replace(/\bRio\b/g, "Rio");
+}
+
+function genericTitleLocation(title?: string | null) {
+  const clean = (title || "")
+    .replace(/^\d+\.\s*g(?:u|ü)n\s*[•:\/-]?\s*/i, "")
+    .replace(/^[\s/:|—–-]+/, "")
+    .replace(/\([^)]*\)/g, " ")
+    .trim();
+  const parts = clean
+    .split(/\s*(?:—|–|->|➝|→|-|\||\/|&|\bve\b|\bile\b)\s*/i)
+    .map((part) =>
+      part
+        .replace(/\b(varış|varis|dönüş|donus|uçuş|ucus|şehir turu|sehir turu|turu|transfer|serbest zaman|otel|kahvaltı|kahvalti|vadisi|uçak|ucak|thy|saat).*$/i, "")
+        .replace(/[^A-Za-zÇĞİÖŞÜçğıöşü'’.\s]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+    )
+    .filter((part) => part.length >= 3 && part.length <= 40 && !/^(gun|gün|sabah|aksam|akşam|bugun|bugün|otelimizde|otel)$/i.test(part));
+  const city = parts.findLast((part) => normalizeLocationText(part) !== "istanbul") || parts[0];
+  return city ? { city: titleCaseLocation(city.replace(/[’]/g, "'")), country: "" } : null;
 }
 
 function inferTitleLocation(title?: string | null) {
@@ -108,7 +147,7 @@ function inferTitleLocation(title?: string | null) {
       })
     )
     .sort((a, b) => a.index - b.index);
-  if (!hits.length) return null;
+  if (!hits.length) return genericTitleLocation(title);
   if (hits.length === 1) return { city: hits[0].city, country: hits[0].country };
 
   const firstNonIstanbul = hits.find((hit) => normalizeLocationText(hit.city) !== "istanbul");
@@ -172,18 +211,33 @@ export function TourForm({ initial }: { initial?: Partial<TourFormData> }) {
   useEffect(() => {
     const fillable = tour.days.find((day) => {
       const location = inferTitleLocation(day.title);
-      return location && (!day.city || !day.country);
+      const currentCity = normalizeLocationText(day.city || "");
+      const inferredCity = normalizeLocationText(location?.city || "");
+      const currentCountry = normalizeLocationText(day.country || "");
+      const inferredCountry = normalizeLocationText(location?.country || "");
+      return (
+        location &&
+        (!day.city ||
+          !day.country ||
+          (currentCity === "istanbul" && inferredCity !== "istanbul") ||
+          (currentCountry === "turkiye" && inferredCountry && inferredCountry !== "turkiye"))
+      );
     });
     if (fillable) {
       const location = inferTitleLocation(fillable.title);
       if (location) {
         setTour((current) => ({
           ...current,
-          days: current.days.map((day) =>
-            day.dayNumber === fillable.dayNumber
-              ? { ...day, city: day.city || location.city, country: day.country || location.country }
-              : day
-          )
+          days: current.days.map((day) => {
+            if (day.dayNumber !== fillable.dayNumber) return day;
+            const shouldReplaceIstanbul = normalizeLocationText(day.city || "") === "istanbul" && normalizeLocationText(location.city) !== "istanbul";
+            const nextCity = !day.city || shouldReplaceIstanbul ? location.city : day.city;
+            const nextCountry =
+              !day.country || shouldReplaceIstanbul || (normalizeLocationText(day.country) === "turkiye" && normalizeLocationText(location.country) !== "turkiye")
+                ? location.country || null
+                : day.country;
+            return { ...day, city: nextCity, country: nextCountry };
+          })
         }));
         return;
       }
