@@ -42,6 +42,15 @@ function dateInput(value?: string | Date | null) {
   return new Date(value).toISOString().slice(0, 10);
 }
 
+function titleLocation(title?: string | null) {
+  const clean = (title || "").replace(/^\d+\.\s*g(?:u|ü)n\s*[•:-]?\s*/i, "").trim();
+  const bulletMatch = clean.match(/[•]\s*([^,•]+?)\s*,\s*([^,•]+)$/);
+  const commaMatch = clean.match(/^([^,]{2,48})\s*,\s*([^,]{2,48})$/);
+  const match = bulletMatch || commaMatch;
+  if (!match) return null;
+  return { city: match[1].trim(), country: match[2].trim() };
+}
+
 export function TourForm({ initial }: { initial?: Partial<TourFormData> }) {
   const router = useRouter();
   const [tour, setTour] = useState<TourFormData>({ ...blank, ...initial } as TourFormData);
@@ -91,6 +100,25 @@ export function TourForm({ initial }: { initial?: Partial<TourFormData> }) {
   }
 
   useEffect(() => {
+    const fillable = tour.days.find((day) => {
+      const location = titleLocation(day.title);
+      return location && (!day.city || !day.country);
+    });
+    if (fillable) {
+      const location = titleLocation(fillable.title);
+      if (location) {
+        setTour((current) => ({
+          ...current,
+          days: current.days.map((day) =>
+            day.dayNumber === fillable.dayNumber
+              ? { ...day, city: day.city || location.city, country: day.country || location.country }
+              : day
+          )
+        }));
+        return;
+      }
+    }
+
     const missing = tour.days.find((day) => {
       const query = [day.city, day.country].filter(Boolean).join(" ");
       const key = `${day.dayNumber}:${query}`;
