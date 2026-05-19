@@ -30,7 +30,7 @@ const statusUi = {
     iconSrc: "/icons/tour-status/today.svg"
   },
   ongoing: {
-    label: "Devam Eden Turlar",
+    label: "Devam eden turlar",
     count: "text-amber-200 bg-amber-500/15 border-amber-400/50",
     heading: "text-amber-200",
     card: "hover:border-amber-300 border-amber-400/45",
@@ -106,6 +106,7 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
   const visibleTours = normalizedQuery ? tours.filter((tour) => tourSearchText(tour).includes(normalizedQuery)) : tours;
   const today = dayNumber(dayKey(new Date()));
   const countriesThisWeek = new Map<string, { country: string; lat: number; lng: number; tourNames: Set<string> }>();
+
   for (const tour of visibleTours) {
     for (const departure of tour.departures) {
       for (const day of tour.days) {
@@ -153,17 +154,10 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
     ...statusUi[key],
     items: departures.filter((item) => item.status === key).sort((a, b) => departureSortValue(a) - departureSortValue(b))
   }));
+  const hasResults = groups.some((group) => group.items.length > 0);
 
   return (
     <main className="page-shell space-y-6">
-      <header className="flex flex-wrap items-center justify-between gap-3">
-        <form className="flex min-w-0 flex-1 gap-2" action="/passenger">
-          <input className="input min-w-0 max-w-xl flex-1" name="q" defaultValue={q || ""} placeholder="Tur, şehir, ülke veya havayolu ara" />
-          <button className="btn-primary rounded-md" type="submit">Ara</button>
-          {q ? <Link className="btn" href="/passenger">Temizle</Link> : null}
-        </form>
-        <Link className="btn" href="/tours">Tur listesi</Link>
-      </header>
       <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl">
         <div className="relative z-[500] -mb-24 px-4 pt-4 text-center text-slate-800 sm:px-8">
           <h1 className="text-2xl font-black tracking-normal sm:text-4xl">EjderTurizmle bu hafta dünyayı keşfediyoruz...</h1>
@@ -171,8 +165,27 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
             {weeklyCountries.length ? `${weeklyCountries.map((country) => country.country).join(", ")} · ${weeklyCountries.length} ülke` : "Bu hafta rota ülkesi yok"}
           </p>
         </div>
-        <div className="h-[380px]"><PublicMap days={weeklyCountryMarkers} showRoute={false} layer="light" /></div>
+        <div className="h-[320px] sm:h-[420px] lg:h-[460px]"><PublicMap days={weeklyCountryMarkers} showRoute={false} layer="light" /></div>
       </section>
+
+      <section className="panel rounded-lg p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <form className="flex min-w-0 flex-1 gap-2" action="/passenger">
+            <input className="input min-w-0 max-w-2xl flex-1" name="q" defaultValue={q || ""} placeholder="Tur, şehir, ülke veya havayolu ara" />
+            <button className="btn-primary rounded-md" type="submit">Ara</button>
+            {q ? <Link className="btn" href="/passenger">Temizle</Link> : null}
+          </form>
+          <Link className="btn" href="/tours">Tur listesi</Link>
+        </div>
+      </section>
+
+      {q && !hasResults ? (
+        <div className="panel rounded-lg p-8 text-center">
+          <h2 className="text-lg font-semibold text-white">Aramanıza uygun tur bulunamadı</h2>
+          <p className="mt-2 text-sm text-slate-400">Farklı bir tur adı, şehir, ülke veya havayolu deneyebilirsiniz.</p>
+        </div>
+      ) : null}
+
       {groups.map((group) => (
         <section className="space-y-3" key={group.key}>
           <div className="flex items-center justify-between gap-3">
@@ -186,7 +199,8 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
                 return (
                   <Link className={`panel group overflow-hidden rounded-lg border transition hover:-translate-y-0.5 ${group.card}`} href={`/passenger/${tour.id}?departureId=${departure.id}`} key={`${tour.id}-${departure.id}`}>
                     <div className="relative flex aspect-[16/9] items-center justify-center overflow-hidden bg-slate-950">
-                      {tour.coverImageUrl ? <img src={tour.coverImageUrl} alt={tour.name} className="h-full w-full object-contain transition duration-500 group-hover:scale-[1.02]" /> : <div className="h-full w-full bg-gradient-to-br from-emerald-500/20 via-slate-900 to-sky-500/20" />}
+                      {tour.coverImageUrl ? <img src={tour.coverImageUrl} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full scale-110 object-cover opacity-35 blur-xl" /> : null}
+                      {tour.coverImageUrl ? <img src={tour.coverImageUrl} alt={tour.name} className="relative z-10 h-full w-full object-contain transition duration-500 group-hover:scale-[1.02]" /> : <div className="h-full w-full bg-gradient-to-br from-emerald-500/20 via-slate-900 to-sky-500/20" />}
                       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-slate-950/85 to-transparent" />
                     </div>
                     <div className="relative space-y-4 p-5 pt-4">
@@ -209,9 +223,9 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
                 );
               })}
             </div>
-          ) : (
+          ) : !q ? (
             <div className="panel rounded-lg p-5 text-sm text-slate-400">Bu bölümde tur çıkışı yok.</div>
-          )}
+          ) : null}
         </section>
       ))}
     </main>
