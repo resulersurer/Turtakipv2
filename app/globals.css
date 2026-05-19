@@ -50,6 +50,8 @@ a {
   background: #d8453f;
   box-shadow: 0 7px 12px rgba(20, 31, 46, 0.3);
   transform: translateX(-50%) rotate(-45deg);
+  animation: tour-pin-blink 1.9s ease-in-out infinite;
+  animation-delay: var(--blink-delay, 0s);
 }
 
 .tour-red-pin__pin::after {
@@ -97,6 +99,22 @@ a {
   100% {
     opacity: 0;
     transform: translate(-50%, -50%) scale(1.55);
+  }
+}
+
+@keyframes tour-pin-blink {
+  0%,
+  100% {
+    filter: saturate(1);
+    opacity: 0.94;
+  }
+  45% {
+    filter: saturate(1.35) brightness(1.18);
+    opacity: 1;
+  }
+  58% {
+    filter: saturate(1.65) brightness(1.32);
+    opacity: 0.72;
   }
 }
 
