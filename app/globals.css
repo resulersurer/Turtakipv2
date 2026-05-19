@@ -50,7 +50,7 @@ a {
   background: #d8453f;
   box-shadow: 0 7px 12px rgba(20, 31, 46, 0.3);
   transform: translateX(-50%) rotate(-45deg);
-  animation: tour-pin-blink 1.9s ease-in-out infinite;
+  animation: tour-pin-bounce 1.85s cubic-bezier(0.28, 0.84, 0.42, 1) infinite;
   animation-delay: var(--blink-delay, 0s);
 }
 
@@ -102,19 +102,23 @@ a {
   }
 }
 
-@keyframes tour-pin-blink {
+@keyframes tour-pin-bounce {
   0%,
+  18%,
+  48%,
   100% {
-    filter: saturate(1);
-    opacity: 0.94;
+    filter: saturate(1.05);
+    transform: translateX(-50%) translateY(0) rotate(-45deg) scale(1);
   }
-  45% {
-    filter: saturate(1.35) brightness(1.18);
-    opacity: 1;
+  30% {
+    filter: saturate(1.35) brightness(1.1);
+    transform: translateX(-50%) translateY(-14px) rotate(-45deg) scale(1.04);
+  }
+  40% {
+    transform: translateX(-50%) translateY(0) rotate(-45deg) scale(0.98);
   }
   58% {
-    filter: saturate(1.65) brightness(1.32);
-    opacity: 0.72;
+    transform: translateX(-50%) translateY(-6px) rotate(-45deg) scale(1.02);
   }
 }
 
