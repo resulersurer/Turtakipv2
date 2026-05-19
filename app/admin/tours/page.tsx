@@ -10,6 +10,20 @@ import { isPrismaSetupError } from "@/lib/db-errors";
 
 export const dynamic = "force-dynamic";
 
+function tourSortValue(tour: any) {
+  const now = Date.now();
+  const ranges = (tour.departures || []).map((departure: any) => ({
+    start: new Date(departure.startDate).getTime(),
+    end: new Date(departure.endDate || departure.startDate).getTime()
+  }));
+  const activeEnd = ranges.filter((range: any) => range.start <= now && range.end >= now).map((range: any) => range.end).sort((a: number, b: number) => a - b)[0];
+  if (activeEnd != null) return activeEnd;
+  const nextStart = ranges.filter((range: any) => range.start > now).map((range: any) => range.start).sort((a: number, b: number) => a - b)[0];
+  if (nextStart != null) return nextStart;
+  const lastEnd = ranges.map((range: any) => range.end).sort((a: number, b: number) => b - a)[0];
+  return -(lastEnd || 0);
+}
+
 export default async function AdminToursPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   if (!hasDatabaseUrl() || !(await isDatabaseSchemaReady())) return <SetupNotice />;
   if (!(await isAdmin())) return <AdminLogin />;
@@ -30,7 +44,7 @@ export default async function AdminToursPage({ searchParams }: { searchParams: P
     if (params.month && !tour.departures?.some((d: any) => new Date(d.startDate).getMonth() + 1 === Number(params.month))) return false;
     if (params.weekday && !tour.departures?.some((d: any) => new Date(d.startDate).getDay() === Number(params.weekday))) return false;
     return true;
-  });
+  }).sort((a, b) => tourSortValue(a) - tourSortValue(b));
   return (
     <main className="page-shell space-y-5">
       <header className="flex flex-wrap items-center justify-between gap-3">

@@ -16,6 +16,26 @@ function classify(tour: any) {
   return "Geçmiş";
 }
 
+function tourSortValue(tour: any) {
+  const now = Date.now();
+  const ranges = tour.departures.map((departure: any) => ({
+    start: new Date(departure.startDate).getTime(),
+    end: new Date(departure.endDate || departure.startDate).getTime()
+  }));
+  const activeEnd = ranges
+    .filter((range: any) => range.start <= now && range.end >= now)
+    .map((range: any) => range.end)
+    .sort((a: number, b: number) => a - b)[0];
+  if (activeEnd != null) return activeEnd;
+  const nextStart = ranges
+    .filter((range: any) => range.start > now)
+    .map((range: any) => range.start)
+    .sort((a: number, b: number) => a - b)[0];
+  if (nextStart != null) return nextStart;
+  const lastEnd = ranges.map((range: any) => range.end).sort((a: number, b: number) => b - a)[0];
+  return -(lastEnd || 0);
+}
+
 export default async function PublicToursPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   if (!hasDatabaseUrl() || !(await isDatabaseSchemaReady())) return <SetupNotice />;
   const params = await searchParams;
@@ -28,7 +48,10 @@ export default async function PublicToursPage({ searchParams }: { searchParams: 
   }
   const q = params.q?.toLocaleLowerCase("tr-TR");
   const filtered = q ? tours.filter((tour) => `${tour.name} ${tour.days.map((day: any) => day.city).join(" ")}`.toLocaleLowerCase("tr-TR").includes(q)) : tours;
-  const groups = ["Devam eden", "Gelecek", "Geçmiş"].map((label) => ({ label, tours: filtered.filter((tour) => classify(tour) === label) }));
+  const groups = ["Devam eden", "Gelecek", "Geçmiş"].map((label) => ({
+    label,
+    tours: filtered.filter((tour) => classify(tour) === label).sort((a, b) => tourSortValue(a) - tourSortValue(b))
+  }));
   return (
     <main className="page-shell space-y-6">
       <header className="flex flex-wrap items-center justify-between gap-3">

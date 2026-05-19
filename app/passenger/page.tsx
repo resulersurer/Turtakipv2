@@ -30,7 +30,7 @@ const statusUi = {
     iconSrc: "/icons/tour-status/today.svg"
   },
   ongoing: {
-    label: "Şu an gezen turlar",
+    label: "Devam Eden Turlar",
     count: "text-amber-200 bg-amber-500/15 border-amber-400/50",
     heading: "text-amber-200",
     card: "hover:border-amber-300 border-amber-400/45",
@@ -71,6 +71,13 @@ function dayKey(date: Date) {
 function dayNumber(key: string) {
   const [year, month, day] = key.split("-").map(Number);
   return Date.UTC(year, month - 1, day) / 86400000;
+}
+
+function departureSortValue(item: { status: StatusKey; departure: { startDate: string | Date; endDate?: string | Date | null } }) {
+  const start = new Date(item.departure.startDate).getTime();
+  const end = new Date(item.departure.endDate || item.departure.startDate).getTime();
+  if (item.status === "past") return -end;
+  return item.status === "ongoing" ? end : start;
 }
 
 export default async function PassengerPage() {
@@ -130,7 +137,7 @@ export default async function PassengerPage() {
   const groups = (Object.keys(statusUi) as StatusKey[]).map((key) => ({
     key,
     ...statusUi[key],
-    items: departures.filter((item) => item.status === key)
+    items: departures.filter((item) => item.status === key).sort((a, b) => departureSortValue(a) - departureSortValue(b))
   }));
 
   return (
@@ -140,7 +147,7 @@ export default async function PassengerPage() {
       </header>
       <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl">
         <div className="relative z-[500] -mb-24 px-4 pt-4 text-center text-slate-800 sm:px-8">
-          <h1 className="text-2xl font-black tracking-normal sm:text-4xl">EjderTurizmle bu hafta dünyayı geziyoruz...</h1>
+          <h1 className="text-2xl font-black tracking-normal sm:text-4xl">EjderTurizmle bu hafta dünyayı keşfediyoruz...</h1>
           <p className="mt-3 text-sm font-bold uppercase tracking-normal text-slate-600 sm:text-base">
             {weeklyCountries.length ? `${weeklyCountries.map((country) => country.country).join(", ")} · ${weeklyCountries.length} ülke` : "Bu hafta rota ülkesi yok"}
           </p>
