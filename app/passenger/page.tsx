@@ -80,8 +80,19 @@ function departureSortValue(item: { status: StatusKey; departure: { startDate: s
   return item.status === "ongoing" ? end : start;
 }
 
-export default async function PassengerPage() {
+function tourSearchText(tour: any) {
+  return [
+    tour.name,
+    tour.departureCity,
+    tour.airline,
+    tour.visaStatus,
+    ...tour.days.flatMap((day: any) => [day.title, day.city, day.country, day.description])
+  ].filter(Boolean).join(" ").toLocaleLowerCase("tr-TR");
+}
+
+export default async function PassengerPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   if (!hasDatabaseUrl() || !(await isDatabaseSchemaReady())) return <SetupNotice />;
+  const params = await searchParams;
   let tours: any[];
   try {
     tours = serializeTour(await prisma.tour.findMany({ where: { status: "PUBLISHED" }, include: tourInclude, orderBy: { updatedAt: "desc" } })) as any[];
@@ -90,9 +101,12 @@ export default async function PassengerPage() {
     throw error;
   }
 
+  const q = params.q?.trim();
+  const normalizedQuery = q?.toLocaleLowerCase("tr-TR");
+  const visibleTours = normalizedQuery ? tours.filter((tour) => tourSearchText(tour).includes(normalizedQuery)) : tours;
   const today = dayNumber(dayKey(new Date()));
   const countriesThisWeek = new Map<string, { country: string; lat: number; lng: number; tourNames: Set<string> }>();
-  for (const tour of tours) {
+  for (const tour of visibleTours) {
     for (const departure of tour.departures) {
       for (const day of tour.days) {
         if (!day.country) continue;
@@ -125,7 +139,7 @@ export default async function PassengerPage() {
     highlightPulse: true,
     markerStyle: "pin" as const
   }));
-  const departures = tours.flatMap((tour) =>
+  const departures = visibleTours.flatMap((tour) =>
     tour.departures.map((departure: any) => ({
       tour,
       departure,
@@ -142,7 +156,12 @@ export default async function PassengerPage() {
 
   return (
     <main className="page-shell space-y-6">
-      <header className="flex items-center justify-end gap-3">
+      <header className="flex flex-wrap items-center justify-between gap-3">
+        <form className="flex min-w-0 flex-1 gap-2" action="/passenger">
+          <input className="input min-w-0 max-w-xl flex-1" name="q" defaultValue={q || ""} placeholder="Tur, şehir, ülke veya havayolu ara" />
+          <button className="btn-primary rounded-md" type="submit">Ara</button>
+          {q ? <Link className="btn" href="/passenger">Temizle</Link> : null}
+        </form>
         <Link className="btn" href="/tours">Tur listesi</Link>
       </header>
       <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl">
