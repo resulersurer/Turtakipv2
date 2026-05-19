@@ -204,10 +204,10 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
                       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-slate-950/85 to-transparent" />
                     </div>
                     <div className="relative space-y-4 p-5 pt-4">
-                      <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center justify-between gap-3">
                         <span className="badge">{range}</span>
-                        <span className="-mt-10 flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-slate-950/85 p-1.5 shadow-2xl backdrop-blur">
-                          <img src={group.iconSrc} alt="" className="h-full w-full object-contain drop-shadow-[0_0_12px_rgba(255,255,255,0.16)]" />
+                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-slate-950/55 p-1 shadow-lg">
+                          <img src={group.iconSrc} alt="" className="h-full w-full object-contain opacity-90" />
                         </span>
                       </div>
                       <div>
