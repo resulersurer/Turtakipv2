@@ -16,13 +16,6 @@ export type MapDay = {
   markerStyle?: "pulse" | "pin";
 };
 
-const icon = new L.Icon({
-  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41]
-});
-
 const pulseIcon = L.divIcon({
   className: "tour-pulse-marker",
   html: '<span class="tour-pulse-marker__ring"></span><span class="tour-pulse-marker__dot"></span>',
@@ -31,14 +24,25 @@ const pulseIcon = L.divIcon({
   popupAnchor: [0, -18]
 });
 
-function redPinIcon(dayNumber: number) {
-  const delay = ((dayNumber * 137) % 1100) / 1000;
+function redPinIcon(dayNumber: number, selected = false, pulse = false) {
+  const animations = ["pinPulseA", "pinPulseB", "pinPulseC", "pinPulseD"];
+  const durations = [2.8, 3.5, 2.2, 4.1, 3.0, 2.6, 3.8];
+  const delays = [0, 0.9, 1.7, 0.4, 2.3, 1.1, 2.8, 0.6, 3.2, 1.5];
+  const index = Math.abs(dayNumber) % animations.length;
+  const pulseStyle = pulse ? `animation:${animations[index]} ${durations[dayNumber % durations.length]}s ease-in-out ${delays[dayNumber % delays.length]}s infinite;` : "";
   return L.divIcon({
-    className: "tour-red-pin",
-    html: `<span class="tour-red-pin__pin" style="--blink-delay:${delay}s"></span>`,
-    iconSize: [34, 46],
-    iconAnchor: [17, 44],
-    popupAnchor: [0, -42]
+    className: "",
+    html: `<div class="tour-map-pin ${selected ? "tour-map-pin--selected" : ""}" style="${pulseStyle}">
+      <svg viewBox="0 0 28 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M14 0C8.477 0 4 4.477 4 10c0 7.5 10 22 10 22s10-14.5 10-22C24 4.477 19.523 0 14 0z" fill="#E53E3E"/>
+        <path d="M14 0C8.477 0 4 4.477 4 10c0 7.5 10 22 10 22s10-14.5 10-22C24 4.477 19.523 0 14 0z" fill="url(#pinGradient${dayNumber})" opacity="0.55"/>
+        <circle cx="14" cy="10" r="4.5" fill="white" opacity="0.92"/>
+        <defs><radialGradient id="pinGradient${dayNumber}" cx="35%" cy="25%" r="75%"><stop offset="0%" stop-color="#FF9090"/><stop offset="100%" stop-color="#7B0000"/></radialGradient></defs>
+      </svg>
+    </div>`,
+    iconSize: [28, 36],
+    iconAnchor: [14, 36],
+    popupAnchor: [0, -36]
   });
 }
 
@@ -83,17 +87,17 @@ export default function PassengerMap({
     layer === "satellite"
       ? "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
       : layer === "light"
-        ? "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        ? "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
       : "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
   return (
     <MapContainer className="h-full min-h-[360px] overflow-hidden rounded-md" center={points[0] || [39, 35]} zoom={points.length ? 4 : 2} scrollWheelZoom>
       <TileLayer attribution="&copy; OpenStreetMap contributors" url={tiles} />
       <FitBounds points={points} pointsKey={pointsKey} />
       {followSelected ? <FocusSelected days={days} selectedDay={selectedDay} /> : null}
-      {showRoute && points.length > 1 ? <Polyline positions={points} pathOptions={{ color: "#44d7b6", weight: 4 }} /> : null}
+      {showRoute && points.length > 1 ? <Polyline positions={points} pathOptions={{ color: "#3b82f6", weight: 3, opacity: 0.85, dashArray: "6 10" }} /> : null}
       {days.map((day) =>
         day.lat != null && day.lng != null ? (
-          <Marker key={day.id || day.dayNumber} position={[day.lat, day.lng]} icon={day.markerStyle === "pin" ? redPinIcon(day.dayNumber) : day.highlightPulse ? pulseIcon : icon} eventHandlers={{ click: () => onSelect?.(day.dayNumber) }}>
+          <Marker key={day.id || day.dayNumber} position={[day.lat, day.lng]} icon={day.markerStyle === "pin" || !day.highlightPulse ? redPinIcon(day.dayNumber, selectedDay === day.dayNumber, day.highlightPulse) : pulseIcon} eventHandlers={{ click: () => onSelect?.(day.dayNumber) }}>
             <Popup>
               <strong>
                 {day.dayNumber}. Gün {selectedDay === day.dayNumber ? "•" : ""}
