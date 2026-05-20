@@ -158,27 +158,34 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
 
   return (
     <main className="page-shell space-y-6">
-      <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl">
-        <div className="relative px-4 py-5 text-center text-slate-800 sm:px-8">
-          <a className="absolute right-4 top-4 rounded-md border border-slate-300 bg-white/90 px-3 py-2 text-sm font-bold text-slate-700 shadow-sm transition hover:bg-slate-100" href="https://www.ejderturizm.com.tr/">
-            Anasayfa
-          </a>
-          <h1 className="px-16 text-2xl font-black tracking-normal sm:text-4xl">EjderTurizmle bu hafta dünyayı keşfediyoruz...</h1>
-          <p className="mt-3 text-sm font-bold uppercase tracking-normal text-slate-600 sm:text-base">
-            {weeklyCountries.length ? `${weeklyCountries.map((country) => country.country).join(", ")} · ${weeklyCountries.length} ülke` : "Bu hafta rota ülkesi yok"}
-          </p>
+      <section className="rounded-lg border border-line bg-[#f7fafc] p-4 text-slate-900 shadow-xl sm:p-6">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-bold uppercase tracking-wide text-mint">Ejder Turizm yolcu takip</p>
+            <h1 className="mt-2 max-w-5xl text-3xl font-black leading-tight tracking-normal sm:text-4xl xl:text-5xl">
+              Bu hafta dünyayı keşfediyoruz
+            </h1>
+            <p className="mt-3 max-w-6xl text-sm font-bold uppercase leading-6 tracking-normal text-slate-600 sm:text-base">
+              {weeklyCountries.length ? `${weeklyCountries.map((country) => country.country).join(", ")} · ${weeklyCountries.length} ülke` : "Bu hafta rota ülkesi yok"}
+            </p>
+          </div>
+          <div className="flex shrink-0 flex-wrap gap-2">
+            <a className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-700 shadow-sm transition hover:bg-slate-100" href="https://www.ejderturizm.com.tr/">
+              Anasayfa
+            </a>
+            <Link className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-700 shadow-sm transition hover:bg-slate-100" href="/tours">Tur listesi</Link>
+          </div>
         </div>
-        <div className="h-[320px] sm:h-[420px] lg:h-[460px]"><PublicMap days={weeklyCountryMarkers} showRoute={false} layer="light" /></div>
+        <form className="mt-5 flex flex-col gap-2 sm:flex-row" action="/passenger">
+          <input className="input min-w-0 flex-1 border-slate-300 bg-white text-slate-900 placeholder:text-slate-400" name="q" defaultValue={q || ""} placeholder="Tur, şehir, ülke veya havayolu ara" />
+          <button className="btn-primary rounded-md px-6" type="submit">Ara</button>
+          {q ? <Link className="rounded-md border border-slate-300 bg-white px-4 py-3 text-center text-sm font-bold text-slate-700 shadow-sm transition hover:bg-slate-100" href="/passenger">Temizle</Link> : null}
+        </form>
       </section>
 
-      <section className="panel rounded-lg p-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <form className="flex min-w-0 flex-1 gap-2" action="/passenger">
-            <input className="input min-w-0 max-w-2xl flex-1" name="q" defaultValue={q || ""} placeholder="Tur, şehir, ülke veya havayolu ara" />
-            <button className="btn-primary rounded-md" type="submit">Ara</button>
-            {q ? <Link className="btn" href="/passenger">Temizle</Link> : null}
-          </form>
-          <Link className="btn" href="/tours">Tur listesi</Link>
+      <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl">
+        <div className="h-[300px] sm:h-[360px] lg:h-[420px]">
+          <PublicMap days={weeklyCountryMarkers} showRoute={false} layer="light" />
         </div>
       </section>
 
