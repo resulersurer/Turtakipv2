@@ -36,17 +36,18 @@ function dayDate(departure: SelectedDeparture, day: Day) {
   return date.toLocaleDateString("tr-TR", { day: "2-digit", month: "short", year: "numeric" });
 }
 
-function PhotoPanel({ day }: { day: Day }) {
-  if (!day.photoUrl) return <div className="h-52 rounded-lg border border-line bg-ink/80" />;
+function PhotoPanel({ day, fallbackSrc }: { day: Day; fallbackSrc?: string | null }) {
+  const src = day.photoUrl || fallbackSrc;
+  if (!src) return <div className="h-52 rounded-lg border border-line bg-ink/80" />;
   return (
     <div className="relative h-52 overflow-hidden rounded-lg border border-line bg-slate-950">
-      <img src={day.photoUrl} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full scale-110 object-cover opacity-35 blur-xl" />
-      <img src={day.photoUrl} alt={day.title} className="relative z-10 h-full w-full object-contain" />
+      <img src={src} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full scale-110 object-cover opacity-35 blur-xl" />
+      <img src={src} alt={day.title} className="relative z-10 h-full w-full object-contain" />
     </div>
   );
 }
 
-export function PassengerTracker({ tour }: { tour: { name: string; days: Day[]; selectedDeparture?: SelectedDeparture } }) {
+export function PassengerTracker({ tour }: { tour: { name: string; coverImageUrl?: string | null; days: Day[]; selectedDeparture?: SelectedDeparture } }) {
   const [selected, setSelected] = useState(tour.days[0]?.dayNumber || 1);
   const [playing, setPlaying] = useState(false);
   const [layer, setLayer] = useState<"dark" | "light" | "satellite">("dark");
@@ -106,7 +107,7 @@ export function PassengerTracker({ tour }: { tour: { name: string; days: Day[]; 
 
         {current ? (
           <article className="panel grid gap-4 rounded-lg p-4 lg:grid-cols-[260px_minmax(0,1fr)]">
-            <PhotoPanel day={current} />
+            <PhotoPanel day={current} fallbackSrc={tour.coverImageUrl} />
             <div>
               <div className="text-sm font-semibold text-mint">
                 {current.dayNumber}. Gün · {dayDate(tour.selectedDeparture || null, current) || ""} · {[current.city, current.country].filter(Boolean).join(", ")}
