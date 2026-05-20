@@ -158,8 +158,8 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
 
   return (
     <main className="page-shell space-y-6">
-      <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl">
-        <div className="relative z-[500] -mb-24 px-4 pt-4 text-center text-slate-800 sm:px-8">
+      <section className="relative overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl">
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-[500] px-4 pt-4 text-center text-slate-800 sm:px-8">
           <h1 className="text-2xl font-black tracking-normal sm:text-4xl">EjderTurizmle bu hafta dünyayı keşfediyoruz...</h1>
           <p className="mt-3 text-sm font-bold uppercase tracking-normal text-slate-600 sm:text-base">
             {weeklyCountries.length ? `${weeklyCountries.map((country) => country.country).join(", ")} · ${weeklyCountries.length} ülke` : "Bu hafta rota ülkesi yok"}
