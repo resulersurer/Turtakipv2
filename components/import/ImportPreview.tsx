@@ -22,6 +22,25 @@ function titleFromUrl(url: string) {
   }
 }
 
+function ImportRow({ item, index }: { item: ImportResult; index: number }) {
+  return (
+    <div className={`rounded-md border p-2 ${item.status === "FAILED" ? "border-coral/40 bg-coral/5" : "border-line bg-panel/70"}`}>
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="badge">{item.status}</span>
+        {item.tour ? (
+          <Link className="text-mint" href={`/admin/tours/${item.tour.id}`}>
+            {item.tour.name}
+          </Link>
+        ) : (
+          <span className="text-slate-300">{index + 1}. {titleFromUrl(item.url)}</span>
+        )}
+      </div>
+      <div className="mt-1 break-all text-xs text-slate-500">{item.url}</div>
+      {item.error ? <div className="mt-1 text-xs text-coral">{item.error}</div> : null}
+    </div>
+  );
+}
+
 export function ImportPreview({ mode }: { mode: "tour" | "list" }) {
   const [url, setUrl] = useState("");
   const [busy, setBusy] = useState(false);
@@ -31,9 +50,11 @@ export function ImportPreview({ mode }: { mode: "tour" | "list" }) {
 
   const isList = mode === "list";
   const pending = useMemo(() => imports.filter((item) => item.status === "PENDING"), [imports]);
+  const failed = useMemo(() => imports.filter((item) => item.status === "FAILED"), [imports]);
+  const activeImports = useMemo(() => imports.filter((item) => item.status !== "FAILED"), [imports]);
   const processingCount = imports.filter((item) => item.status === "PROCESSING").length;
   const successCount = imports.filter((item) => item.status === "SUCCESS").length;
-  const failedCount = imports.filter((item) => item.status === "FAILED").length;
+  const failedCount = failed.length;
   const doneCount = successCount + failedCount;
 
   function wait(ms: number) {
@@ -44,7 +65,11 @@ export function ImportPreview({ mode }: { mode: "tour" | "list" }) {
     setBusy(true);
     setResult(null);
     setImports([]);
-    const response = await fetch(`/api/import/${mode}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url }) });
+    const response = await fetch(`/api/import/${mode}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url })
+    });
     const data = await response.json();
     setResult(data);
     if (mode === "list" && data.links?.length) {
@@ -115,11 +140,32 @@ export function ImportPreview({ mode }: { mode: "tour" | "list" }) {
   }
 
   async function retryFailed() {
-    const urls = imports.filter((item) => item.status === "FAILED").slice(0, batchSize).map((item) => item.url);
+    const urls = failed.slice(0, batchSize).map((item) => item.url);
     setBusy(true);
-    setImports((current) => current.map((item) => urls.includes(item.url) ? { ...item, status: "PENDING", error: undefined } : item));
-    await wait(500);
+    setImports((current) => current.map((item) => urls.includes(item.url) ? { ...item, status: "PROCESSING", error: undefined } : item));
+    await wait(800);
     await importBatch(urls);
+    setBusy(false);
+  }
+
+  async function retryAllFailed() {
+    setBusy(true);
+    let guard = 0;
+    while (guard < 1000) {
+      const currentFailed = await new Promise<ImportResult[]>((resolve) => {
+        setImports((current) => {
+          resolve(current.filter((item) => item.status === "FAILED"));
+          return current;
+        });
+      });
+      const urls = currentFailed.slice(0, batchSize).map((item) => item.url);
+      if (!urls.length) break;
+      setImports((current) => current.map((item) => urls.includes(item.url) ? { ...item, status: "PROCESSING", error: undefined } : item));
+      await wait(800);
+      await importBatch(urls);
+      await wait(BATCH_PAUSE_MS);
+      guard += 1;
+    }
     setBusy(false);
   }
 
@@ -128,21 +174,21 @@ export function ImportPreview({ mode }: { mode: "tour" | "list" }) {
       <div className="mb-3">
         <h2 className="font-semibold">{isList ? "Liste URL'den detay linklerini bul" : "Tek tur detay import"}</h2>
         <p className="text-sm text-slate-400">
-          {isList ? "Liste URL'si sadece detay linklerini çıkarır. İçe aktarma yavaşlatılmış güvenli partiler halinde yapılır." : "Tek bir tur detay URL'sini taslak olarak içe aktarır."}
+          {isList ? "Liste URL'si sadece detay linklerini cikarir. Ice aktarma yavaslatilmis guvenli partiler halinde yapilir." : "Tek bir tur detay URL'sini taslak olarak ice aktarir."}
         </p>
       </div>
       <div className="flex flex-col gap-3 md:flex-row">
         <input className="input" value={url} onChange={(event) => setUrl(event.target.value)} placeholder={isList ? "Tur liste URL'si" : "Tur detay URL'si"} />
-        <button className="btn-primary rounded-md" onClick={run} disabled={busy || !url}>{busy ? "Çalışıyor" : isList ? "Linkleri bul" : "İçe aktar"}</button>
+        <button className="btn-primary rounded-md" onClick={run} disabled={busy || !url}>{busy ? "Calisiyor" : isList ? "Linkleri bul" : "Ice aktar"}</button>
       </div>
       {result ? (
         <div className="mt-4 rounded-md border border-line bg-ink/70 p-3 text-sm">
           {result.error ? <p className="text-coral">{result.error}</p> : null}
           {result.tour ? (
             <div className="flex flex-wrap items-center gap-2">
-              <p>Taslak hazır: <Link className="text-mint" href={`/admin/tours/${result.tour.id}`}>{result.tour.name}</Link></p>
-              {result.tour.status !== "PUBLISHED" ? <button className="btn-primary rounded-md" onClick={() => publish(result.tour.id)}>Yayınla</button> : <span className="badge">Yayında</span>}
-              <Link className="btn" href={`/passenger/${result.tour.id}`}>Yolcu görünümü</Link>
+              <p>Taslak hazir: <Link className="text-mint" href={`/admin/tours/${result.tour.id}`}>{result.tour.name}</Link></p>
+              {result.tour.status !== "PUBLISHED" ? <button className="btn-primary rounded-md" onClick={() => publish(result.tour.id)}>Yayinla</button> : <span className="badge">Yayinda</span>}
+              <Link className="btn" href={`/passenger/${result.tour.id}`}>Yolcu gorunumu</Link>
             </div>
           ) : null}
           {result.links ? (
@@ -153,36 +199,51 @@ export function ImportPreview({ mode }: { mode: "tour" | "list" }) {
                   <select className="input w-24" value={batchSize} onChange={(event) => setBatchSize(Number(event.target.value))} disabled={busy}>
                     <option value={1}>1'li</option>
                     <option value={2}>2'li</option>
-                    <option value={3}>3'lü</option>
+                    <option value={3}>3'lu</option>
                     <option value={5}>5'li</option>
                   </select>
-                  <button className="btn" onClick={importNextBatch} disabled={busy || !pending.length}>Sıradaki partiyi aktar</button>
-                  <button className="btn-primary rounded-md" onClick={importAllBatches} disabled={busy || !pending.length}>Tümünü partlarla aktar</button>
-                  <button className="btn" onClick={retryFailed} disabled={busy || !failedCount}>Hatalıları tekrar dene</button>
+                  <button className="btn" onClick={importNextBatch} disabled={busy || !pending.length}>Siradaki partiyi aktar</button>
+                  <button className="btn-primary rounded-md" onClick={importAllBatches} disabled={busy || !pending.length}>Tumunu partlarla aktar</button>
                 </div>
               </div>
               {imports.length ? (
                 <div className="rounded-md border border-line bg-ink p-3">
                   <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-slate-300">
-                    <span>İlerleme: {doneCount}/{imports.length} tamamlandı · {successCount} başarılı · {failedCount} hatalı · {processingCount} işleniyor</span>
-                    <span className="text-xs text-slate-500">Partiler arasında kısa bekleme var; hatalı linkler tekrar denenebilir.</span>
+                    <span>Ilerleme: {doneCount}/{imports.length} tamamlandi - {successCount} basarili - {failedCount} hatali - {processingCount} isleniyor</span>
+                    <span className="text-xs text-slate-500">Hatalilar sagdaki panele ayrilir ve daha sonra tekrar denenebilir.</span>
                   </div>
                   <div className="h-2 overflow-hidden rounded-full bg-slate-800">
                     <div className="h-full bg-mint transition-all" style={{ width: `${imports.length ? (doneCount / imports.length) * 100 : 0}%` }} />
                   </div>
                 </div>
               ) : null}
-              <div className="max-h-96 space-y-2 overflow-auto">
-                {imports.map((item, index) => (
-                  <div className="rounded-md border border-line bg-panel/70 p-2" key={item.url}>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="badge">{item.status}</span>
-                      {item.tour ? <Link className="text-mint" href={`/admin/tours/${item.tour.id}`}>{item.tour.name}</Link> : <span className="text-slate-300">{index + 1}. {titleFromUrl(item.url)}</span>}
-                    </div>
-                    <div className="mt-1 break-all text-xs text-slate-500">{item.url}</div>
-                    {item.error ? <div className="mt-1 text-xs text-coral">{item.error}</div> : null}
+              <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_360px]">
+                <div className="min-h-72 max-h-[32rem] space-y-2 overflow-auto rounded-md border border-line bg-ink/50 p-2">
+                  <div className="sticky top-0 z-10 flex items-center justify-between bg-ink/95 pb-2 text-xs text-slate-400">
+                    <span>Aktarim listesi</span>
+                    <span>{activeImports.length} kayit</span>
                   </div>
-                ))}
+                  {activeImports.map((item) => (
+                    <ImportRow item={item} index={imports.findIndex((entry) => entry.url === item.url)} key={item.url} />
+                  ))}
+                </div>
+                <div className="min-h-72 max-h-[32rem] overflow-auto rounded-md border border-coral/30 bg-coral/5 p-2">
+                  <div className="sticky top-0 z-10 space-y-2 bg-[#160d12]/95 pb-2">
+                    <div className="flex items-center justify-between gap-2 text-xs text-coral">
+                      <span>Hatalilar</span>
+                      <span>{failedCount} kayit</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button className="btn text-xs" onClick={retryFailed} disabled={busy || !failedCount}>Parti tekrar</button>
+                      <button className="btn-primary rounded-md text-xs" onClick={retryAllFailed} disabled={busy || !failedCount}>Tum hatalilar</button>
+                    </div>
+                  </div>
+                  <div className="mt-2 space-y-2">
+                    {failed.length ? failed.map((item) => (
+                      <ImportRow item={item} index={imports.findIndex((entry) => entry.url === item.url)} key={item.url} />
+                    )) : <div className="rounded-md border border-line bg-panel/60 p-3 text-xs text-slate-500">Henuz hatali link yok.</div>}
+                  </div>
+                </div>
               </div>
             </div>
           ) : null}
