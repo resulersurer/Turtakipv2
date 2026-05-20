@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
 type ImportResult = {
@@ -43,6 +43,7 @@ function ImportRow({ item, index }: { item: ImportResult; index: number }) {
 
 export function ImportPreview({ mode }: { mode: "tour" | "list" }) {
   const [url, setUrl] = useState("");
+  const [jobId, setJobId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [imports, setImports] = useState<ImportResult[]>([]);
@@ -61,9 +62,37 @@ export function ImportPreview({ mode }: { mode: "tour" | "list" }) {
     return new Promise((resolve) => window.setTimeout(resolve, ms));
   }
 
+  function applyJob(job: any) {
+    if (!job) return;
+    setJobId(job.id);
+    setUrl(job.sourceUrl);
+    setResult({ found: job.total, links: job.items.map((item: any) => item.url), job });
+    setImports(job.items.map((item: any) => ({
+      url: item.url,
+      status: item.status === "PROCESSING" ? "PENDING" : item.status,
+      tour: item.tour,
+      error: item.error
+    })));
+  }
+
+  useEffect(() => {
+    if (!isList) return;
+    let alive = true;
+    fetch("/api/import/list")
+      .then((response) => response.ok ? response.json() : null)
+      .then((data) => {
+        if (alive && data?.job) applyJob(data.job);
+      })
+      .catch(() => undefined);
+    return () => {
+      alive = false;
+    };
+  }, [isList]);
+
   async function run() {
     setBusy(true);
     setResult(null);
+    setJobId(null);
     setImports([]);
     const response = await fetch(`/api/import/${mode}`, {
       method: "POST",
@@ -72,6 +101,11 @@ export function ImportPreview({ mode }: { mode: "tour" | "list" }) {
     });
     const data = await response.json();
     setResult(data);
+    if (data.job) {
+      applyJob(data.job);
+      setBusy(false);
+      return;
+    }
     if (mode === "list" && data.links?.length) {
       setImports(data.links.map((link: string) => ({ url: link, status: "PENDING" })));
     }
@@ -91,7 +125,7 @@ export function ImportPreview({ mode }: { mode: "tour" | "list" }) {
     const response = await fetch("/api/import/batch", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ urls })
+      body: JSON.stringify(jobId ? { urls, jobId } : { urls })
     });
     const data = await response.json();
     if (!response.ok) {
@@ -206,6 +240,11 @@ export function ImportPreview({ mode }: { mode: "tour" | "list" }) {
                   <button className="btn-primary rounded-md" onClick={importAllBatches} disabled={busy || !pending.length}>Tumunu partlarla aktar</button>
                 </div>
               </div>
+              {jobId ? (
+                <div className="rounded-md border border-mint/30 bg-mint/5 p-2 text-xs text-mint">
+                  Bu liste DB'ye kaydedildi. Sayfayi yenilesen de kaldigin yerden devam eder.
+                </div>
+              ) : null}
               {imports.length ? (
                 <div className="rounded-md border border-line bg-ink p-3">
                   <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-slate-300">

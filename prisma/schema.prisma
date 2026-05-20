@@ -19,6 +19,18 @@ enum ImportStatus {
   PARTIAL
 }
 
+enum ImportJobStatus {
+  ACTIVE
+  COMPLETED
+}
+
+enum ImportItemStatus {
+  PENDING
+  PROCESSING
+  SUCCESS
+  FAILED
+}
+
 model Tour {
   id            String          @id @default(cuid())
   externalId    String?         @unique
@@ -114,4 +126,36 @@ model ImportLog {
   tour       Tour?        @relation(fields: [tourId], references: [id], onDelete: SetNull)
 
   @@index([createdAt])
+}
+
+model ImportJob {
+  id        String          @id @default(cuid())
+  sourceUrl String
+  total     Int             @default(0)
+  status    ImportJobStatus @default(ACTIVE)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  items     ImportJobItem[]
+
+  @@index([sourceUrl])
+  @@index([createdAt])
+}
+
+model ImportJobItem {
+  id        String           @id @default(cuid())
+  jobId     String
+  url       String
+  title     String?
+  status    ImportItemStatus @default(PENDING)
+  tourId    String?
+  tourName  String?
+  error     String?
+  sortOrder Int              @default(0)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  job       ImportJob        @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@unique([jobId, url])
+  @@index([status])
+  @@index([sortOrder])
 }
