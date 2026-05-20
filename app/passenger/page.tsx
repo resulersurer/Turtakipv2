@@ -158,9 +158,12 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
 
   return (
     <main className="page-shell space-y-6">
-      <section className="relative overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl">
-        <div className="pointer-events-none absolute inset-x-0 top-0 z-[500] px-4 pt-4 text-center text-slate-800 sm:px-8">
-          <h1 className="text-2xl font-black tracking-normal sm:text-4xl">EjderTurizmle bu hafta dünyayı keşfediyoruz...</h1>
+      <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl">
+        <div className="relative px-4 py-5 text-center text-slate-800 sm:px-8">
+          <a className="absolute right-4 top-4 rounded-md border border-slate-300 bg-white/90 px-3 py-2 text-sm font-bold text-slate-700 shadow-sm transition hover:bg-slate-100" href="https://www.ejderturizm.com.tr/">
+            Anasayfa
+          </a>
+          <h1 className="px-16 text-2xl font-black tracking-normal sm:text-4xl">EjderTurizmle bu hafta dünyayı keşfediyoruz...</h1>
           <p className="mt-3 text-sm font-bold uppercase tracking-normal text-slate-600 sm:text-base">
             {weeklyCountries.length ? `${weeklyCountries.map((country) => country.country).join(", ")} · ${weeklyCountries.length} ülke` : "Bu hafta rota ülkesi yok"}
           </p>
