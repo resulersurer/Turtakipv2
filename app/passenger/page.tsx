@@ -162,59 +162,54 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
       {/* ═══════════════════════════════════════════════
           KURUMSAL HEADER
       ═══════════════════════════════════════════════ */}
-      <section className="relative -mx-4 -mt-6 sm:-mx-6 sm:-mt-6 lg:-mx-8 lg:-mt-8 overflow-hidden border-b border-white/10">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#4a1515] via-[#3b1111] to-[#2a0b0b]" />
-        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-mint/40 to-transparent" />
+      <section className="relative -mx-4 -mt-6 sm:-mx-6 sm:-mt-6 lg:-mx-8 lg:-mt-8 overflow-hidden border-b border-slate-200 bg-white shadow-sm">
         <div className="relative px-6 py-5 sm:px-10 sm:py-6">
           <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-center">
             <div className="shrink-0 text-center sm:text-left">
               <img src="/logo.png" alt="Ejder Turizm" className="h-16 w-auto sm:h-20 lg:h-24" />
             </div>
             <div className="flex-1 text-center">
-              <h1 className="text-lg font-extrabold leading-tight tracking-tight text-white sm:text-xl">
+              <h1 className="text-lg font-extrabold leading-tight tracking-tight text-[#7f1d1d] sm:text-xl">
                 Bu Hafta{" "}
-                <span className="bg-gradient-to-r from-mint via-teal-300 to-sky-400 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-[#7f1d1d] via-[#991b1b] to-[#b91c1c] bg-clip-text text-transparent">
                   Dünyayı Keşfediyoruz
                 </span>
               </h1>
               <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
                 {weeklyCountries.length > 0 ? (
                   <>
-                    <span className="text-[11px] font-medium uppercase tracking-wider text-white/50">Bu hafta:</span>
+                    <span className="text-[11px] font-medium uppercase tracking-wider text-[#7f1d1d]/60">Bu hafta:</span>
                     {weeklyCountries.slice(0, 6).map((c) => (
-                      <span key={c.country} className="rounded-md border border-white/15 bg-white/10 px-2 py-0.5 text-[11px] font-medium text-white/80">
+                      <span key={c.country} className="rounded-md border border-[#7f1d1d]/15 bg-[#7f1d1d]/5 px-2 py-0.5 text-[11px] font-medium text-[#7f1d1d]/80">
                         {c.country}
                       </span>
                     ))}
                     {weeklyCountries.length > 6 && (
-                      <span className="text-[11px] font-medium text-white/60">+{weeklyCountries.length - 6} daha</span>
+                      <span className="text-[11px] font-medium text-[#7f1d1d]/60">+{weeklyCountries.length - 6} daha</span>
                     )}
                   </>
                 ) : (
-                  <span className="text-[11px] text-white/50">Bu hafta aktif rota bulunmuyor.</span>
+                  <span className="text-[11px] text-[#7f1d1d]/60">Bu hafta aktif rota bulunmuyor.</span>
                 )}
               </div>
             </div>
             <div className="flex flex-wrap items-center justify-center gap-2">
               <a
                 href="https://www.ejderturizm.com.tr/"
-                className="inline-flex items-center gap-2 rounded-lg border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-medium text-white backdrop-blur transition-all duration-200 hover:border-white/40 hover:bg-white/20"
+                className="inline-flex items-center gap-2 rounded-lg border border-[#7f1d1d]/20 bg-[#7f1d1d]/5 px-4 py-2.5 text-sm font-medium text-[#7f1d1d] backdrop-blur transition-all duration-200 hover:border-[#7f1d1d]/40 hover:bg-[#7f1d1d]/10"
               >
                 <svg className="h-4 w-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
                 Anasayfa
               </a>
               <Link
                 href="/tours"
-                className="inline-flex items-center gap-2 rounded-lg border border-white/40 bg-white px-4 py-2.5 text-sm font-semibold text-ink backdrop-blur transition-all duration-200 hover:bg-white/90"
+                className="inline-flex items-center gap-2 rounded-lg border border-[#7f1d1d]/40 bg-[#7f1d1d] px-4 py-2.5 text-sm font-semibold text-white backdrop-blur transition-all duration-200 hover:bg-[#7f1d1d]/90"
               >
                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
                 Tur Listesi
               </Link>
             </div>
           </div>
-
-
-
         </div>
       </section>
 
