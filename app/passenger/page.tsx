@@ -157,84 +157,234 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
   const hasResults = groups.some((group) => group.items.length > 0);
 
   return (
-    <main className="page-shell space-y-6">
-      <section className="rounded-lg border border-line bg-[#f7fafc] p-4 text-slate-900 shadow-xl sm:p-6">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div className="min-w-0 flex-1">
-            <p className="text-xs font-bold uppercase tracking-wide text-mint">Ejder Turizm yolcu takip</p>
-            <h1 className="mt-2 max-w-5xl text-3xl font-black leading-tight tracking-normal sm:text-4xl xl:text-5xl">
-              Bu hafta dünyayı keşfediyoruz
-            </h1>
-            <p className="mt-3 max-w-6xl text-sm font-bold uppercase leading-6 tracking-normal text-slate-600 sm:text-base">
-              {weeklyCountries.length ? `${weeklyCountries.map((country) => country.country).join(", ")} · ${weeklyCountries.length} ülke` : "Bu hafta rota ülkesi yok"}
-            </p>
+    <main className="page-shell space-y-8">
+
+      {/* ═══════════════════════════════════════════════
+          KURUMSAL HEADER
+      ═══════════════════════════════════════════════ */}
+      <section className="relative overflow-hidden rounded-2xl border border-white/8 shadow-2xl">
+        {/* Gradient arka plan */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0a1628] via-[#0d1f2d] to-[#071a15]" />
+        {/* Subtle overlay pattern */}
+        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 0, transparent 50%)", backgroundSize: "20px 20px" }} />
+        {/* Glow efektleri */}
+        <div className="absolute -left-24 -top-24 h-64 w-64 rounded-full bg-mint/10 blur-3xl" />
+        <div className="absolute -right-24 -bottom-24 h-64 w-64 rounded-full bg-sky-500/8 blur-3xl" />
+
+        <div className="relative px-6 py-8 sm:px-10 sm:py-10">
+          {/* Üst kısım: logo alanı + nav butonlar */}
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+            <div className="min-w-0 flex-1">
+              {/* Marka etiketi */}
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-mint/25 bg-mint/8 px-3 py-1">
+                <span className="h-1.5 w-1.5 rounded-full bg-mint shadow-[0_0_6px_rgba(68,215,182,0.9)]" />
+                <span className="text-xs font-semibold uppercase tracking-widest text-mint">Ejder Turizm · Yolcu Takip Sistemi</span>
+              </div>
+
+              {/* Ana başlık */}
+              <h1 className="text-3xl font-extrabold leading-tight tracking-tight text-white sm:text-4xl xl:text-5xl">
+                Bu Hafta{" "}
+                <span className="bg-gradient-to-r from-mint via-teal-300 to-sky-400 bg-clip-text text-transparent">
+                  Dünyayı Keşfediyoruz
+                </span>
+              </h1>
+
+              {/* Aktif destinasyonlar */}
+              <div className="mt-4 flex flex-wrap items-center gap-2">
+                {weeklyCountries.length > 0 ? (
+                  <>
+                    <span className="text-xs font-medium uppercase tracking-wider text-slate-500">Aktif rotalar:</span>
+                    {weeklyCountries.slice(0, 6).map((c) => (
+                      <span key={c.country} className="rounded-md border border-slate-700/60 bg-slate-800/50 px-2.5 py-1 text-xs font-medium text-slate-300">
+                        {c.country}
+                      </span>
+                    ))}
+                    {weeklyCountries.length > 6 && (
+                      <span className="rounded-md border border-slate-700/60 bg-slate-800/50 px-2.5 py-1 text-xs font-medium text-slate-400">
+                        +{weeklyCountries.length - 6} daha
+                      </span>
+                    )}
+                  </>
+                ) : (
+                  <span className="text-sm text-slate-500">Bu hafta aktif rota bulunmuyor.</span>
+                )}
+              </div>
+            </div>
+
+            {/* Navigasyon butonları */}
+            <div className="flex shrink-0 flex-wrap items-start gap-2">
+              <a
+                href="https://www.ejderturizm.com.tr/"
+                className="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/60 px-4 py-2.5 text-sm font-medium text-slate-300 backdrop-blur transition-all duration-200 hover:border-slate-500 hover:bg-slate-700/60 hover:text-white"
+              >
+                <svg className="h-4 w-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                Anasayfa
+              </a>
+              <Link
+                href="/tours"
+                className="inline-flex items-center gap-2 rounded-lg border border-mint/30 bg-mint/10 px-4 py-2.5 text-sm font-semibold text-mint backdrop-blur transition-all duration-200 hover:border-mint/60 hover:bg-mint/20"
+              >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+                Tur Listesi
+              </Link>
+            </div>
           </div>
-          <div className="flex shrink-0 flex-wrap gap-2">
-            <a className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-700 shadow-sm transition hover:bg-slate-100" href="https://www.ejderturizm.com.tr/">
-              Anasayfa
-            </a>
-            <Link className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-700 shadow-sm transition hover:bg-slate-100" href="/tours">Tur listesi</Link>
-          </div>
+
+          {/* Divider */}
+          <div className="my-7 border-t border-white/6" />
+
+          {/* Arama alanı */}
+          <form className="flex flex-col gap-3 sm:flex-row" action="/passenger">
+            <div className="relative min-w-0 flex-1">
+              <svg className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                className="w-full rounded-lg border border-slate-700/80 bg-slate-900/70 py-3 pl-10 pr-4 text-sm text-white placeholder:text-slate-500 outline-none backdrop-blur transition-all duration-200 focus:border-mint/60 focus:bg-slate-900 focus:ring-2 focus:ring-mint/15"
+                name="q"
+                defaultValue={q || ""}
+                placeholder="Tur adı, şehir, ülke veya havayolu ara…"
+              />
+            </div>
+            <button
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-mint px-7 py-3 text-sm font-semibold text-ink shadow-lg shadow-mint/20 transition-all duration-200 hover:bg-mint/90 hover:shadow-mint/30"
+              type="submit"
+            >
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+              Ara
+            </button>
+            {q ? (
+              <Link
+                href="/passenger"
+                className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/60 px-5 py-3 text-sm font-medium text-slate-400 backdrop-blur transition-all duration-200 hover:border-slate-500 hover:text-slate-200"
+              >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                Temizle
+              </Link>
+            ) : null}
+          </form>
         </div>
-        <form className="mt-5 flex flex-col gap-2 sm:flex-row" action="/passenger">
-          <input className="input min-w-0 flex-1 border-slate-300 bg-white text-slate-900 placeholder:text-slate-400" name="q" defaultValue={q || ""} placeholder="Tur, şehir, ülke veya havayolu ara" />
-          <button className="btn-primary rounded-md px-6" type="submit">Ara</button>
-          {q ? <Link className="rounded-md border border-slate-300 bg-white px-4 py-3 text-center text-sm font-bold text-slate-700 shadow-sm transition hover:bg-slate-100" href="/passenger">Temizle</Link> : null}
-        </form>
       </section>
 
-      <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl">
+      {/* Harita */}
+      <section className="overflow-hidden rounded-2xl border border-white/8 shadow-2xl">
         <div className="h-[300px] sm:h-[360px] lg:h-[420px]">
           <PublicMap days={weeklyCountryMarkers} showRoute={false} layer="light" />
         </div>
       </section>
 
+      {/* Arama sonucu bulunamadı */}
       {q && !hasResults ? (
-        <div className="panel rounded-lg p-8 text-center">
-          <h2 className="text-lg font-semibold text-white">Aramanıza uygun tur bulunamadı</h2>
-          <p className="mt-2 text-sm text-slate-400">Farklı bir tur adı, şehir, ülke veya havayolu deneyebilirsiniz.</p>
+        <div className="rounded-2xl border border-slate-700/50 bg-slate-900/60 p-10 text-center backdrop-blur">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl border border-slate-700/50 bg-slate-800/60">
+            <svg className="h-6 w-6 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          </div>
+          <h2 className="text-base font-semibold text-white">Aramanıza uygun tur bulunamadı</h2>
+          <p className="mt-2 text-sm text-slate-500">Farklı bir tur adı, şehir, ülke veya havayolu deneyebilirsiniz.</p>
         </div>
       ) : null}
 
+      {/* ═══════════════════════════════════════════════
+          TUR GRUPLARI & KARTLAR
+      ═══════════════════════════════════════════════ */}
       {groups.map((group) => (
-        <section className="space-y-3" key={group.key}>
-          <div className="flex items-center justify-between gap-3">
-            <h2 className={`text-xl font-semibold ${group.heading}`}>{group.label}</h2>
-            <span className={`rounded-full border px-3 py-1 text-sm font-bold ${group.count}`}>{group.items.length} tur</span>
+        <section className="space-y-4" key={group.key}>
+          {/* Grup başlığı */}
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-slate-900/80">
+                <img src={group.iconSrc} alt="" className="h-4 w-4 object-contain" />
+              </div>
+              <h2 className={`text-lg font-bold tracking-tight ${group.heading}`}>{group.label}</h2>
+            </div>
+            <div className="flex-1 border-t border-white/6" />
+            <span className={`rounded-full border px-3 py-1 text-xs font-bold tracking-wide ${group.count}`}>
+              {group.items.length} tur
+            </span>
           </div>
+
           {group.items.length ? (
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
               {group.items.map(({ tour, departure, relative, range }) => {
                 const meta = compactTourMeta([tour.durationDays ? `${tour.durationDays} gün` : null, tour.departureCity, tour.airline]);
+                const mapPoints = tour.days.filter((day: any) => day.lat != null && day.lng != null).length;
                 return (
-                  <Link className={`panel group overflow-hidden rounded-lg border transition hover:-translate-y-0.5 ${group.card}`} href={`/passenger/${tour.id}?departureId=${departure.id}`} key={`${tour.id}-${departure.id}`}>
-                    <div className="relative flex aspect-[16/9] items-center justify-center overflow-hidden bg-slate-950">
-                      {tour.coverImageUrl ? <img src={tour.coverImageUrl} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full scale-110 object-cover opacity-35 blur-xl" /> : null}
-                      {tour.coverImageUrl ? <img src={tour.coverImageUrl} alt={tour.name} className="relative z-10 h-full w-full object-contain transition duration-500 group-hover:scale-[1.02]" /> : <div className="h-full w-full bg-gradient-to-br from-emerald-500/20 via-slate-900 to-sky-500/20" />}
-                      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-slate-950/85 to-transparent" />
-                    </div>
-                    <div className="relative space-y-4 p-5 pt-4">
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="badge">{range}</span>
-                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-slate-950/55 p-1 shadow-lg">
-                          <img src={group.iconSrc} alt="" className="h-full w-full object-contain opacity-90" />
+                  <Link
+                    className={`group relative flex flex-col overflow-hidden rounded-2xl border bg-slate-900/70 backdrop-blur transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl ${group.card}`}
+                    href={`/passenger/${tour.id}?departureId=${departure.id}`}
+                    key={`${tour.id}-${departure.id}`}
+                  >
+                    {/* Görsel alanı */}
+                    <div className="relative flex aspect-[16/9] shrink-0 items-center justify-center overflow-hidden bg-slate-950">
+                      {tour.coverImageUrl ? (
+                        <img src={tour.coverImageUrl} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full scale-110 object-cover opacity-30 blur-xl" />
+                      ) : null}
+                      {tour.coverImageUrl ? (
+                        <img src={tour.coverImageUrl} alt={tour.name} className="relative z-10 h-full w-full object-contain transition-transform duration-500 group-hover:scale-[1.04]" />
+                      ) : (
+                        <div className="h-full w-full bg-gradient-to-br from-emerald-500/15 via-slate-900 to-sky-600/15" />
+                      )}
+                      {/* Gradient overlay */}
+                      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-950 to-transparent" />
+                      {/* Status ikonı - sağ üst */}
+                      <span className="absolute right-3 top-3 z-20 flex h-9 w-9 items-center justify-center rounded-xl border border-white/12 bg-slate-950/70 shadow-lg backdrop-blur-sm">
+                        <img src={group.iconSrc} alt="" className="h-5 w-5 object-contain opacity-90" />
+                      </span>
+                      {/* Tarih aralığı - sol alt */}
+                      <div className="absolute bottom-3 left-3 z-20">
+                        <span className="inline-flex items-center rounded-lg border border-white/12 bg-slate-950/75 px-2.5 py-1 text-xs font-semibold text-slate-200 backdrop-blur-sm">
+                          {range}
                         </span>
                       </div>
+                    </div>
+
+                    {/* Kart içeriği */}
+                    <div className="flex flex-1 flex-col gap-4 p-5">
+                      {/* Tur adı */}
                       <div>
-                        <h3 className="text-lg font-semibold leading-snug text-white">{tour.name}</h3>
-                        {meta ? <p className="mt-2 text-sm text-slate-400">{meta}</p> : null}
+                        <h3 className="text-base font-bold leading-snug text-white transition-colors duration-200 group-hover:text-mint">
+                          {tour.name}
+                        </h3>
+                        {meta ? (
+                          <p className="mt-1.5 flex flex-wrap items-center gap-x-2 text-xs text-slate-500">
+                            {meta.split(" · ").map((part, i) => (
+                              <span key={i} className="flex items-center gap-1">
+                                {i > 0 && <span className="text-slate-700">·</span>}
+                                {part}
+                              </span>
+                            ))}
+                          </p>
+                        ) : null}
                       </div>
-                      <div className="flex items-end justify-between gap-3 text-sm">
-                        <p className="text-slate-300">{tour.days.length} günlük rota, {tour.days.filter((day: any) => day.lat != null && day.lng != null).length} harita noktası</p>
-                        <span className="shrink-0 text-right text-xs font-semibold" style={{ color: group.color }}>{relative}</span>
+
+                      {/* Alt kısım: istatistikler + zaman */}
+                      <div className="mt-auto flex items-end justify-between gap-3 border-t border-white/6 pt-4">
+                        <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-500">
+                          <span className="flex items-center gap-1">
+                            <svg className="h-3.5 w-3.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                            {tour.days.length} gün
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <svg className="h-3.5 w-3.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                            {mapPoints} nokta
+                          </span>
+                        </div>
+                        <span className="shrink-0 rounded-md px-2 py-0.5 text-xs font-bold" style={{ color: group.color, backgroundColor: `${group.color}18` }}>
+                          {relative}
+                        </span>
                       </div>
                     </div>
+
+                    {/* Hover glow border efekti */}
+                    <div className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100" style={{ boxShadow: `inset 0 0 0 1px ${group.color}30` }} />
                   </Link>
                 );
               })}
             </div>
           ) : !q ? (
-            <div className="panel rounded-lg p-5 text-sm text-slate-400">Bu bölümde tur çıkışı yok.</div>
+            <div className="rounded-xl border border-slate-700/40 bg-slate-900/40 p-6 text-sm text-slate-500 backdrop-blur">
+              Bu bölümde tur çıkışı bulunmuyor.
+            </div>
           ) : null}
         </section>
       ))}
