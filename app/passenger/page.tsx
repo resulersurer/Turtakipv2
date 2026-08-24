@@ -306,7 +306,7 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
           {group.items.length ? (
             <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
               {group.items.map(({ tour, departure, relative, range }) => {
-                const meta = compactTourMeta([tour.durationDays ? `${tour.durationDays} gün` : null, tour.departureCity, tour.airline]);
+                const otherMeta = compactTourMeta([tour.durationDays ? `${tour.durationDays} gün` : null, tour.departureCity]);
                 const mapPoints = tour.days.filter((day: any) => day.lat != null && day.lng != null).length;
                 return (
                   <Link
@@ -371,10 +371,20 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
                         {tour.name}
                       </h3>
 
-                      {/* Meta bilgiler */}
-                      {meta ? (
-                        <p className="mt-1.5 text-xs text-white/55 leading-relaxed">
-                          {meta}
+                      {/* Havayolu badge */}
+                      {tour.airline ? (
+                        <div className="mt-2.5 inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-2.5 py-1 backdrop-blur-sm">
+                          <svg className="h-3.5 w-3.5 text-white/80 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                          </svg>
+                          <span className="text-xs font-semibold text-white/90 tracking-wide">{tour.airline}</span>
+                        </div>
+                      ) : null}
+
+                      {/* Diğer meta (süre + şehir) */}
+                      {otherMeta ? (
+                        <p className="mt-1.5 text-xs text-white/45 leading-relaxed">
+                          {otherMeta}
                         </p>
                       ) : null}
 
