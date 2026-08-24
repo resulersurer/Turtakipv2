@@ -162,67 +162,22 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
       {/* ═══════════════════════════════════════════════
           KURUMSAL HEADER
       ═══════════════════════════════════════════════ */}
-      <section className="relative overflow-hidden border-y border-white/8 shadow-2xl -mx-4 sm:-mx-6 lg:-mx-8">
-        {/* Gradient arka plan */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0a1628] via-[#0d1f2d] to-[#071a15]" />
-        {/* Subtle overlay pattern */}
-        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 0, transparent 50%)", backgroundSize: "20px 20px" }} />
-        {/* Glow efektleri */}
-        <div className="absolute -left-24 -top-24 h-64 w-64 rounded-full bg-mint/10 blur-3xl" />
-        <div className="absolute -right-24 -bottom-24 h-64 w-64 rounded-full bg-sky-500/8 blur-3xl" />
-
-        <div className="relative px-6 py-8 sm:px-10 sm:py-10">
-          {/* Üst kısım: logo alanı + nav butonlar */}
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-            <div className="min-w-0 flex-1">
-              {/* Marka etiketi */}
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-mint/25 bg-mint/8 px-3 py-1">
-                <span className="h-1.5 w-1.5 rounded-full bg-mint shadow-[0_0_6px_rgba(68,215,182,0.9)]" />
-                <span className="text-xs font-semibold uppercase tracking-widest text-mint">Ejder Turizm · Yolcu Takip Sistemi</span>
-              </div>
-
-              {/* Ana başlık */}
-              <h1 className="text-3xl font-extrabold leading-tight tracking-tight text-white sm:text-4xl xl:text-5xl">
-                Bu Hafta{" "}
-                <span className="bg-gradient-to-r from-mint via-teal-300 to-sky-400 bg-clip-text text-transparent">
-                  Dünyayı Keşfediyoruz
-                </span>
-              </h1>
-
-              {/* Aktif destinasyonlar */}
-              <div className="mt-4 flex flex-wrap items-center gap-2">
-                {weeklyCountries.length > 0 ? (
-                  <>
-                    <span className="text-xs font-medium uppercase tracking-wider text-slate-500">Aktif rotalar:</span>
-                    {weeklyCountries.slice(0, 6).map((c) => (
-                      <span key={c.country} className="rounded-md border border-slate-700/60 bg-slate-800/50 px-2.5 py-1 text-xs font-medium text-slate-300">
-                        {c.country}
-                      </span>
-                    ))}
-                    {weeklyCountries.length > 6 && (
-                      <span className="rounded-md border border-slate-700/60 bg-slate-800/50 px-2.5 py-1 text-xs font-medium text-slate-400">
-                        +{weeklyCountries.length - 6} daha
-                      </span>
-                    )}
-                  </>
-                ) : (
-                  <span className="text-sm text-slate-500">Bu hafta aktif rota bulunmuyor.</span>
-                )}
-              </div>
-            </div>
-
-            {/* Navigasyon butonları */}
-            <div className="flex shrink-0 flex-wrap items-start gap-2">
+      <section className="relative -mx-4 -mt-6 sm:-mx-6 sm:-mt-6 lg:-mx-8 lg:-mt-8 overflow-hidden border-b border-white/10">
+        <div className="absolute inset-0 bg-[#4a1515]" />
+        <div className="relative px-6 py-5 sm:px-10 sm:py-6">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+            <img src="/logo.png" alt="Ejder Turizm" className="h-10 w-auto sm:h-12" />
+            <div className="flex flex-wrap items-center gap-2">
               <a
                 href="https://www.ejderturizm.com.tr/"
-                className="inline-flex items-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/60 px-4 py-2.5 text-sm font-medium text-slate-300 backdrop-blur transition-all duration-200 hover:border-slate-500 hover:bg-slate-700/60 hover:text-white"
+                className="inline-flex items-center gap-2 rounded-lg border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-medium text-white backdrop-blur transition-all duration-200 hover:border-white/40 hover:bg-white/20"
               >
                 <svg className="h-4 w-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
                 Anasayfa
               </a>
               <Link
                 href="/tours"
-                className="inline-flex items-center gap-2 rounded-lg border border-mint/30 bg-mint/10 px-4 py-2.5 text-sm font-semibold text-mint backdrop-blur transition-all duration-200 hover:border-mint/60 hover:bg-mint/20"
+                className="inline-flex items-center gap-2 rounded-lg border border-white/40 bg-white px-4 py-2.5 text-sm font-semibold text-ink backdrop-blur transition-all duration-200 hover:bg-white/90"
               >
                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
                 Tur Listesi
@@ -230,17 +185,14 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
             </div>
           </div>
 
-          {/* Divider */}
-          <div className="my-7 border-t border-white/6" />
-
           {/* Arama alanı */}
-          <form className="flex flex-col gap-3 sm:flex-row" action="/passenger">
+          <form className="mt-5 flex flex-col gap-3 sm:flex-row" action="/passenger">
             <div className="relative min-w-0 flex-1">
-              <svg className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
               <input
-                className="w-full rounded-lg border border-slate-700/80 bg-slate-900/70 py-3 pl-10 pr-4 text-sm text-white placeholder:text-slate-500 outline-none backdrop-blur transition-all duration-200 focus:border-mint/60 focus:bg-slate-900 focus:ring-2 focus:ring-mint/15"
+                className="w-full rounded-lg border border-white/15 bg-black/30 py-3 pl-10 pr-4 text-sm text-white placeholder:text-white/50 outline-none backdrop-blur transition-all duration-200 focus:border-white/40 focus:bg-black/40 focus:ring-2 focus:ring-white/10"
                 name="q"
                 defaultValue={q || ""}
                 placeholder="Tur adı, şehir, ülke veya havayolu ara…"
@@ -256,7 +208,7 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
             {q ? (
               <Link
                 href="/passenger"
-                className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-700/70 bg-slate-800/60 px-5 py-3 text-sm font-medium text-slate-400 backdrop-blur transition-all duration-200 hover:border-slate-500 hover:text-slate-200"
+                className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/20 bg-white/10 px-5 py-3 text-sm font-medium text-white/80 backdrop-blur transition-all duration-200 hover:border-white/40 hover:text-white"
               >
                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                 Temizle
