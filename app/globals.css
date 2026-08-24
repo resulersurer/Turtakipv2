@@ -5,7 +5,7 @@
 
 :root {
   color-scheme: dark;
-  background: #050d12;
+  background: #0a0e1a;
 }
 
 * {
@@ -15,9 +15,9 @@
 body {
   margin: 0;
   background:
-    radial-gradient(ellipse at 0% 0%, rgba(68, 215, 182, 0.11) 0%, transparent 45%),
-    radial-gradient(ellipse at 100% 100%, rgba(56, 100, 180, 0.07) 0%, transparent 40%),
-    linear-gradient(160deg, #050d12 0%, #08141c 35%, #0b1c24 65%, #08121a 100%);
+    radial-gradient(ellipse at 0% 0%, rgba(68, 215, 182, 0.09) 0%, transparent 50%),
+    radial-gradient(ellipse at 100% 100%, rgba(80, 60, 200, 0.06) 0%, transparent 45%),
+    linear-gradient(160deg, #0a0e1a 0%, #0c1220 40%, #0b1428 70%, #0a0e1a 100%);
   color: #ecfdf7;
 }
 
