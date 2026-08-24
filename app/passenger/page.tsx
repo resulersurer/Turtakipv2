@@ -23,32 +23,32 @@ const countryCenters: Record<string, { lat: number; lng: number; label: string }
 const statusUi = {
   today: {
     label: "Bugün çıkışlı turlar",
-    count: "text-sky-200 bg-sky-500/15 border-sky-400/50",
-    heading: "text-sky-200",
+    count: "text-white bg-sky-500 border-sky-600 shadow-lg shadow-sky-500/20",
+    heading: "text-[#7f1d1d]",
     card: "hover:border-sky-300 border-sky-400/50",
     color: "#7dd3fc",
     iconSrc: "/icons/tour-status/today.svg"
   },
   ongoing: {
     label: "Devam eden turlar",
-    count: "text-amber-200 bg-amber-500/15 border-amber-400/50",
-    heading: "text-amber-200",
+    count: "text-white bg-amber-500 border-amber-600 shadow-lg shadow-amber-500/20",
+    heading: "text-[#7f1d1d]",
     card: "hover:border-amber-300 border-amber-400/45",
     color: "#fbbf24",
     iconSrc: "/icons/tour-status/ongoing.svg"
   },
   future: {
     label: "Gelecek turlar",
-    count: "text-emerald-200 bg-emerald-500/15 border-emerald-400/50",
-    heading: "text-emerald-200",
+    count: "text-white bg-emerald-500 border-emerald-600 shadow-lg shadow-emerald-500/20",
+    heading: "text-[#7f1d1d]",
     card: "hover:border-emerald-300 border-emerald-400/45",
     color: "#34d399",
     iconSrc: "/icons/tour-status/future.svg"
   },
   past: {
     label: "Geçmiş turlar",
-    count: "text-slate-200 bg-slate-500/15 border-slate-400/40",
-    heading: "text-slate-300",
+    count: "text-white bg-slate-400 border-slate-500 shadow-lg shadow-slate-400/20",
+    heading: "text-[#7f1d1d]",
     card: "hover:border-slate-300 border-line",
     color: "#cbd5e1",
     iconSrc: "/icons/tour-status/past.svg"
