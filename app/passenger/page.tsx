@@ -230,27 +230,27 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
         <div className="px-6 py-5 sm:px-10 sm:py-6">
           <form className="flex flex-col gap-3 sm:flex-row" action="/passenger">
             <div className="relative min-w-0 flex-1">
-              <svg className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
               <input
-                className="w-full rounded-lg border border-white/15 bg-black/30 py-3 pl-10 pr-4 text-sm text-white placeholder:text-white/50 outline-none backdrop-blur transition-all duration-200 focus:border-white/40 focus:bg-black/40 focus:ring-2 focus:ring-white/10"
+                className="w-full rounded-lg border border-slate-200 bg-white py-3 pl-10 pr-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all duration-200 focus:border-mint focus:ring-2 focus:ring-mint/20"
                 name="q"
                 defaultValue={q || ""}
                 placeholder="Tur adı, şehir, ülke veya havayolu ara…"
               />
             </div>
             <button
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-mint px-7 py-3 text-sm font-semibold text-ink shadow-lg shadow-mint/20 transition-all duration-200 hover:bg-mint/90 hover:shadow-mint/30"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-slate-900 px-7 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-slate-800 hover:shadow-lg hover:shadow-mint/10"
               type="submit"
             >
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+              <svg className="h-4 w-4 text-mint" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
               Ara
             </button>
             {q ? (
               <Link
                 href="/passenger"
-                className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/20 bg-white/10 px-5 py-3 text-sm font-medium text-white/80 backdrop-blur transition-all duration-200 hover:border-white/40 hover:text-white"
+                className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-5 py-3 text-sm font-medium text-slate-600 transition-all duration-200 hover:border-mint hover:text-mint"
               >
                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                 Temizle
