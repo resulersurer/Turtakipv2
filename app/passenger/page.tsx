@@ -248,12 +248,12 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
           {/* Grup başlığı */}
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-slate-900/80">
-                <img src={group.iconSrc} alt="" className="h-4 w-4 object-contain" />
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#7f1d1d]/20 bg-gradient-to-br from-[#7f1d1d]/10 to-[#7f1d1d]/5 shadow-sm">
+                <img src={group.iconSrc} alt="" className="h-5 w-5 object-contain drop-shadow-sm" />
               </div>
               <h2 className={`text-lg font-bold tracking-tight ${group.heading}`}>{group.label}</h2>
             </div>
-            <div className="flex-1 border-t border-white/6" />
+            <div className="flex-1 h-px bg-gradient-to-r from-[#7f1d1d]/40 via-[#7f1d1d]/15 to-transparent" />
             <span className={`rounded-full border px-3 py-1 text-xs font-bold tracking-wide ${group.count}`}>
               {group.items.length} tur
             </span>
@@ -303,11 +303,11 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
                     {/* ── ÜST ROW: status badge + tarih ── */}
                     <div className="absolute left-0 right-0 top-0 z-10 flex items-start justify-between p-4">
                       {/* Status ikonu */}
-                      <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/30 bg-white/90 shadow-sm backdrop-blur-md">
-                        <img src={group.iconSrc} alt="" className="h-5 w-5 object-contain" />
+                      <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#7f1d1d]/25 bg-white/95 shadow-md backdrop-blur-md">
+                        <img src={group.iconSrc} alt="" className="h-6 w-6 object-contain drop-shadow-sm transition-transform duration-300 group-hover:scale-110" />
                       </span>
                       {/* Tarih aralığı */}
-                      <span className="rounded-full border border-white/40 bg-white/90 px-3 py-1 text-xs font-semibold text-[#7f1d1d] backdrop-blur-md">
+                      <span className="rounded-full border border-[#7f1d1d]/25 bg-white/95 px-3 py-1 text-xs font-semibold text-[#7f1d1d] shadow-sm backdrop-blur-md">
                         {range}
                       </span>
                     </div>
