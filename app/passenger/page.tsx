@@ -218,8 +218,21 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
             </div>
           </div>
 
-          {/* Arama alanı */}
-          <form className="mt-5 flex flex-col gap-3 sm:flex-row" action="/passenger">
+
+        </div>
+      </section>
+
+      {/* Harita */}
+      <section className="overflow-hidden border-y border-white/8 shadow-2xl -mx-4 sm:-mx-6 lg:-mx-8">
+        <div className="h-[300px] sm:h-[360px] lg:h-[420px]">
+          <PublicMap days={weeklyCountryMarkers} showRoute={false} layer="light" />
+        </div>
+      </section>
+
+      {/* Arama alanı */}
+      <section className="overflow-hidden border-y border-white/8 shadow-2xl -mx-4 sm:-mx-6 lg:-mx-8">
+        <div className="px-6 py-5 sm:px-10 sm:py-6">
+          <form className="flex flex-col gap-3 sm:flex-row" action="/passenger">
             <div className="relative min-w-0 flex-1">
               <svg className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -248,13 +261,6 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
               </Link>
             ) : null}
           </form>
-        </div>
-      </section>
-
-      {/* Harita */}
-      <section className="overflow-hidden border-y border-white/8 shadow-2xl -mx-4 sm:-mx-6 lg:-mx-8">
-        <div className="h-[300px] sm:h-[360px] lg:h-[420px]">
-          <PublicMap days={weeklyCountryMarkers} showRoute={false} layer="light" />
         </div>
       </section>
 
