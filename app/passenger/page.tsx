@@ -7,6 +7,7 @@ import { SetupNotice } from "@/components/SetupNotice";
 import { isPrismaSetupError } from "@/lib/db-errors";
 import { classifyDeparture, departureRelativeLabel, formatDepartureRange } from "@/lib/departure-status";
 import { compactTourMeta } from "@/lib/display";
+import { PassengerSearchBox } from "@/components/PassengerSearchBox";
 
 export const dynamic = "force-dynamic";
 
@@ -221,37 +222,9 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
       </section>
 
       {/* Arama alanı */}
-      <section className="overflow-hidden border-y border-white/8 shadow-2xl -mx-4 sm:-mx-6 lg:-mx-8">
+      <section className="overflow-hidden border-b border-slate-200 bg-white shadow-sm -mx-4 sm:-mx-6 lg:-mx-8">
         <div className="px-6 py-5 sm:px-10 sm:py-6">
-          <form className="flex flex-col gap-3 sm:flex-row" action="/passenger">
-            <div className="relative min-w-0 flex-1">
-              <svg className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              <input
-                className="w-full rounded-lg border border-slate-200 bg-white py-3 pl-10 pr-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all duration-200 focus:border-mint focus:ring-2 focus:ring-mint/20"
-                name="q"
-                defaultValue={q || ""}
-                placeholder="Tur adı, şehir, ülke veya havayolu ara…"
-              />
-            </div>
-            <button
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-slate-900 px-7 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-slate-800 hover:shadow-lg hover:shadow-mint/10"
-              type="submit"
-            >
-              <svg className="h-4 w-4 text-mint" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-              Ara
-            </button>
-            {q ? (
-              <Link
-                href="/passenger"
-                className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-5 py-3 text-sm font-medium text-slate-600 transition-all duration-200 hover:border-mint hover:text-mint"
-              >
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                Temizle
-              </Link>
-            ) : null}
-          </form>
+          <PassengerSearchBox defaultValue={q || ""} />
         </div>
       </section>
 
