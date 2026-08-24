@@ -192,6 +192,32 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
             </div>
           </div>
 
+          <div className="mt-4">
+            <h1 className="text-lg font-extrabold leading-tight tracking-tight text-white sm:text-xl">
+              Bu Hafta{" "}
+              <span className="bg-gradient-to-r from-mint via-teal-300 to-sky-400 bg-clip-text text-transparent">
+                Dünyayı Keşfediyoruz
+              </span>
+            </h1>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              {weeklyCountries.length > 0 ? (
+                <>
+                  <span className="text-[11px] font-medium uppercase tracking-wider text-white/50">Bu hafta:</span>
+                  {weeklyCountries.slice(0, 6).map((c) => (
+                    <span key={c.country} className="rounded-md border border-white/15 bg-white/10 px-2 py-0.5 text-[11px] font-medium text-white/80">
+                      {c.country}
+                    </span>
+                  ))}
+                  {weeklyCountries.length > 6 && (
+                    <span className="text-[11px] font-medium text-white/60">+{weeklyCountries.length - 6} daha</span>
+                  )}
+                </>
+              ) : (
+                <span className="text-[11px] text-white/50">Bu hafta aktif rota bulunmuyor.</span>
+              )}
+            </div>
+          </div>
+
           {/* Arama alanı */}
           <form className="mt-5 flex flex-col gap-3 sm:flex-row" action="/passenger">
             <div className="relative min-w-0 flex-1">
