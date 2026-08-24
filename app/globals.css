@@ -15,9 +15,9 @@
 body {
   margin: 0;
   background:
-    radial-gradient(ellipse at 0% 0%, rgba(74, 21, 21, 0.35) 0%, transparent 55%),
-    radial-gradient(ellipse at 100% 100%, rgba(42, 11, 11, 0.35) 0%, transparent 50%),
-    linear-gradient(160deg, #2a0b0b 0%, #3b1111 40%, #4a1515 70%, #2a0b0b 100%);
+    radial-gradient(ellipse at 0% 0%, rgba(74, 21, 21, 0.45) 0%, transparent 55%),
+    radial-gradient(ellipse at 100% 100%, rgba(42, 11, 11, 0.45) 0%, transparent 50%),
+    linear-gradient(160deg, #351313 0%, #451818 40%, #551f1f 70%, #351313 100%);
   color: #ecfdf7;
 }
 
