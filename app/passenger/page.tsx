@@ -310,73 +310,103 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
                 const mapPoints = tour.days.filter((day: any) => day.lat != null && day.lng != null).length;
                 return (
                   <Link
-                    className={`group relative flex flex-col overflow-hidden rounded-2xl border bg-slate-900/70 backdrop-blur transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl ${group.card}`}
+                    className={`group relative block overflow-hidden rounded-2xl border transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_32px_64px_rgba(0,0,0,0.5)] ${group.card}`}
                     href={`/passenger/${tour.id}?departureId=${departure.id}`}
                     key={`${tour.id}-${departure.id}`}
+                    style={{ aspectRatio: "3/4" }}
                   >
-                    {/* Görsel alanı */}
-                    <div className="relative flex aspect-[16/9] shrink-0 items-center justify-center overflow-hidden bg-slate-950">
+                    {/* ── ARKA PLAN GÖRSELI (tam kaplama) ── */}
+                    <div className="absolute inset-0">
                       {tour.coverImageUrl ? (
-                        <img src={tour.coverImageUrl} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full scale-110 object-cover opacity-30 blur-xl" />
-                      ) : null}
-                      {tour.coverImageUrl ? (
-                        <img src={tour.coverImageUrl} alt={tour.name} className="relative z-10 h-full w-full object-contain transition-transform duration-500 group-hover:scale-[1.04]" />
+                        <>
+                          <img
+                            src={tour.coverImageUrl}
+                            alt={tour.name}
+                            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.06]"
+                          />
+                          {/* Renk tonu overlay */}
+                          <div className="absolute inset-0 bg-slate-950/40" />
+                        </>
                       ) : (
-                        <div className="h-full w-full bg-gradient-to-br from-emerald-500/15 via-slate-900 to-sky-600/15" />
-                      )}
-                      {/* Gradient overlay */}
-                      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-950 to-transparent" />
-                      {/* Status ikonı - sağ üst */}
-                      <span className="absolute right-3 top-3 z-20 flex h-9 w-9 items-center justify-center rounded-xl border border-white/12 bg-slate-950/70 shadow-lg backdrop-blur-sm">
-                        <img src={group.iconSrc} alt="" className="h-5 w-5 object-contain opacity-90" />
-                      </span>
-                      {/* Tarih aralığı - sol alt */}
-                      <div className="absolute bottom-3 left-3 z-20">
-                        <span className="inline-flex items-center rounded-lg border border-white/12 bg-slate-950/75 px-2.5 py-1 text-xs font-semibold text-slate-200 backdrop-blur-sm">
-                          {range}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Kart içeriği */}
-                    <div className="flex flex-1 flex-col gap-4 p-5">
-                      {/* Tur adı */}
-                      <div>
-                        <h3 className="text-base font-bold leading-snug text-white transition-colors duration-200 group-hover:text-mint">
-                          {tour.name}
-                        </h3>
-                        {meta ? (
-                          <p className="mt-1.5 flex flex-wrap items-center gap-x-2 text-xs text-slate-500">
-                            {meta.split(" · ").map((part, i) => (
-                              <span key={i} className="flex items-center gap-1">
-                                {i > 0 && <span className="text-slate-700">·</span>}
-                                {part}
-                              </span>
-                            ))}
-                          </p>
-                        ) : null}
-                      </div>
-
-                      {/* Alt kısım: istatistikler + zaman */}
-                      <div className="mt-auto flex items-end justify-between gap-3 border-t border-white/6 pt-4">
-                        <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-500">
-                          <span className="flex items-center gap-1">
-                            <svg className="h-3.5 w-3.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                            {tour.days.length} gün
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <svg className="h-3.5 w-3.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                            {mapPoints} nokta
-                          </span>
+                        <div
+                          className="h-full w-full"
+                          style={{
+                            background: `radial-gradient(ellipse at 30% 20%, ${group.color}22 0%, transparent 60%), linear-gradient(160deg, #0d1f2d 0%, #071016 100%)`
+                          }}
+                        >
+                          {/* Dekoratif şekil */}
+                          <div className="absolute inset-0 flex items-center justify-center opacity-10">
+                            <svg viewBox="0 0 100 100" className="h-48 w-48" fill="currentColor" style={{ color: group.color }}>
+                              <circle cx="50" cy="50" r="40" />
+                            </svg>
+                          </div>
                         </div>
-                        <span className="shrink-0 rounded-md px-2 py-0.5 text-xs font-bold" style={{ color: group.color, backgroundColor: `${group.color}18` }}>
-                          {relative}
+                      )}
+                    </div>
+
+                    {/* ── ÜST ROW: status badge + tarih ── */}
+                    <div className="absolute left-0 right-0 top-0 z-10 flex items-start justify-between p-4">
+                      {/* Status ikonu */}
+                      <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/15 bg-black/50 shadow-lg backdrop-blur-md">
+                        <img src={group.iconSrc} alt="" className="h-5 w-5 object-contain" />
+                      </span>
+                      {/* Tarih aralığı */}
+                      <span className="rounded-full border border-white/15 bg-black/55 px-3 py-1 text-xs font-semibold text-white backdrop-blur-md">
+                        {range}
+                      </span>
+                    </div>
+
+                    {/* ── ALT GRADIENT (metin alanı) ── */}
+                    <div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/95 via-black/70 to-transparent px-5 pb-5 pt-20">
+                      {/* Relative zaman */}
+                      <span
+                        className="mb-2.5 inline-block rounded-full px-2.5 py-0.5 text-[11px] font-bold tracking-wide"
+                        style={{ color: group.color, backgroundColor: `${group.color}20`, border: `1px solid ${group.color}35` }}
+                      >
+                        {relative}
+                      </span>
+
+                      {/* Tur adı */}
+                      <h3 className="text-lg font-bold leading-snug text-white drop-shadow-lg transition-colors duration-200 group-hover:text-white">
+                        {tour.name}
+                      </h3>
+
+                      {/* Meta bilgiler */}
+                      {meta ? (
+                        <p className="mt-1.5 text-xs text-white/55 leading-relaxed">
+                          {meta}
+                        </p>
+                      ) : null}
+
+                      {/* Alt istatistik çubuğu */}
+                      <div className="mt-4 flex items-center gap-4 border-t border-white/10 pt-3.5">
+                        <span className="flex items-center gap-1.5 text-xs text-white/50">
+                          <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          {tour.days.length} gün
+                        </span>
+                        <span className="flex items-center gap-1.5 text-xs text-white/50">
+                          <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          {mapPoints} nokta
+                        </span>
+                        {/* Sağda ok ikonu */}
+                        <span className="ml-auto flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-white/10 backdrop-blur-sm transition-all duration-200 group-hover:border-white/30 group-hover:bg-white/20">
+                          <svg className="h-3.5 w-3.5 text-white transition-transform duration-200 group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                          </svg>
                         </span>
                       </div>
                     </div>
 
-                    {/* Hover glow border efekti */}
-                    <div className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100" style={{ boxShadow: `inset 0 0 0 1px ${group.color}30` }} />
+                    {/* ── HOVER GLOW BORDER ── */}
+                    <div
+                      className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                      style={{ boxShadow: `inset 0 0 0 1.5px ${group.color}50` }}
+                    />
                   </Link>
                 );
               })}
