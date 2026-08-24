@@ -162,7 +162,7 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
       {/* ═══════════════════════════════════════════════
           KURUMSAL HEADER
       ═══════════════════════════════════════════════ */}
-      <section className="relative overflow-hidden rounded-2xl border border-white/8 shadow-2xl">
+      <section className="relative overflow-hidden border-y border-white/8 shadow-2xl -mx-4 sm:-mx-6 lg:-mx-8">
         {/* Gradient arka plan */}
         <div className="absolute inset-0 bg-gradient-to-br from-[#0a1628] via-[#0d1f2d] to-[#071a15]" />
         {/* Subtle overlay pattern */}
@@ -267,7 +267,7 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
       </section>
 
       {/* Harita */}
-      <section className="overflow-hidden rounded-2xl border border-white/8 shadow-2xl">
+      <section className="overflow-hidden border-y border-white/8 shadow-2xl -mx-4 sm:-mx-6 lg:-mx-8">
         <div className="h-[300px] sm:h-[360px] lg:h-[420px]">
           <PublicMap days={weeklyCountryMarkers} showRoute={false} layer="light" />
         </div>
