@@ -169,10 +169,6 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
           <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-center">
             <div className="shrink-0 text-center sm:text-left">
               <img src="/logo.png" alt="Ejder Turizm" className="h-16 w-auto sm:h-20 lg:h-24" />
-              <div className="mt-2 flex items-center justify-center gap-2 sm:justify-start">
-                <span className="inline-block h-1 w-1 rounded-full bg-mint shadow-[0_0_6px_rgba(68,215,182,0.9)]" />
-                <p className="text-xs font-medium uppercase tracking-widest text-white/60">Tur Takip Sistemi</p>
-              </div>
             </div>
             <div className="flex-1 text-center">
               <h1 className="text-lg font-extrabold leading-tight tracking-tight text-white sm:text-xl">
