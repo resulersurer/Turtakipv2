@@ -292,7 +292,7 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
                 const mapPoints = tour.days.filter((day: any) => day.lat != null && day.lng != null).length;
                 return (
                   <Link
-                    className={`group relative block overflow-hidden rounded-2xl border transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_32px_64px_rgba(0,0,0,0.5)] ${group.card}`}
+                    className="group relative block overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-[#7f1d1d]/10 hover:border-[#7f1d1d]/30"
                     href={`/passenger/${tour.id}?departureId=${departure.id}`}
                     key={`${tour.id}-${departure.id}`}
                     style={{ aspectRatio: "3/4" }}
@@ -307,13 +307,13 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
                             className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.06]"
                           />
                           {/* Renk tonu overlay */}
-                          <div className="absolute inset-0 bg-slate-950/40" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                         </>
                       ) : (
                         <div
                           className="h-full w-full"
                           style={{
-                            background: `radial-gradient(ellipse at 30% 20%, ${group.color}22 0%, transparent 60%), linear-gradient(160deg, #0d1f2d 0%, #071016 100%)`
+                            background: `radial-gradient(ellipse at 30% 20%, ${group.color}25 0%, transparent 60%), linear-gradient(160deg, #f5f5f7 0%, #e5e5ea 100%)`
                           }}
                         >
                           {/* Dekoratif şekil */}
@@ -329,56 +329,55 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
                     {/* ── ÜST ROW: status badge + tarih ── */}
                     <div className="absolute left-0 right-0 top-0 z-10 flex items-start justify-between p-4">
                       {/* Status ikonu */}
-                      <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/15 bg-black/50 shadow-lg backdrop-blur-md">
+                      <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/30 bg-white/90 shadow-sm backdrop-blur-md">
                         <img src={group.iconSrc} alt="" className="h-5 w-5 object-contain" />
                       </span>
                       {/* Tarih aralığı */}
-                      <span className="rounded-full border border-white/15 bg-black/55 px-3 py-1 text-xs font-semibold text-white backdrop-blur-md">
+                      <span className="rounded-full border border-white/40 bg-white/90 px-3 py-1 text-xs font-semibold text-[#7f1d1d] backdrop-blur-md">
                         {range}
                       </span>
                     </div>
 
                     {/* ── ALT GRADIENT (metin alanı) ── */}
-                    <div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/95 via-black/70 to-transparent px-5 pb-5 pt-20">
+                    <div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-white/95 via-white/85 to-transparent px-5 pb-5 pt-20">
                       {/* Relative zaman */}
                       <span
-                        className="mb-2.5 inline-block rounded-full px-2.5 py-0.5 text-[11px] font-bold tracking-wide"
-                        style={{ color: group.color, backgroundColor: `${group.color}20`, border: `1px solid ${group.color}35` }}
+                        className="mb-2.5 inline-block rounded-full border border-[#7f1d1d]/20 bg-[#7f1d1d]/5 px-2.5 py-0.5 text-[11px] font-bold tracking-wide text-[#7f1d1d]"
                       >
                         {relative}
                       </span>
 
                       {/* Tur adı */}
-                      <h3 className="text-lg font-bold leading-snug text-white drop-shadow-lg transition-colors duration-200 group-hover:text-white">
+                      <h3 className="text-lg font-bold leading-snug text-[#7f1d1d] transition-colors duration-200 group-hover:text-[#7f1d1d]">
                         {tour.name}
                       </h3>
 
                       {/* Havayolu badge */}
                       {tour.airline ? (
-                        <div className="mt-2.5 inline-flex items-center gap-1.5 rounded-lg bg-black/40 px-2.5 py-1 backdrop-blur-sm">
+                        <div className="mt-2.5 inline-flex items-center gap-1.5 rounded-lg border border-[#7f1d1d]/15 bg-[#7f1d1d]/5 px-2.5 py-1">
                           <svg className="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: group.color, opacity: 0.85 }}>
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                           </svg>
-                          <span className="text-xs font-semibold tracking-wide" style={{ color: group.color }}>{tour.airline}</span>
+                          <span className="text-xs font-semibold tracking-wide text-[#7f1d1d]">{tour.airline}</span>
                         </div>
                       ) : null}
 
                       {/* Diğer meta (süre + şehir) */}
                       {otherMeta ? (
-                        <p className="mt-1.5 text-xs text-white/45 leading-relaxed">
+                        <p className="mt-1.5 text-xs text-slate-500 leading-relaxed">
                           {otherMeta}
                         </p>
                       ) : null}
 
                       {/* Alt istatistik çubuğu */}
-                      <div className="mt-4 flex items-center gap-4 border-t border-white/10 pt-3.5">
-                        <span className="flex items-center gap-1.5 text-xs text-white/50">
+                      <div className="mt-4 flex items-center gap-4 border-t border-[#7f1d1d]/10 pt-3.5">
+                        <span className="flex items-center gap-1.5 text-xs text-slate-600">
                           <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                           </svg>
                           {tour.days.length} gün
                         </span>
-                        <span className="flex items-center gap-1.5 text-xs text-white/50">
+                        <span className="flex items-center gap-1.5 text-xs text-slate-600">
                           <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -386,8 +385,8 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
                           {mapPoints} nokta
                         </span>
                         {/* Sağda ok ikonu */}
-                        <span className="ml-auto flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-white/10 backdrop-blur-sm transition-all duration-200 group-hover:border-white/30 group-hover:bg-white/20">
-                          <svg className="h-3.5 w-3.5 text-white transition-transform duration-200 group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <span className="ml-auto flex h-8 w-8 items-center justify-center rounded-full border border-[#7f1d1d]/20 bg-[#7f1d1d]/5 transition-all duration-200 group-hover:border-[#7f1d1d]/40 group-hover:bg-[#7f1d1d]/10">
+                          <svg className="h-3.5 w-3.5 text-[#7f1d1d] transition-transform duration-200 group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
                           </svg>
                         </span>
