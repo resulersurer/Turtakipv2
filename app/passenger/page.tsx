@@ -163,10 +163,17 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
           KURUMSAL HEADER
       ═══════════════════════════════════════════════ */}
       <section className="relative -mx-4 -mt-6 sm:-mx-6 sm:-mt-6 lg:-mx-8 lg:-mt-8 overflow-hidden border-b border-white/10">
-        <div className="absolute inset-0 bg-[#4a1515]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#4a1515] via-[#3b1111] to-[#2a0b0b]" />
+        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-mint/40 to-transparent" />
         <div className="relative px-6 py-5 sm:px-10 sm:py-6">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-            <img src="/logo.png" alt="Ejder Turizm" className="h-10 w-auto sm:h-12" />
+            <div>
+              <img src="/logo.png" alt="Ejder Turizm" className="h-16 w-auto sm:h-20 lg:h-24" />
+              <div className="mt-2 flex items-center gap-2">
+                <span className="inline-block h-1 w-1 rounded-full bg-mint shadow-[0_0_6px_rgba(68,215,182,0.9)]" />
+                <p className="text-xs font-medium uppercase tracking-widest text-white/60">Yolcu Takip Sistemi</p>
+              </div>
+            </div>
             <div className="flex flex-wrap items-center gap-2">
               <a
                 href="https://www.ejderturizm.com.tr/"
