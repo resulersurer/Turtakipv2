@@ -32,9 +32,9 @@ export function PassengerSearchBox({ defaultValue = "" }: { defaultValue?: strin
     >
       <div className="group relative min-w-0 flex-1">
         <div className="pointer-events-none absolute -inset-px rounded-xl bg-gradient-to-r from-[#7f1d1d]/0 via-[#7f1d1d]/20 to-mint/30 opacity-0 blur transition-opacity duration-300 group-focus-within:opacity-100" />
-        <div className="relative flex items-center rounded-xl border border-slate-200 bg-white shadow-sm transition-all duration-200 group-focus-within:border-[#7f1d1d]/40 group-focus-within:shadow-md">
-          <svg className="ml-3.5 h-4 w-4 shrink-0 text-[#7f1d1d]/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        <div className="relative flex items-center rounded-xl border border-slate-200 bg-[#f5f5f7] shadow-sm transition-all duration-200 group-focus-within:border-[#7f1d1d]/40 group-focus-within:shadow-md">
+          <svg className="ml-3.5 h-5 w-5 shrink-0 text-[#7f1d1d]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
           <input
             value={value}

@@ -222,7 +222,7 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
       </section>
 
       {/* Arama alanı */}
-      <section className="overflow-hidden border-b border-slate-200 bg-white shadow-sm -mx-4 sm:-mx-6 lg:-mx-8">
+      <section className="overflow-hidden border-b border-slate-200 bg-[#f5f5f7] shadow-sm -mx-4 sm:-mx-6 lg:-mx-8">
         <div className="px-6 py-5 sm:px-10 sm:py-6">
           <PassengerSearchBox defaultValue={q || ""} />
         </div>
