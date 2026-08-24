@@ -373,11 +373,11 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
 
                       {/* Havayolu badge */}
                       {tour.airline ? (
-                        <div className="mt-2.5 inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-2.5 py-1 backdrop-blur-sm">
-                          <svg className="h-3.5 w-3.5 text-white/80 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="mt-2.5 inline-flex items-center gap-1.5 rounded-lg bg-black/40 px-2.5 py-1 backdrop-blur-sm">
+                          <svg className="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: group.color, opacity: 0.85 }}>
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                           </svg>
-                          <span className="text-xs font-semibold text-white/90 tracking-wide">{tour.airline}</span>
+                          <span className="text-xs font-semibold tracking-wide" style={{ color: group.color }}>{tour.airline}</span>
                         </div>
                       ) : null}
 
