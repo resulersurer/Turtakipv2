@@ -158,7 +158,7 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
   const hasResults = groups.some((group) => group.items.length > 0);
 
   return (
-    <main className="page-shell space-y-8">
+    <main className="page-shell">
 
       {/* ═══════════════════════════════════════════════
           KURUMSAL HEADER
@@ -242,7 +242,8 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
       {/* ═══════════════════════════════════════════════
           TUR GRUPLARI & KARTLAR
       ═══════════════════════════════════════════════ */}
-      {groups.map((group) => (
+      <div className="mt-8 space-y-8">
+        {groups.map((group) => (
         <section className="space-y-4" key={group.key}>
           {/* Grup başlığı */}
           <div className="flex items-center gap-4">
@@ -382,6 +383,7 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
           ) : null}
         </section>
       ))}
+      </div>
     </main>
   );
 }
