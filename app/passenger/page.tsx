@@ -24,7 +24,7 @@ const countryCenters: Record<string, { lat: number; lng: number; label: string }
 const statusUi = {
   today: {
     label: "Bugün çıkışlı turlar",
-    count: "text-white bg-sky-500 border-sky-600 shadow-lg shadow-sky-500/20",
+    count: "text-sky-900 bg-sky-200 border-sky-300 shadow-sm",
     heading: "text-[#7f1d1d]",
     card: "hover:border-sky-300 border-sky-400/50",
     color: "#7dd3fc",
@@ -32,7 +32,7 @@ const statusUi = {
   },
   ongoing: {
     label: "Devam eden turlar",
-    count: "text-white bg-amber-500 border-amber-600 shadow-lg shadow-amber-500/20",
+    count: "text-amber-900 bg-amber-200 border-amber-300 shadow-sm",
     heading: "text-[#7f1d1d]",
     card: "hover:border-amber-300 border-amber-400/45",
     color: "#fbbf24",
@@ -40,7 +40,7 @@ const statusUi = {
   },
   future: {
     label: "Gelecek turlar",
-    count: "text-white bg-emerald-500 border-emerald-600 shadow-lg shadow-emerald-500/20",
+    count: "text-emerald-900 bg-emerald-200 border-emerald-300 shadow-sm",
     heading: "text-[#7f1d1d]",
     card: "hover:border-emerald-300 border-emerald-400/45",
     color: "#34d399",
@@ -48,7 +48,7 @@ const statusUi = {
   },
   past: {
     label: "Geçmiş turlar",
-    count: "text-white bg-slate-400 border-slate-500 shadow-lg shadow-slate-400/20",
+    count: "text-slate-800 bg-slate-200 border-slate-300 shadow-sm",
     heading: "text-[#7f1d1d]",
     card: "hover:border-slate-300 border-line",
     color: "#cbd5e1",
@@ -338,20 +338,20 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
 
                       {/* Diğer meta (süre + şehir) */}
                       {otherMeta ? (
-                        <p className="mt-1.5 text-xs text-slate-500 leading-relaxed">
+                        <p className="mt-1.5 text-xs font-medium text-slate-700 leading-relaxed">
                           {otherMeta}
                         </p>
                       ) : null}
 
                       {/* Alt istatistik çubuğu */}
                       <div className="mt-4 flex items-center gap-4 border-t border-[#7f1d1d]/10 pt-3.5">
-                        <span className="flex items-center gap-1.5 text-xs text-slate-600">
+                        <span className="flex items-center gap-1.5 text-xs font-semibold text-[#7f1d1d]">
                           <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                           </svg>
                           {tour.days.length} gün
                         </span>
-                        <span className="flex items-center gap-1.5 text-xs text-slate-600">
+                        <span className="flex items-center gap-1.5 text-xs font-semibold text-[#7f1d1d]">
                           <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
