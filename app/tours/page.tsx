@@ -5,7 +5,7 @@ import { hasDatabaseUrl, isDatabaseSchemaReady } from "@/lib/db-ready";
 import { SetupNotice } from "@/components/SetupNotice";
 import { isPrismaSetupError } from "@/lib/db-errors";
 import { compactTourMeta } from "@/lib/display";
-import { departureRelativeLabel, formatDepartureRange } from "@/lib/departure-status";
+import { classifyDeparture, departureRelativeLabel, formatDepartureRange } from "@/lib/departure-status";
 
 export const dynamic = "force-dynamic";
 
@@ -37,27 +37,30 @@ const statusUi = {
 } as const;
 
 function classify(tour: any) {
-  const starts = tour.departures.map((departure: any) => new Date(departure.startDate).getTime());
-  const ends = tour.departures.map((departure: any) => new Date(departure.endDate || departure.startDate).getTime());
-  const now = Date.now();
-  if (ends.some((end: number, index: number) => starts[index] <= now && end >= now)) return "Devam eden";
-  if (starts.some((start: number) => start > now)) return "Gelecek";
-  return "Geçmiş";
+  const now = new Date();
+  let hasFuture = false;
+  for (const departure of tour.departures) {
+    const status = classifyDeparture(departure, now);
+    if (status === "today" || status === "ongoing") return "Devam eden";
+    if (status === "future") hasFuture = true;
+  }
+  return hasFuture ? "Gelecek" : "Geçmiş";
 }
 
 function tourSortValue(tour: any) {
-  const now = Date.now();
+  const now = new Date();
   const ranges = tour.departures.map((departure: any) => ({
     start: new Date(departure.startDate).getTime(),
-    end: new Date(departure.endDate || departure.startDate).getTime()
+    end: new Date(departure.endDate || departure.startDate).getTime(),
+    status: classifyDeparture(departure, now)
   }));
   const activeEnd = ranges
-    .filter((range: any) => range.start <= now && range.end >= now)
+    .filter((range: any) => (range.status === "today" || range.status === "ongoing") && range.start <= now.getTime() && range.end >= now.getTime())
     .map((range: any) => range.end)
     .sort((a: number, b: number) => a - b)[0];
   if (activeEnd != null) return activeEnd;
   const nextStart = ranges
-    .filter((range: any) => range.start > now)
+    .filter((range: any) => range.status === "future" && range.start > now.getTime())
     .map((range: any) => range.start)
     .sort((a: number, b: number) => a - b)[0];
   if (nextStart != null) return nextStart;
