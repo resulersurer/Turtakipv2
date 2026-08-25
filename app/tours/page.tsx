@@ -6,6 +6,7 @@ import { SetupNotice } from "@/components/SetupNotice";
 import { isPrismaSetupError } from "@/lib/db-errors";
 import { compactTourMeta } from "@/lib/display";
 import { classifyDeparture, departureRelativeLabel, formatDepartureRange } from "@/lib/departure-status";
+import { TourSearchBox } from "@/components/TourSearchBox";
 
 export const dynamic = "force-dynamic";
 
@@ -130,14 +131,7 @@ export default async function PublicToursPage({ searchParams }: { searchParams: 
 
       <section className="overflow-hidden border-b border-slate-200 bg-[#f5f5f7] shadow-sm -mx-4 sm:-mx-6 lg:-mx-8">
         <div className="px-6 py-5 sm:px-10 sm:py-6">
-          <form>
-            <input
-              className="input w-full md:w-96"
-              name="q"
-              defaultValue={params.q}
-              placeholder="Tur veya şehir ara"
-            />
-          </form>
+          <TourSearchBox defaultValue={params.q || ""} />
         </div>
       </section>
 
