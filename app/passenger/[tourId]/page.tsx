@@ -94,22 +94,22 @@ export default async function PassengerTourPage({ params, searchParams }: { para
                 )}
               </div>
             </div>
-            <div className="flex flex-wrap items-center justify-center gap-2">
+            <nav className="flex flex-wrap items-center justify-center gap-1 rounded-xl border border-[#7f1d1d]/15 bg-[#7f1d1d]/5 p-1">
               <a
                 href="https://www.ejderturizm.com.tr/"
-                className="inline-flex items-center gap-2 rounded-lg border border-[#7f1d1d]/20 bg-[#7f1d1d]/5 px-4 py-2.5 text-sm font-medium text-[#7f1d1d] backdrop-blur transition-all duration-200 hover:border-[#7f1d1d]/40 hover:bg-[#7f1d1d]/10"
+                className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-[#7f1d1d] transition-all duration-200 hover:bg-white hover:shadow-sm"
               >
                 <svg className="h-4 w-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
                 Anasayfa
               </a>
               <Link
                 href="/tours"
-                className="inline-flex items-center gap-2 rounded-lg border border-[#7f1d1d]/40 bg-[#7f1d1d] px-4 py-2.5 text-sm font-semibold text-white backdrop-blur transition-all duration-200 hover:bg-[#7f1d1d]/90"
+                className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-[#7f1d1d] transition-all duration-200 hover:bg-white hover:shadow-sm"
               >
                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
                 Tur Listesi
               </Link>
-            </div>
+            </nav>
           </div>
         </div>
       </section>
