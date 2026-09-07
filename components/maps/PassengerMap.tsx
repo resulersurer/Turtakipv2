@@ -86,9 +86,7 @@ export default function PassengerMap({
   const tiles =
     layer === "satellite"
       ? "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-      : layer === "light"
-        ? "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-      : "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
+      : "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
   return (
     <MapContainer className="h-full min-h-[360px] overflow-hidden rounded-md" center={points[0] || [39, 35]} zoom={points.length ? 4 : 2} scrollWheelZoom>
       <TileLayer attribution="&copy; OpenStreetMap contributors" url={tiles} />
