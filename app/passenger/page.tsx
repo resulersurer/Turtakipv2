@@ -248,8 +248,8 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
           {/* Grup başlığı */}
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#7f1d1d]/20 bg-gradient-to-br from-[#7f1d1d]/10 to-[#7f1d1d]/5 shadow-sm">
-                <img src={group.iconSrc} alt="" className="h-5 w-5 object-contain drop-shadow-sm" />
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[#7f1d1d]/20 bg-white p-0.5 shadow-sm">
+                <img src={group.iconSrc} alt="" className="h-full w-full rounded-md object-cover" />
               </div>
               <h2 className={`text-lg font-bold tracking-tight ${group.heading}`}>{group.label}</h2>
             </div>
