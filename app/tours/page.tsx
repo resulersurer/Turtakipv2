@@ -17,7 +17,7 @@ const statusUi = {
     heading: "text-[#7f1d1d]",
     card: "hover:border-amber-300 border-amber-400/45",
     color: "#fbbf24",
-    iconSrc: "/icons/tour-status/ongoing.svg"
+    iconSrc: "/icons/tour-status/ongoing.png"
   },
   Gelecek: {
     label: "Gelecek turlar",
@@ -25,7 +25,7 @@ const statusUi = {
     heading: "text-[#7f1d1d]",
     card: "hover:border-emerald-300 border-emerald-400/45",
     color: "#34d399",
-    iconSrc: "/icons/tour-status/future.svg"
+    iconSrc: "/icons/tour-status/future.png"
   },
   Geçmiş: {
     label: "Geçmiş turlar",
@@ -33,7 +33,7 @@ const statusUi = {
     heading: "text-[#7f1d1d]",
     card: "hover:border-slate-300 border-slate-300",
     color: "#cbd5e1",
-    iconSrc: "/icons/tour-status/past.svg"
+    iconSrc: "/icons/tour-status/past.png"
   }
 } as const;
 
