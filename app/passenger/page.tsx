@@ -165,8 +165,8 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
           KURUMSAL HEADER
       ═══════════════════════════════════════════════ */}
       <section className="relative w-full overflow-hidden border-b border-slate-200 bg-white shadow-sm">
-        <div className="relative w-full px-4 py-5 sm:px-8 lg:px-10 sm:py-6">
-          <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-center">
+        <div className="relative grid w-full items-center gap-5 px-4 py-5 sm:px-8 sm:py-6 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.6fr)] lg:px-10">
+          <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-center lg:gap-3">
             <div className="shrink-0 text-center sm:text-left">
               <img src="/logo.png" alt="Ejder Turizm" className="h-16 w-auto sm:h-20 lg:h-24" />
             </div>
@@ -194,8 +194,7 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
                   <span className="text-[11px] text-[#7f1d1d]/60">Bu hafta aktif rota bulunmuyor.</span>
                 )}
               </div>
-            </div>
-            <nav className="flex shrink-0 flex-wrap items-center justify-center gap-1 rounded-xl border border-[#7f1d1d]/15 bg-[#7f1d1d]/5 p-1">
+            <nav className="mt-3 inline-flex shrink-0 flex-wrap items-center justify-center gap-1 rounded-xl border border-[#7f1d1d]/15 bg-[#7f1d1d]/5 p-1">
               <a
                 href="https://www.ejderturizm.com.tr/"
                 className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-[#7f1d1d] transition-all duration-200 hover:bg-white hover:shadow-sm"
@@ -211,8 +210,9 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
                 Tur Listesi
               </Link>
             </nav>
+            </div>
           </div>
-          <div className="mt-5 grid gap-3 border-t border-slate-100 pt-5 md:grid-cols-2 xl:grid-cols-[1fr_1fr_1.15fr]">
+          <div className="grid w-full min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-[1fr_1fr_1.15fr]">
             <div className="flex min-w-0 items-start gap-3 rounded-2xl border border-purple-100 bg-purple-50/60 p-4">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-purple-800 shadow-sm">
                 <Bot className="h-5 w-5" aria-hidden="true" />
@@ -239,7 +239,7 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
                 </div>
               </div>
             </div>
-            <div className="flex min-w-0 items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 md:col-span-2 xl:col-span-1">
+            <div className="flex min-w-0 items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:col-span-2 xl:col-span-1">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-slate-600 shadow-sm">
                 <Mail className="h-5 w-5" aria-hidden="true" />
               </span>
