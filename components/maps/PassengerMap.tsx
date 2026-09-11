@@ -88,7 +88,7 @@ export default function PassengerMap({
       ? "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
       : "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
   return (
-    <MapContainer className="h-full min-h-[360px] overflow-hidden rounded-md" center={points[0] || [39, 35]} zoom={points.length ? 4 : 2} scrollWheelZoom>
+    <MapContainer className="h-full min-h-[300px] w-full overflow-hidden" center={points[0] || [39, 35]} zoom={points.length ? 4 : 2} scrollWheelZoom>
       <TileLayer attribution="&copy; OpenStreetMap contributors" url={tiles} />
       <FitBounds points={points} pointsKey={pointsKey} />
       {followSelected ? <FocusSelected days={days} selectedDay={selectedDay} /> : null}

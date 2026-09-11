@@ -158,18 +158,18 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
   const hasResults = groups.some((group) => group.items.length > 0);
 
   return (
-    <main className="page-shell">
+    <main className="min-h-screen w-full min-w-0 max-w-none">
 
       {/* ═══════════════════════════════════════════════
           KURUMSAL HEADER
       ═══════════════════════════════════════════════ */}
-      <section className="relative -mx-4 -mt-6 sm:-mx-6 sm:-mt-6 lg:-mx-8 lg:-mt-8 overflow-hidden border-b border-slate-200 bg-white shadow-sm">
-        <div className="relative px-6 py-5 sm:px-10 sm:py-6">
+      <section className="relative w-full overflow-hidden border-b border-slate-200 bg-white shadow-sm">
+        <div className="relative w-full px-4 py-5 sm:px-8 lg:px-10 sm:py-6">
           <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-center">
             <div className="shrink-0 text-center sm:text-left">
               <img src="/logo.png" alt="Ejder Turizm" className="h-16 w-auto sm:h-20 lg:h-24" />
             </div>
-            <div className="flex-1 text-center">
+            <div className="min-w-0 flex-1 text-center">
               <h1 className="text-lg font-extrabold leading-tight tracking-tight text-[#7f1d1d] sm:text-xl">
                 Bu Hafta{" "}
                 <span className="bg-gradient-to-r from-[#7f1d1d] via-[#991b1b] to-[#b91c1c] bg-clip-text text-transparent">
@@ -215,34 +215,34 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
       </section>
 
       {/* Harita */}
-      <section className="overflow-hidden border-y border-white/8 shadow-2xl -mx-4 sm:-mx-6 lg:-mx-8">
-        <div className="h-[300px] sm:h-[360px] lg:h-[420px]">
+      <section className="w-full overflow-hidden border-y border-white/8 shadow-2xl">
+        <div className="h-[300px] sm:h-[360px] lg:h-[420px] xl:h-[460px] w-full">
           <PublicMap days={weeklyCountryMarkers} showRoute={false} layer="light" />
         </div>
       </section>
 
       {/* Arama alanı */}
-      <section className="overflow-hidden border-b border-slate-200 bg-[#f5f5f7] shadow-sm -mx-4 sm:-mx-6 lg:-mx-8">
-        <div className="px-6 py-5 sm:px-10 sm:py-6">
+      <section className="w-full overflow-hidden border-b border-slate-200 bg-[#f5f5f7] shadow-sm">
+        <div className="w-full px-4 py-5 sm:px-8 lg:px-10 sm:py-6">
           <PassengerSearchBox defaultValue={q || ""} />
         </div>
       </section>
 
-      {/* Arama sonucu bulunamadı */}
-      {q && !hasResults ? (
-        <div className="rounded-2xl border border-slate-700/50 bg-slate-900/60 p-10 text-center backdrop-blur">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl border border-slate-700/50 bg-slate-800/60">
-            <svg className="h-6 w-6 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+      <div className="w-full px-4 py-8 sm:px-8 lg:px-10 space-y-8">
+        {/* Arama sonucu bulunamadı */}
+        {q && !hasResults ? (
+          <div className="rounded-2xl border border-slate-700/50 bg-slate-900/60 p-10 text-center backdrop-blur">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl border border-slate-700/50 bg-slate-800/60">
+              <svg className="h-6 w-6 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            </div>
+            <h2 className="text-base font-semibold text-white">Aramanıza uygun tur bulunamadı</h2>
+            <p className="mt-2 text-sm text-slate-500">Farklı bir tur adı, şehir, ülke veya havayolu deneyebilirsiniz.</p>
           </div>
-          <h2 className="text-base font-semibold text-white">Aramanıza uygun tur bulunamadı</h2>
-          <p className="mt-2 text-sm text-slate-500">Farklı bir tur adı, şehir, ülke veya havayolu deneyebilirsiniz.</p>
-        </div>
-      ) : null}
+        ) : null}
 
-      {/* ═══════════════════════════════════════════════
-          TUR GRUPLARI & KARTLAR
-      ═══════════════════════════════════════════════ */}
-      <div className="mt-8 space-y-8">
+        {/* ═══════════════════════════════════════════════
+            TUR GRUPLARI & KARTLAR
+        ═══════════════════════════════════════════════ */}
         {groups.map((group) => (
         <section className="space-y-4" key={group.key}>
           {/* Grup başlığı */}
@@ -260,7 +260,7 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
           </div>
 
           {group.items.length ? (
-            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4">
               {group.items.map(({ tour, departure, relative, range }) => {
                 const otherMeta = compactTourMeta([tour.durationDays ? `${tour.durationDays} gün` : null, tour.departureCity]);
                 const mapPoints = tour.days.filter((day: any) => day.lat != null && day.lng != null).length;

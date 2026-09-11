@@ -39,7 +39,7 @@ export function PassengerSearchBox({ defaultValue = "" }: { defaultValue?: strin
           <input
             value={value}
             onChange={(e) => setValue(e.target.value)}
-            className="w-full rounded-xl bg-transparent py-3 pl-3 pr-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none"
+            className="min-w-0 w-full rounded-xl bg-transparent py-3 pl-3 pr-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none"
             placeholder="Tur adı, şehir, ülke veya havayolu ara…"
             aria-label="Tur ara"
           />
@@ -50,7 +50,7 @@ export function PassengerSearchBox({ defaultValue = "" }: { defaultValue?: strin
                 setValue("");
                 router.push("/passenger");
               }}
-              className="mr-2 flex h-7 w-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-100 hover:text-[#7f1d1d]"
+              className="mr-2 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-100 hover:text-[#7f1d1d]"
               aria-label="Temizle"
             >
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
