@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Bot, Headset, Mail } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { serializeTour, tourInclude } from "@/lib/tours";
 import { PublicMap } from "@/components/maps/PublicMap";
@@ -194,7 +195,7 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
                 )}
               </div>
             </div>
-            <nav className="flex flex-wrap items-center justify-center gap-1 rounded-xl border border-[#7f1d1d]/15 bg-[#7f1d1d]/5 p-1">
+            <nav className="flex shrink-0 flex-wrap items-center justify-center gap-1 rounded-xl border border-[#7f1d1d]/15 bg-[#7f1d1d]/5 p-1">
               <a
                 href="https://www.ejderturizm.com.tr/"
                 className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-[#7f1d1d] transition-all duration-200 hover:bg-white hover:shadow-sm"
@@ -210,6 +211,47 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
                 Tur Listesi
               </Link>
             </nav>
+          </div>
+          <div className="mt-5 grid gap-3 border-t border-slate-100 pt-5 md:grid-cols-2 xl:grid-cols-[1fr_1fr_1.15fr]">
+            <div className="flex min-w-0 items-start gap-3 rounded-2xl border border-purple-100 bg-purple-50/60 p-4">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-purple-800 shadow-sm">
+                <Bot className="h-5 w-5" aria-hidden="true" />
+              </span>
+              <div className="min-w-0">
+                <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.15em] text-purple-800/70">AI İletişim Hatları</p>
+                <div className="flex flex-wrap gap-x-5 gap-y-1">
+                  {["+90 212 706 58 59", "+90 212 706 58 57", "+90 212 706 58 60"].map((phone) => (
+                    <a key={phone} href={`tel:${phone.replace(/\s/g, "")}`} className="rounded text-sm font-semibold tabular-nums text-purple-900 underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-purple-700">{phone}</a>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="flex min-w-0 items-start gap-3 rounded-2xl border border-red-100 bg-red-50/50 p-4">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#991b1b] shadow-sm">
+                <Headset className="h-5 w-5" aria-hidden="true" />
+              </span>
+              <div className="min-w-0">
+                <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.15em] text-[#7f1d1d]/70">Müşteri İletişim Merkezi</p>
+                <div className="flex flex-wrap gap-x-5 gap-y-1">
+                  {["0850 333 0 203", "0212 706 53 79"].map((phone) => (
+                    <a key={phone} href={`tel:+90${phone.replace(/\s/g, "").slice(1)}`} className="rounded text-base font-bold tabular-nums text-[#991b1b] underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-700">{phone}</a>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="flex min-w-0 items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 md:col-span-2 xl:col-span-1">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-slate-600 shadow-sm">
+                <Mail className="h-5 w-5" aria-hidden="true" />
+              </span>
+              <div className="min-w-0">
+                <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-500">Bize Yazın</p>
+                <div className="flex flex-col gap-1">
+                  {["info@ejderturizm.com.tr", "musteridestek@ejderturizm.com.tr"].map((email) => (
+                    <a key={email} href={`mailto:${email}`} className="break-all rounded text-sm font-medium text-slate-700 underline-offset-4 hover:text-[#991b1b] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-slate-600">{email}</a>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
