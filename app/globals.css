@@ -48,8 +48,8 @@ a {
 .passenger-header__layout {
   display: grid;
   align-items: center;
-  gap: 24px;
-  padding: 26px clamp(16px, 2.5vw, 40px);
+  gap: 12px;
+  padding: 12px clamp(16px, 2.5vw, 40px);
 }
 
 .passenger-header__brand {
@@ -59,11 +59,11 @@ a {
   min-width: 0;
 }
 
-.passenger-header__logo { width: auto; height: 76px; flex-shrink: 0; }
+.passenger-header__logo { width: auto; height: 56px; flex-shrink: 0; }
 .passenger-weekly-banner {
   width: 100%;
   min-width: 0;
-  padding: 20px clamp(16px, 2.5vw, 40px);
+  padding: 12px clamp(16px, 2.5vw, 40px);
   text-align: center;
   background: linear-gradient(120deg, #fff, #fbf0f2 50%, #fff);
 }
@@ -71,10 +71,10 @@ a {
 .header-contact {
   display: grid;
   min-width: 0;
-  padding: 5px;
-  gap: 5px;
+  padding: 4px;
+  gap: 4px;
   border: 1px solid #ebdfe1;
-  border-radius: 20px;
+  border-radius: 14px;
   background: #ffffffd9;
   box-shadow: 0 5px 20px #53121c06, inset 0 1px 0 #fff;
 }
@@ -82,10 +82,10 @@ a {
 .header-contact__group {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
+  gap: 8px;
   min-width: 0;
-  padding: 16px 12px;
-  border-radius: 15px;
+  padding: 10px;
+  border-radius: 10px;
 }
 
 .header-contact__group--ai {
@@ -99,8 +99,8 @@ a {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border: 1px solid #eadcde;
   border-radius: 10px;
   background: #fbf4f5;
@@ -115,7 +115,7 @@ a {
 
 .header-contact__icon svg { width: 17px; height: 17px; }
 .header-contact__label {
-  margin: 1px 0 9px;
+  margin: 0 0 4px;
   color: #78636a;
   font-size: 10px;
   font-weight: 700;
@@ -124,7 +124,7 @@ a {
   text-transform: uppercase;
 }
 .header-contact__group--ai .header-contact__label { color: #f5d8de; }
-.header-contact__numbers { display: flex; flex-direction: column; gap: 3px; }
+.header-contact__numbers { display: flex; flex-direction: column; gap: 1px; }
 .header-contact__phone,
 .header-contact__email {
   display: inline-block;
@@ -133,26 +133,26 @@ a {
   border-radius: 4px;
   font-size: 13px;
   font-weight: 600;
-  line-height: 1.8;
+  line-height: 1.6;
   text-decoration-color: transparent;
   text-underline-offset: 4px;
   transition: color 160ms ease, text-decoration-color 160ms ease;
 }
 .header-contact__phone { white-space: nowrap; font-variant-numeric: tabular-nums; letter-spacing: 0.015em; }
-.header-contact__phone--primary { color: #862536; font-size: 15px; font-weight: 700; }
+.header-contact__phone--primary { color: #862536; font-size: 14px; font-weight: 700; }
 .header-contact__email { color: #51464b; overflow-wrap: anywhere; font-size: 12px; }
 .header-contact a:hover { text-decoration: underline; text-decoration-color: currentColor; }
 .passenger-header a:focus-visible { outline: 2px solid #b83242; outline-offset: 4px; }
 .header-contact__group--ai a:focus-visible { outline-color: #fff; }
 
-.passenger-header__nav { display: flex; gap: 8px; justify-self: end; }
+.passenger-header__nav { display: flex; gap: 6px; justify-self: end; }
 .passenger-header__nav-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   min-height: 42px;
-  padding: 10px 14px;
+  padding: 8px 10px;
   border: 1px solid #e6d8db;
   border-radius: 11px;
   color: #762030;
@@ -172,26 +172,34 @@ a {
 }
 
 @media (min-width: 1100px) {
-  .passenger-header__layout { grid-template-columns: auto minmax(0, 1fr) auto; gap: 24px; }
+  .passenger-header__layout { grid-template-columns: auto minmax(0, 1fr) auto; gap: 18px; }
   .passenger-header__brand { gap: 12px; }
-  .passenger-header__logo { height: 68px; }
   .passenger-header__nav { flex-direction: column; }
+  .header-contact { grid-template-columns: 1fr 1fr 1.2fr; }
+  .header-contact__group--email { grid-column: auto; border-top: 0; border-left: 1px solid #f0e7e9; margin-block: 6px; padding-block: 4px; }
 }
 
-@media (min-width: 1400px) {
-  .header-contact { grid-template-columns: 1fr 1fr 1.2fr; }
-  .header-contact__group--email { grid-column: auto; border-top: 0; border-left: 1px solid #f0e7e9; margin-block: 10px; padding-block: 6px; }
-  .passenger-header__logo { height: 80px; }
+@media (max-width: 1099px) {
+  .passenger-header__layout { grid-template-columns: auto minmax(0, 1fr); }
+  .passenger-header__brand { grid-column: 1; grid-row: 1; }
+  .passenger-header__nav { grid-column: 2; grid-row: 1; }
+  .header-contact { grid-column: 1 / -1; }
+}
+
+@media (min-width: 420px) and (max-width: 639px) {
+  .header-contact { grid-template-columns: 1fr 1fr; }
+  .header-contact__group--email { grid-column: 1 / -1; }
 }
 
 @media (max-width: 639px) {
-  .passenger-header__layout { gap: 18px; padding-top: 22px; padding-bottom: 20px; }
-  .passenger-header__brand { flex-direction: column; gap: 14px; }
-  .passenger-header__logo { height: 64px; }
-  .header-contact__group { padding: 14px; }
+  .passenger-header__layout { gap: 10px; }
+  .passenger-header__logo { height: 44px; }
+  .passenger-header__nav { flex-wrap: wrap; justify-content: flex-end; }
+  .passenger-header__nav-link { gap: 5px; padding-inline: 8px; }
+  .header-contact__group { padding: 10px; }
   .header-contact__group--email { border-top: 1px solid #f0e7e9; border-radius: 0; }
-  .header-contact__phone { line-height: 2.2; font-size: 14px; }
-  .header-contact__email { line-height: 2.2; font-size: 13px; }
+  .header-contact__phone { line-height: 1.9; font-size: 13px; }
+  .header-contact__email { line-height: 1.9; font-size: 13px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
