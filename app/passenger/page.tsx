@@ -164,37 +164,39 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
       {/* ═══════════════════════════════════════════════
           KURUMSAL HEADER
       ═══════════════════════════════════════════════ */}
+      <section aria-labelledby="weekly-heading" className="passenger-weekly-banner">
+        <h1 id="weekly-heading" className="text-lg font-extrabold leading-tight tracking-tight text-[#7f1d1d] sm:text-xl">
+          Bu Hafta{" "}
+          <span className="bg-gradient-to-r from-[#7f1d1d] via-[#991b1b] to-[#b91c1c] bg-clip-text text-transparent">
+            Dünyayı Keşfediyoruz
+          </span>
+        </h1>
+        <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
+          {weeklyCountries.length > 0 ? (
+            <>
+              <span className="text-[11px] font-medium uppercase tracking-wider text-[#7f1d1d]/60">Bu hafta:</span>
+              {weeklyCountries.slice(0, 6).map((c) => (
+                <span key={c.country} className="rounded-md border border-[#7f1d1d]/15 bg-[#7f1d1d]/5 px-2 py-0.5 text-[11px] font-medium text-[#7f1d1d]/80">
+                  {c.country}
+                </span>
+              ))}
+              {weeklyCountries.length > 6 && (
+                <span className="text-[11px] font-medium text-[#7f1d1d]/60">+{weeklyCountries.length - 6} daha</span>
+              )}
+            </>
+          ) : (
+            <span className="text-[11px] text-[#7f1d1d]/60">Bu hafta aktif rota bulunmuyor.</span>
+          )}
+        </div>
+      </section>
+
       <section className="passenger-header">
         <div className="passenger-header__layout">
           <div className="passenger-header__brand">
             <div className="shrink-0 text-center sm:text-left">
               <img src="/logo.png" alt="Ejder Turizm" className="passenger-header__logo" />
             </div>
-            <div className="passenger-header__intro">
-              <h1 className="text-lg font-extrabold leading-tight tracking-tight text-[#7f1d1d] sm:text-xl">
-                Bu Hafta{" "}
-                <span className="bg-gradient-to-r from-[#7f1d1d] via-[#991b1b] to-[#b91c1c] bg-clip-text text-transparent">
-                  Dünyayı Keşfediyoruz
-                </span>
-              </h1>
-              <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
-                {weeklyCountries.length > 0 ? (
-                  <>
-                    <span className="text-[11px] font-medium uppercase tracking-wider text-[#7f1d1d]/60">Bu hafta:</span>
-                    {weeklyCountries.slice(0, 6).map((c) => (
-                      <span key={c.country} className="rounded-md border border-[#7f1d1d]/15 bg-[#7f1d1d]/5 px-2 py-0.5 text-[11px] font-medium text-[#7f1d1d]/80">
-                        {c.country}
-                      </span>
-                    ))}
-                    {weeklyCountries.length > 6 && (
-                      <span className="text-[11px] font-medium text-[#7f1d1d]/60">+{weeklyCountries.length - 6} daha</span>
-                    )}
-                  </>
-                ) : (
-                  <span className="text-[11px] text-[#7f1d1d]/60">Bu hafta aktif rota bulunmuyor.</span>
-                )}
-              </div>
-            </div>
+
           </div>
           <div className="header-contact">
             <div className="header-contact__group header-contact__group--ai">

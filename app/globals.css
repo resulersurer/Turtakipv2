@@ -60,7 +60,13 @@ a {
 }
 
 .passenger-header__logo { width: auto; height: 76px; flex-shrink: 0; }
-.passenger-header__intro { flex: 1; min-width: 0; text-align: center; }
+.passenger-weekly-banner {
+  width: 100%;
+  min-width: 0;
+  padding: 20px clamp(16px, 2.5vw, 40px);
+  text-align: center;
+  background: linear-gradient(120deg, #fff, #fbf0f2 50%, #fff);
+}
 
 .header-contact {
   display: grid;
@@ -166,7 +172,7 @@ a {
 }
 
 @media (min-width: 1100px) {
-  .passenger-header__layout { grid-template-columns: minmax(230px, 0.8fr) minmax(0, 1.6fr) auto; gap: 18px; }
+  .passenger-header__layout { grid-template-columns: auto minmax(0, 1fr) auto; gap: 24px; }
   .passenger-header__brand { gap: 12px; }
   .passenger-header__logo { height: 68px; }
   .passenger-header__nav { flex-direction: column; }
