@@ -164,13 +164,13 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
       {/* ═══════════════════════════════════════════════
           KURUMSAL HEADER
       ═══════════════════════════════════════════════ */}
-      <section className="relative w-full overflow-hidden border-b border-slate-200 bg-white shadow-sm">
-        <div className="relative grid w-full items-center gap-5 px-4 py-5 sm:px-8 sm:py-6 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.6fr)_auto] lg:px-10">
-          <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-center lg:gap-3">
+      <section className="passenger-header">
+        <div className="passenger-header__layout">
+          <div className="passenger-header__brand">
             <div className="shrink-0 text-center sm:text-left">
-              <img src="/logo.png" alt="Ejder Turizm" className="h-16 w-auto sm:h-20 lg:h-24" />
+              <img src="/logo.png" alt="Ejder Turizm" className="passenger-header__logo" />
             </div>
-            <div className="min-w-0 flex-1 text-center">
+            <div className="passenger-header__intro">
               <h1 className="text-lg font-extrabold leading-tight tracking-tight text-[#7f1d1d] sm:text-xl">
                 Bu Hafta{" "}
                 <span className="bg-gradient-to-r from-[#7f1d1d] via-[#991b1b] to-[#b91c1c] bg-clip-text text-transparent">
@@ -196,58 +196,58 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
               </div>
             </div>
           </div>
-          <div className="grid w-full min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-[1fr_1fr_1.15fr]">
-            <div className="flex min-w-0 items-start gap-3 rounded-2xl border border-purple-100 bg-purple-50/60 p-4">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-purple-800 shadow-sm">
+          <div className="header-contact">
+            <div className="header-contact__group header-contact__group--ai">
+              <span className="header-contact__icon">
                 <Bot className="h-5 w-5" aria-hidden="true" />
               </span>
               <div className="min-w-0">
-                <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.15em] text-purple-800/70">AI İletişim Hatları</p>
-                <div className="flex flex-wrap gap-x-5 gap-y-1">
+                <p className="header-contact__label">AI İletişim Hatları</p>
+                <div className="header-contact__numbers">
                   {["+90 212 706 58 59", "+90 212 706 58 57", "+90 212 706 58 60"].map((phone) => (
-                    <a key={phone} href={`tel:${phone.replace(/\s/g, "")}`} className="rounded text-sm font-semibold tabular-nums text-purple-900 underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-purple-700">{phone}</a>
+                    <a key={phone} href={`tel:${phone.replace(/\s/g, "")}`} className="header-contact__phone">{phone}</a>
                   ))}
                 </div>
               </div>
             </div>
-            <div className="flex min-w-0 items-start gap-3 rounded-2xl border border-red-100 bg-red-50/50 p-4">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#991b1b] shadow-sm">
+            <div className="header-contact__group">
+              <span className="header-contact__icon">
                 <Headset className="h-5 w-5" aria-hidden="true" />
               </span>
               <div className="min-w-0">
-                <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.15em] text-[#7f1d1d]/70">Müşteri İletişim Merkezi</p>
-                <div className="flex flex-wrap gap-x-5 gap-y-1">
+                <p className="header-contact__label">Müşteri İletişim Merkezi</p>
+                <div className="header-contact__numbers">
                   {["0850 333 0 203", "0212 706 53 79"].map((phone) => (
-                    <a key={phone} href={`tel:+90${phone.replace(/\s/g, "").slice(1)}`} className="rounded text-base font-bold tabular-nums text-[#991b1b] underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-700">{phone}</a>
+                    <a key={phone} href={`tel:+90${phone.replace(/\s/g, "").slice(1)}`} className="header-contact__phone header-contact__phone--primary">{phone}</a>
                   ))}
                 </div>
               </div>
             </div>
-            <div className="flex min-w-0 items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:col-span-2 xl:col-span-1">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-slate-600 shadow-sm">
+            <div className="header-contact__group header-contact__group--email">
+              <span className="header-contact__icon">
                 <Mail className="h-5 w-5" aria-hidden="true" />
               </span>
               <div className="min-w-0">
-                <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-500">Bize Yazın</p>
+                <p className="header-contact__label">Bize Yazın</p>
                 <div className="flex flex-col gap-1">
                   {["info@ejderturizm.com.tr", "musteridestek@ejderturizm.com.tr"].map((email) => (
-                    <a key={email} href={`mailto:${email}`} className="break-all rounded text-sm font-medium text-slate-700 underline-offset-4 hover:text-[#991b1b] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-slate-600">{email}</a>
+                    <a key={email} href={`mailto:${email}`} className="header-contact__email">{email}</a>
                   ))}
                 </div>
               </div>
             </div>
           </div>
-          <nav className="flex shrink-0 flex-wrap items-center justify-center justify-self-end lg:flex-col lg:items-stretch gap-1 rounded-xl border border-[#7f1d1d]/15 bg-[#7f1d1d]/5 p-1">
+          <nav aria-label="Ana menü" className="passenger-header__nav">
             <a
               href="https://www.ejderturizm.com.tr/"
-              className="inline-flex items-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium text-[#7f1d1d] transition-all duration-200 hover:bg-white hover:shadow-sm"
+              className="passenger-header__nav-link"
             >
               <svg className="h-4 w-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
               Anasayfa
             </a>
             <Link
               href="/tours"
-              className="inline-flex items-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium text-[#7f1d1d] transition-all duration-200 hover:bg-white hover:shadow-sm"
+              className="passenger-header__nav-link passenger-header__nav-link--primary"
             >
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
               Tur Listesi
