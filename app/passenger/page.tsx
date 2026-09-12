@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Bot, Headset, Mail } from "lucide-react";
+import { ArrowUpRight, Bot, Headset, Mail } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { serializeTour, tourInclude } from "@/lib/tours";
 import { PublicMap } from "@/components/maps/PublicMap";
@@ -257,6 +257,23 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
           </nav>
         </div>
       </section>
+
+      <nav aria-label="Ejder Turizm bağlantıları" className="passenger-links">
+        <div className="passenger-links__inner">
+          {[
+            { label: "2027 Turları", href: "https://www.ejderturizm.com.tr/TourList.aspx?contpg=276&pcmncat=16,1&pcsbcat=147" },
+            { label: "2026 Turları", href: "https://www.ejderturizm.com.tr/TourList.aspx?contpg=260&pcmncat=1&pcsbcat=138" },
+            { label: "EJDER VIP", href: "https://www.ejderturizm.com.tr/TourList.aspx?contpg=259&pcmncat=16,1&pcsbcat=65" },
+            { label: "Tur Talep Formu", href: "https://www.ejderturizm.com.tr/talep_1000.html" },
+            { label: "Bize Ulaşın", href: "https://www.ejderturizm.com.tr/Bize-ulasin.html" }
+          ].map(({ label, href }, index) => (
+            <a key={href} href={href} className={`passenger-links__item${index === 0 ? " passenger-links__item--featured" : ""}`}>
+              <span>{label}</span>
+              <ArrowUpRight aria-hidden="true" className="passenger-links__arrow" />
+            </a>
+          ))}
+        </div>
+      </nav>
 
       {/* Harita */}
       <section className="w-full overflow-hidden border-y border-white/8 shadow-2xl">
