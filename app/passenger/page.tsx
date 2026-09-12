@@ -9,6 +9,7 @@ import { isPrismaSetupError } from "@/lib/db-errors";
 import { classifyDeparture, departureRelativeLabel, formatDepartureRange } from "@/lib/departure-status";
 import { compactTourMeta } from "@/lib/display";
 import { PassengerSearchBox } from "@/components/PassengerSearchBox";
+import { PassengerFooter } from "@/components/passenger/PassengerFooter";
 
 export const dynamic = "force-dynamic";
 
@@ -445,6 +446,7 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
         </section>
       ))}
       </div>
+      <PassengerFooter />
     </main>
   );
 }
