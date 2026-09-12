@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowUpRight, Mail, Phone } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Mail, Phone } from "lucide-react";
 
 const tourLinks = [
   { label: "2027 Turları", href: "https://www.ejderturizm.com.tr/TourList.aspx?contpg=276&pcmncat=16,1&pcsbcat=147" },
@@ -12,19 +12,31 @@ const tourLinks = [
 export function PassengerFooter() {
   return (
     <footer className="passenger-footer">
+      <div className="passenger-footer__feature">
+        <div className="passenger-footer__feature-copy">
+          <span className="passenger-footer__eyebrow"><span aria-hidden="true" /> EJDER TURİZM İLE KEŞFET</span>
+          <h2>Bir sonraki yolculuğunuz burada başlıyor.</h2>
+          <p>İlham veren rotalara göz atın veya size özel bir tur planlayalım.</p>
+        </div>
+        <div className="passenger-footer__feature-actions">
+          <a href={tourLinks[0].href} className="passenger-footer__button passenger-footer__button--light">
+            2027 Turlarını Gör <ArrowUpRight size={17} aria-hidden="true" />
+          </a>
+          <a href="https://www.ejderturizm.com.tr/talep_1000.html" className="passenger-footer__button passenger-footer__button--outline">
+            Tur Talep Formu <ArrowRight size={17} aria-hidden="true" />
+          </a>
+        </div>
+      </div>
       <div className="passenger-footer__inner">
         <div className="passenger-footer__brand">
           <img src="/logo.png" alt="Ejder Turizm" className="passenger-footer__logo" />
-          <p>Yeni rotalar, unutulmaz yolculuklar. Dünyayı birlikte keşfedelim.</p>
-          <a className="passenger-footer__cta" href={tourLinks[0].href}>
-            2027 turlarını keşfet <ArrowUpRight size={16} aria-hidden="true" />
-          </a>
+          <p>Dünyanın farklı köşelerinde unutulmaz anılar biriktirmek için yanınızdayız.</p>
         </div>
 
         <nav aria-label="Footer tur bağlantıları" className="passenger-footer__column">
           <h2>Keşfet</h2>
           <div className="passenger-footer__links">
-            {tourLinks.map(({ label, href }) => <a key={href} href={href}>{label}</a>)}
+            {tourLinks.map(({ label, href }) => <a key={href} href={href}><span>{label}</span><ArrowUpRight size={14} aria-hidden="true" /></a>)}
           </div>
         </nav>
 
@@ -43,6 +55,7 @@ export function PassengerFooter() {
         <div>
           <a href="https://www.ejderturizm.com.tr/">Anasayfa</a>
           <Link href="/tours">Tur Listesi</Link>
+          <a href="https://www.ejderturizm.com.tr/Bize-ulasin.html">Bize Ulaşın</a>
         </div>
       </div>
     </footer>
