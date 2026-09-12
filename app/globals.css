@@ -59,7 +59,7 @@ a {
   min-width: 0;
 }
 
-.passenger-header__logo { width: auto; height: 56px; flex-shrink: 0; }
+.passenger-header__logo { width: auto; height: 72px; flex-shrink: 0; }
 .passenger-weekly-banner {
   width: 100%;
   min-width: 0;
@@ -175,7 +175,7 @@ a {
   .passenger-header__layout { grid-template-columns: auto minmax(0, 1fr) auto; gap: 18px; }
   .passenger-header__brand { gap: 12px; }
   .passenger-header__nav { flex-direction: column; }
-  .header-contact { grid-template-columns: 1fr 1fr 1.2fr; }
+  .header-contact { grid-template-columns: 1fr 1fr 1.2fr; width: 100%; max-width: 780px; justify-self: end; }
   .header-contact__group--email { grid-column: auto; border-top: 0; border-left: 1px solid #f0e7e9; margin-block: 6px; padding-block: 4px; }
 }
 
@@ -193,7 +193,7 @@ a {
 
 @media (max-width: 639px) {
   .passenger-header__layout { gap: 10px; }
-  .passenger-header__logo { height: 44px; }
+  .passenger-header__logo { height: 54px; }
   .passenger-header__nav { flex-wrap: wrap; justify-content: flex-end; }
   .passenger-header__nav-link { gap: 5px; padding-inline: 8px; }
   .header-contact__group { padding: 10px; }
