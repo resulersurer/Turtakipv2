@@ -171,7 +171,7 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
             Dünyayı Keşfediyoruz
           </span>
         </h1>
-        <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
+        <div className="mt-1 flex flex-wrap items-center justify-center gap-2">
           {weeklyCountries.length > 0 ? (
             <>
               <span className="text-[11px] font-medium uppercase tracking-wider text-[#7f1d1d]/60">Bu hafta:</span>

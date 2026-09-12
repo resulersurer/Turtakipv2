@@ -63,7 +63,7 @@ a {
 .passenger-weekly-banner {
   width: 100%;
   min-width: 0;
-  padding: 12px clamp(16px, 2.5vw, 40px);
+  padding: 6px clamp(16px, 2.5vw, 40px);
   text-align: center;
   background: linear-gradient(120deg, #fff, #fbf0f2 50%, #fff);
 }
