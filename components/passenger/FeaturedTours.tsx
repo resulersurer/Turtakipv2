@@ -111,7 +111,6 @@ export function FeaturedTours({ tours }: { tours: FeaturedTour[] }) {
           <span className="featured-tours__kicker"><Sparkles aria-hidden="true" size={14} /> ÖNE ÇIKAN ROTALAR</span>
           <h2 id="featured-tours-title">Çok Satan Turlar</h2>
           <p>Yeni bir yolculuk için ilham veren tur programlarını keşfedin.</p>
-          <span className="featured-tours__schedule">10 tur her gün 09.00'da yenilenir · Türkiye saati</span>
         </div>
         <div className="featured-tours__actions">
           <button type="button" onClick={() => move(-1)} aria-label="Önceki turlar" className="featured-tours__control"><ArrowLeft size={18} /></button>

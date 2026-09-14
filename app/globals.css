@@ -535,7 +535,6 @@ a {
 .featured-tours__kicker { display: inline-flex; align-items: center; gap: 7px; color: #9a3949; font-size: 11px; font-weight: 800; letter-spacing: .16em; }
 .featured-tours__heading h2 { margin: 7px 0 4px; color: #731b2a; font-size: clamp(24px, 3vw, 36px); font-weight: 800; letter-spacing: -.035em; }
 .featured-tours__heading p { margin: 0; color: #75656b; font-size: 14px; }
-.featured-tours__schedule { display: inline-block; margin-top: 9px; color: #9a5260; font-size: 11px; font-weight: 700; }
 .featured-tours__all { display: inline-flex; align-items: center; gap: 7px; flex: none; color: #731b2a; font-size: 13px; font-weight: 700; text-decoration: underline; text-underline-offset: 4px; }
 .featured-tours__actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
 .featured-tours__control { display: inline-grid; width: 36px; height: 36px; flex: none; place-items: center; border: 1px solid #d7bfc4; border-radius: 10px; background: #fff; color: #731b2a; transition: background .2s ease, transform .2s ease; }
