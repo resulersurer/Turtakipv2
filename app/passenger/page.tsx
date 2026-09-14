@@ -173,7 +173,23 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
     .map((tour) => ({ tour, rank: [...`${featuredDay}:${tour.id}`].reduce((hash, char) => (Math.imul(hash, 31) + char.charCodeAt(0)) | 0, 0) >>> 0 }))
     .sort((a, b) => a.rank - b.rank)
     .slice(0, 10)
-    .map(({ tour }) => ({ id: tour.id, slug: tour.slug, name: tour.name, coverImageUrl: tour.coverImageUrl, durationDays: tour.durationDays, departureCity: tour.departureCity }));
+    .map(({ tour }) => {
+      const nextDeparture = tour.departures
+        .filter((departure: any) => ["today", "future"].includes(classifyDeparture(departure)))
+        .sort((a: any, b: any) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())[0];
+      const countries = [...new Set<string>(tour.days.map((day: any) => day.country).filter(Boolean))];
+      return {
+        id: tour.id,
+        slug: tour.slug,
+        name: tour.name,
+        coverImageUrl: tour.coverImageUrl,
+        durationDays: tour.durationDays,
+        departureCity: tour.departureCity,
+        departureDate: nextDeparture ? new Date(nextDeparture.startDate).toLocaleDateString("tr-TR", { day: "numeric", month: "short", year: "numeric", timeZone: "Europe/Istanbul" }) : null,
+        route: countries.slice(0, 2).join(" · "),
+        countryCount: countries.length
+      };
+    });
 
   return (
     <main className="min-h-screen w-full min-w-0 max-w-none">

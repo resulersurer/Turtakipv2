@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, ArrowUpRight, Pause, Play, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, CalendarDays, MapPin, Pause, Play, Sparkles } from "lucide-react";
 
 type FeaturedTour = {
   id: string;
@@ -11,6 +11,9 @@ type FeaturedTour = {
   coverImageUrl?: string | null;
   durationDays?: number | null;
   departureCity?: string | null;
+  departureDate?: string | null;
+  route?: string;
+  countryCount?: number;
 };
 
 export function FeaturedTours({ tours }: { tours: FeaturedTour[] }) {
@@ -71,13 +74,18 @@ export function FeaturedTours({ tours }: { tours: FeaturedTour[] }) {
     >
       <div className="featured-tours__image">
         {tour.coverImageUrl ? <img src={tour.coverImageUrl} alt="" loading="lazy" /> : <div className="featured-tours__placeholder"><Sparkles aria-hidden="true" /></div>}
+        <span className="featured-tours__image-shade" />
+        <span className="featured-tours__image-top"><Sparkles size={13} aria-hidden="true" /> SEÇİLİ ROTA</span>
+        {tour.durationDays ? <span className="featured-tours__duration">{tour.durationDays} gün</span> : null}
       </div>
       <div className="featured-tours__card-body">
-        <span className="featured-tours__eyebrow">Ejder Turizm rotası</span>
+        <span className="featured-tours__eyebrow">EJDER TURİZM · TUR PROGRAMI</span>
         <h3>{tour.name}</h3>
+        {tour.route ? <div className="featured-tours__fact"><MapPin size={14} aria-hidden="true" /><span>{tour.route}{tour.countryCount && tour.countryCount > 2 ? ` +${tour.countryCount - 2} ülke` : ""}</span></div> : null}
+        {tour.departureDate ? <div className="featured-tours__fact"><CalendarDays size={14} aria-hidden="true" /><span>Yakın çıkış: {tour.departureDate}</span></div> : null}
         <div className="featured-tours__card-bottom">
-          <span>{[tour.durationDays ? `${tour.durationDays} gün` : null, tour.departureCity].filter(Boolean).join(" · ")}</span>
-          <ArrowUpRight aria-hidden="true" size={18} />
+          <span>{tour.departureCity ? `${tour.departureCity} kalkışlı` : "Tur programı"}</span>
+          <span className="featured-tours__card-action">Turu incele <ArrowUpRight aria-hidden="true" size={16} /></span>
         </div>
       </div>
     </Link>
