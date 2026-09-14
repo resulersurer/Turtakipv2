@@ -68,11 +68,11 @@ export function PassengerTracker({ tour }: { tour: { name: string; coverImageUrl
   }, [playing, ordered]);
 
   return (
-    <div className="grid min-h-[calc(100vh-120px)] gap-4 xl:grid-cols-[380px_minmax(0,1fr)]">
-      <aside className="flex max-h-none flex-col rounded-2xl border border-slate-200 bg-white p-4 shadow-sm xl:max-h-[calc(100vh-120px)]">
+    <div className="tracker-detail__workspace grid min-h-[calc(100vh-120px)] gap-4 xl:grid-cols-[380px_minmax(0,1fr)]">
+      <aside className="tracker-detail__sidebar flex max-h-none flex-col rounded-2xl border border-slate-200 bg-white p-4 shadow-sm xl:max-h-[calc(100vh-120px)]">
         <div className="mb-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-[#7f1d1d]">Yolcu takip</p>
-          <h1 className="mt-1 text-xl font-semibold leading-tight text-slate-900">{tour.name}</h1>
+          <h3 className="mt-1 text-xl font-semibold leading-tight text-slate-900">{tour.name}</h3>
           {tour.selectedDeparture ? <p className="mt-2 text-sm text-slate-500">{dayDate(tour.selectedDeparture, ordered[0])} çıkışlı tur</p> : null}
           <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
             <span className="rounded-md border border-slate-200 bg-[#f5f5f7] px-3 py-2 font-medium text-slate-700">{ordered.length} gün</span>
@@ -95,7 +95,7 @@ export function PassengerTracker({ tour }: { tour: { name: string; coverImageUrl
       </aside>
 
       <section className="grid gap-4 xl:grid-rows-[minmax(520px,1fr)_auto]">
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+        <div className="tracker-detail__map-panel overflow-hidden rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
           <div className="mb-3 flex items-center justify-between gap-3 px-1">
             <div className="flex items-center gap-2 text-sm text-slate-600"><Map size={16} /> Canlı rota haritası</div>
             {current ? <span className="inline-flex items-center rounded-md border border-[#7f1d1d]/20 bg-[#7f1d1d]/5 px-2 py-1 text-xs font-medium text-[#7f1d1d]">{current.dayNumber}. gün seçili</span> : null}
@@ -106,7 +106,7 @@ export function PassengerTracker({ tour }: { tour: { name: string; coverImageUrl
         </div>
 
         {current ? (
-          <article className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm lg:grid-cols-[260px_minmax(0,1fr)]">
+          <article className="tracker-detail__current-day grid gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm lg:grid-cols-[260px_minmax(0,1fr)]">
             <PhotoPanel day={current} fallbackSrc={tour.coverImageUrl} />
             <div>
               <div className="text-sm font-semibold text-[#7f1d1d]">

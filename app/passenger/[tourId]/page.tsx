@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { ArrowLeft, ArrowUpRight, CalendarDays, MapPin, Route } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { serializeTour, tourInclude } from "@/lib/tours";
 import { PassengerTracker } from "@/components/passenger/PassengerTracker";
@@ -9,25 +10,10 @@ import { SetupNotice } from "@/components/SetupNotice";
 import { isPrismaSetupError } from "@/lib/db-errors";
 import { departureRelativeLabel, formatDepartureRange } from "@/lib/departure-status";
 import { officialTourUrl } from "@/lib/seo";
+import "./tracker-detail.css";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { robots: { index: false, follow: true } };
-
-function dayKey(date: Date) {
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Europe/Istanbul",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit"
-  }).formatToParts(date);
-  const get = (type: string) => parts.find((part) => part.type === type)?.value;
-  return `${get("year")}-${get("month")}-${get("day")}`;
-}
-
-function dayNumber(key: string) {
-  const [year, month, day] = key.split("-").map(Number);
-  return Date.UTC(year, month - 1, day) / 86400000;
-}
 
 export default async function PassengerTourPage({ params, searchParams }: { params: Promise<{ tourId: string }>; searchParams: Promise<{ departureId?: string }> }) {
   if (!hasDatabaseUrl() || !(await isDatabaseSchemaReady())) return <SetupNotice />;
@@ -41,91 +27,45 @@ export default async function PassengerTourPage({ params, searchParams }: { para
     throw error;
   }
   if (!tour) notFound();
+
   const departure = tour.departures.find((item: any) => item.id === departureId) || tour.departures[0] || null;
   const officialUrl = officialTourUrl(tour.sourceUrl);
-
-  const today = dayNumber(dayKey(new Date()));
-  const countriesThisWeek = new Map<string, { country: string; lat: number; lng: number; tourNames: Set<string> }>();
-  for (const dep of tour.departures) {
-    for (const day of tour.days) {
-      if (!day.country) continue;
-      const date = new Date(dep.startDate);
-      date.setDate(date.getDate() + (day.dateOffset ?? day.dayNumber - 1));
-      const diff = dayNumber(dayKey(date)) - today;
-      if (diff >= 0 && diff <= 7) {
-        const key = day.country.toLocaleLowerCase("tr-TR");
-        const lat = day.lat ?? null;
-        const lng = day.lng ?? null;
-        if (lat == null || lng == null) continue;
-        const current = countriesThisWeek.get(key) || { country: day.country, lat, lng, tourNames: new Set<string>() };
-        current.tourNames.add(tour.name);
-        countriesThisWeek.set(key, current);
-      }
-    }
-  }
-  const weeklyCountries = Array.from(countriesThisWeek.values());
+  const countries = [...new Set<string>(tour.days.map((day: any) => day.country).filter(Boolean))];
+  const cover = tour.coverImageUrl || tour.images[0]?.url;
 
   return (
-    <main className="p-4">
-      <section className="relative -mx-4 -mt-6 sm:-mx-6 sm:-mt-6 lg:-mx-8 lg:-mt-8 overflow-hidden border-b border-slate-200 bg-white shadow-sm">
-        <div className="relative px-6 py-5 sm:px-10 sm:py-6">
-          <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-center">
-            <div className="shrink-0 text-center sm:text-left">
-              <img src="/logo.png" alt="Ejder Turizm" className="h-16 w-auto sm:h-20 lg:h-24" />
-            </div>
-            <div className="flex-1 text-center">
-              <p className="text-lg font-extrabold leading-tight tracking-tight text-[#7f1d1d] sm:text-xl">
-                Bu Hafta{" "}
-                <span className="bg-gradient-to-r from-[#7f1d1d] via-[#991b1b] to-[#b91c1c] bg-clip-text text-transparent">
-                  Dünyayı Keşfediyoruz
-                </span>
-              </p>
-              <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
-                {weeklyCountries.length > 0 ? (
-                  <>
-                    <span className="text-[11px] font-medium uppercase tracking-wider text-[#7f1d1d]/60">Bu hafta:</span>
-                    {weeklyCountries.slice(0, 6).map((c) => (
-                      <span key={c.country} className="rounded-md border border-[#7f1d1d]/15 bg-[#7f1d1d]/5 px-2 py-0.5 text-[11px] font-medium text-[#7f1d1d]/80">
-                        {c.country}
-                      </span>
-                    ))}
-                    {weeklyCountries.length > 6 && (
-                      <span className="text-[11px] font-medium text-[#7f1d1d]/60">+{weeklyCountries.length - 6} daha</span>
-                    )}
-                  </>
-                ) : (
-                  <span className="text-[11px] text-[#7f1d1d]/60">Bu hafta aktif rota bulunmuyor.</span>
-                )}
-              </div>
-            </div>
-            <nav className="flex flex-wrap items-center justify-center gap-1 rounded-xl border border-[#7f1d1d]/15 bg-[#7f1d1d]/5 p-1">
-              <a
-                href="https://www.ejderturizm.com.tr/"
-                className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-[#7f1d1d] transition-all duration-200 hover:bg-white hover:shadow-sm"
-              >
-                <svg className="h-4 w-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
-                Anasayfa
-              </a>
-              <Link
-                href="/tours"
-                className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-[#7f1d1d] transition-all duration-200 hover:bg-white hover:shadow-sm"
-              >
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
-                Tur Listesi
-              </Link>
-            </nav>
-          </div>
-        </div>
-      </section>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-        <div>{departure ? <span className="inline-flex items-center rounded-md border border-[#7f1d1d]/20 bg-[#7f1d1d]/5 px-2 py-1 text-xs font-medium text-[#7f1d1d]">{formatDepartureRange(departure)} · {departureRelativeLabel(departure)}</span> : null}</div>
-        <div className="flex gap-2">
-          {officialUrl ? <a className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#7f1d1d]/40 bg-[#7f1d1d] px-3 py-2 text-sm font-semibold text-white transition hover:bg-[#7f1d1d]/90" href={officialUrl}>Resmî tur sayfası ↗</a> : null}
-          {tour.slug ? <Link className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#7f1d1d]/20 bg-[#7f1d1d]/5 px-3 py-2 text-sm font-medium text-[#7f1d1d] transition hover:bg-[#7f1d1d]/10" href={`/tour/${tour.slug}`}>Tur detayı</Link> : null}
-          <Link className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#7f1d1d]/20 bg-[#7f1d1d]/5 px-3 py-2 text-sm font-medium text-[#7f1d1d] transition hover:bg-[#7f1d1d]/10" href="/passenger">Tüm turlar</Link>
-        </div>
+    <main className="tracker-detail">
+      <div className="tracker-detail__topbar">
+        <Link href="/passenger" className="tracker-detail__brand"><img src="/logo.png" alt="Ejder Turizm" /></Link>
+        <nav aria-label="Tur takip menüsü"><Link href="/passenger"><ArrowLeft size={16} aria-hidden="true" /> Tüm turlar</Link>{tour.slug ? <Link href={`/tour/${tour.slug}`}>Tur programı</Link> : null}{officialUrl ? <a className="tracker-detail__top-cta" href={officialUrl}>Resmî tur sayfası <ArrowUpRight size={16} aria-hidden="true" /></a> : null}</nav>
       </div>
-      <PassengerTracker tour={{ ...tour, selectedDeparture: departure }} />
+
+      <header className="tracker-detail__hero">
+        {cover ? <img src={cover} alt="" className="tracker-detail__hero-image" /> : null}
+        <div className="tracker-detail__hero-shade" />
+        <div className="tracker-detail__hero-content">
+          <div className="tracker-detail__breadcrumb"><Link href="/passenger">Turlar</Link><span>/</span><span>Yolcu takip</span></div>
+          <span className="tracker-detail__eyebrow"><Route size={15} aria-hidden="true" /> İNTERAKTİF TUR ROTASI</span>
+          <h1>{tour.name}</h1>
+          <p>{countries.length ? countries.slice(0, 5).join(" · ") : "Rotayı gün gün harita üzerinde keşfedin"}</p>
+          <div className="tracker-detail__hero-actions"><a href="#tracker" className="tracker-detail__button tracker-detail__button--light">Haritada keşfet <ArrowUpRight size={17} aria-hidden="true" /></a>{tour.slug ? <Link href={`/tour/${tour.slug}`} className="tracker-detail__button tracker-detail__button--outline">Tur programını incele</Link> : null}</div>
+        </div>
+      </header>
+
+      <div className="tracker-detail__content">
+        <section className="tracker-detail__summary" aria-label="Tur takip özeti">
+          {departure ? <div><CalendarDays aria-hidden="true" /><span>SEÇİLİ ÇIKIŞ</span><strong>{formatDepartureRange(departure)}</strong><small>{departureRelativeLabel(departure)}</small></div> : null}
+          {tour.durationDays ? <div><Route aria-hidden="true" /><span>TUR SÜRESİ</span><strong>{tour.durationDays} gün</strong></div> : null}
+          {countries.length ? <div><MapPin aria-hidden="true" /><span>ROTA</span><strong>{countries.length} ülke</strong></div> : null}
+          {tour.departureCity ? <div><MapPin aria-hidden="true" /><span>KALKIŞ</span><strong>{tour.departureCity}</strong></div> : null}
+        </section>
+
+        {tour.departures.length > 1 ? <section className="tracker-detail__departures" aria-label="Çıkış tarihi seç"><div><span className="tracker-detail__section-kicker">SEYAHAT TARİHİ</span><h2>Çıkış seçin</h2></div><div className="tracker-detail__departure-list">{tour.departures.map((item: any) => <Link key={item.id} href={`/passenger/${tour.id}?departureId=${item.id}`} aria-current={item.id === departure?.id ? "true" : undefined} className={item.id === departure?.id ? "is-selected" : ""}>{formatDepartureRange(item)}</Link>)}</div></section> : null}
+
+        <section id="tracker" className="tracker-detail__tracker" aria-label="Etkileşimli rota takibi"><div className="tracker-detail__section-heading"><div><span className="tracker-detail__section-kicker">ROTAYI DENEYİMLE</span><h2>Gün gün yolculuk</h2><p>Gün seçin veya oynat düğmesiyle rotayı haritada adım adım izleyin.</p></div><span className="tracker-detail__section-count">{tour.days.length} durak</span></div><PassengerTracker tour={{ name: tour.name, coverImageUrl: cover, days: tour.days, selectedDeparture: departure }} /></section>
+
+        <section className="tracker-detail__closing"><div><span className="tracker-detail__section-kicker">YOLCULUK DEVAM EDİYOR</span><h2>Turun tamamını keşfedin</h2><p>Program, çıkış tarihleri ve diğer ayrıntılara göz atın.</p></div><div>{tour.slug ? <Link className="tracker-detail__button tracker-detail__button--light" href={`/tour/${tour.slug}`}>Tur detayını gör <ArrowUpRight size={17} aria-hidden="true" /></Link> : null}{officialUrl ? <a className="tracker-detail__button tracker-detail__button--outline" href={officialUrl}>Resmî tur sayfası</a> : null}</div></section>
+      </div>
     </main>
   );
 }
