@@ -173,7 +173,7 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
     .map((tour) => ({ tour, rank: [...`${featuredDay}:${tour.id}`].reduce((hash, char) => (Math.imul(hash, 31) + char.charCodeAt(0)) | 0, 0) >>> 0 }))
     .sort((a, b) => a.rank - b.rank)
     .slice(0, 10)
-    .map(({ tour }) => tour);
+    .map(({ tour }) => ({ id: tour.id, slug: tour.slug, name: tour.name, coverImageUrl: tour.coverImageUrl, durationDays: tour.durationDays, departureCity: tour.departureCity }));
 
   return (
     <main className="min-h-screen w-full min-w-0 max-w-none">
