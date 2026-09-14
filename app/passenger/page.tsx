@@ -11,6 +11,7 @@ import { classifyDeparture, departureRelativeLabel, formatDepartureRange } from 
 import { compactTourMeta } from "@/lib/display";
 import { PassengerSearchBox } from "@/components/PassengerSearchBox";
 import { PassengerFooter } from "@/components/passenger/PassengerFooter";
+import { FeaturedTours } from "@/components/passenger/FeaturedTours";
 
 export const dynamic = "force-dynamic";
 
@@ -166,6 +167,13 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
     items: departures.filter((item) => item.status === key).sort((a, b) => departureSortValue(a) - departureSortValue(b))
   }));
   const hasResults = groups.some((group) => group.items.length > 0);
+  const featuredDay = dayKey(new Date());
+  const featuredTours = visibleTours
+    .filter((tour) => tour.departures.some((departure: any) => classifyDeparture(departure) !== "past"))
+    .map((tour) => ({ tour, rank: [...`${featuredDay}:${tour.id}`].reduce((hash, char) => (Math.imul(hash, 31) + char.charCodeAt(0)) | 0, 0) >>> 0 }))
+    .sort((a, b) => a.rank - b.rank)
+    .slice(0, 10)
+    .map(({ tour }) => tour);
 
   return (
     <main className="min-h-screen w-full min-w-0 max-w-none">
@@ -297,6 +305,8 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
           <PassengerSearchBox defaultValue={q || ""} />
         </div>
       </section>
+
+      <FeaturedTours tours={featuredTours} />
 
       <div className="w-full px-4 py-8 sm:px-8 lg:px-10 space-y-8">
         {/* Arama sonucu bulunamadı */}
