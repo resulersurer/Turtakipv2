@@ -167,7 +167,8 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
     items: departures.filter((item) => item.status === key).sort((a, b) => departureSortValue(a) - departureSortValue(b))
   }));
   const hasResults = groups.some((group) => group.items.length > 0);
-  const featuredDay = dayKey(new Date());
+  // Istanbul saatinde 09.00'dan önce bir önceki günün seçimi gösterilir.
+  const featuredDay = dayKey(new Date(Date.now() - 9 * 60 * 60 * 1000));
   const featuredTours = visibleTours
     .filter((tour) => tour.departures.some((departure: any) => classifyDeparture(departure) !== "past"))
     .map((tour) => ({ tour, rank: [...`${featuredDay}:${tour.id}`].reduce((hash, char) => (Math.imul(hash, 31) + char.charCodeAt(0)) | 0, 0) >>> 0 }))

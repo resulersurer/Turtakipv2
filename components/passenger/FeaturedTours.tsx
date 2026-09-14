@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, ArrowUpRight, CalendarDays, MapPin, Pause, Play, Sparkles } from "lucide-react";
 
 type FeaturedTour = {
@@ -17,6 +18,7 @@ type FeaturedTour = {
 };
 
 export function FeaturedTours({ tours }: { tours: FeaturedTour[] }) {
+  const router = useRouter();
   const sectionRef = useRef<HTMLElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
   const [paused, setPaused] = useState(false);
@@ -25,6 +27,17 @@ export function FeaturedTours({ tours }: { tours: FeaturedTour[] }) {
   const focused = useRef(false);
   const visible = useRef(false);
   const manualUntil = useRef(0);
+
+  useEffect(() => {
+    const parts = new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Europe/Istanbul", hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23"
+    }).formatToParts(new Date());
+    const value = (type: string) => Number(parts.find((part) => part.type === type)?.value || 0);
+    const secondsNow = value("hour") * 3600 + value("minute") * 60 + value("second");
+    const secondsUntilRefresh = (9 * 3600 - secondsNow + 86400) % 86400 || 86400;
+    const timer = window.setTimeout(() => router.refresh(), secondsUntilRefresh * 1000 + 1000);
+    return () => window.clearTimeout(timer);
+  }, [router, tours]);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -98,6 +111,7 @@ export function FeaturedTours({ tours }: { tours: FeaturedTour[] }) {
           <span className="featured-tours__kicker"><Sparkles aria-hidden="true" size={14} /> ÖNE ÇIKAN ROTALAR</span>
           <h2 id="featured-tours-title">Çok Satan Turlar</h2>
           <p>Yeni bir yolculuk için ilham veren tur programlarını keşfedin.</p>
+          <span className="featured-tours__schedule">10 tur her gün 09.00'da yenilenir · Türkiye saati</span>
         </div>
         <div className="featured-tours__actions">
           <button type="button" onClick={() => move(-1)} aria-label="Önceki turlar" className="featured-tours__control"><ArrowLeft size={18} /></button>
