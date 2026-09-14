@@ -1,16 +1,16 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { CalendarDays, MapPinned, Plane, ShieldCheck } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, CalendarDays, Clock3, MapPin, Plane, Route, ShieldCheck } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { serializeTour, tourInclude } from "@/lib/tours";
 import { PublicMap } from "@/components/maps/PublicMap";
 import { hasDatabaseUrl, isDatabaseSchemaReady } from "@/lib/db-ready";
 import { SetupNotice } from "@/components/SetupNotice";
 import { isPrismaSetupError } from "@/lib/db-errors";
-import { compactTourMeta } from "@/lib/display";
-import { formatDepartureRange } from "@/lib/departure-status";
+import { classifyDeparture, formatDepartureRange } from "@/lib/departure-status";
 import { officialTourUrl } from "@/lib/seo";
+import "./tour-detail.css";
 
 export const dynamic = "force-dynamic";
 
@@ -32,16 +32,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-function ImageFrame({ src, alt, className = "h-full" }: { src?: string | null; alt: string; className?: string }) {
-  if (!src) return <div className={`${className} rounded-lg border border-line bg-ink/80`} />;
-  return (
-    <div className={`relative overflow-hidden rounded-lg border border-line bg-slate-950 ${className}`}>
-      <img src={src} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full scale-110 object-cover opacity-35 blur-xl" />
-      <img src={src} alt={alt} className="relative z-10 h-full w-full object-contain" />
-    </div>
-  );
-}
-
 export default async function TourDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   if (!hasDatabaseUrl() || !(await isDatabaseSchemaReady())) return <SetupNotice />;
   const { slug } = await params;
@@ -53,93 +43,69 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
     throw error;
   }
   if (!tour) notFound();
-  const meta = compactTourMeta([tour.departureCity, tour.airline, tour.visaStatus]);
-  const pricedDepartures = tour.departures.filter((departure: any) => departure.price);
+
   const officialUrl = officialTourUrl(tour.sourceUrl);
+  const countries = [...new Set<string>(tour.days.map((day: any) => day.country).filter(Boolean))];
+  const mapPoints = tour.days.filter((day: any) => day.lat != null && day.lng != null).length;
+  const nextDeparture = tour.departures.find((departure: any) => ["today", "future"].includes(classifyDeparture(departure)));
+  const heroImage = tour.coverImageUrl || tour.images[0]?.url;
 
   return (
-    <main className="page-shell space-y-6">
-      <header className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_440px]">
-        <div className="panel rounded-lg p-6">
-          <span className="badge">{tour.durationDays || "-"} gün</span>
-          <h1 className="mt-4 text-3xl font-semibold leading-tight text-white lg:text-4xl">{tour.name}</h1>
-          {meta ? <p className="mt-3 text-slate-400">{meta}</p> : null}
-          <div className="mt-5 grid gap-3 text-sm text-slate-300 sm:grid-cols-3">
-            <span className="rounded-md border border-line bg-ink/70 p-3"><Plane className="mb-2" size={18} />{tour.airline || "Havayolu"}</span>
-            <span className="rounded-md border border-line bg-ink/70 p-3"><MapPinned className="mb-2" size={18} />{tour.departureCity || "Kalkış"}</span>
-            <span className="rounded-md border border-line bg-ink/70 p-3"><ShieldCheck className="mb-2" size={18} />{tour.visaStatus || "Vize bilgisi"}</span>
-          </div>
-          <div className="mt-5 flex flex-wrap gap-2">
-            {officialUrl ? <a className="btn-primary rounded-md" href={officialUrl}>Resmî tur sayfasını incele ↗</a> : null}
-            <Link className="btn-primary rounded-md" href={`/passenger/${tour.id}`}>Yolcu takip görünümü</Link>
-            <Link className="btn" href="/tours">Tüm turlar</Link>
+    <main className="tour-detail">
+      <div className="tour-detail__topbar">
+        <Link href="/passenger" className="tour-detail__brand"><img src="/logo.png" alt="Ejder Turizm" /></Link>
+        <nav aria-label="Tur sayfası menüsü">
+          <Link href="/passenger"><ArrowLeft size={16} aria-hidden="true" /> Turlara dön</Link>
+          <a href="#program">Program</a>
+          <a href="#departures">Çıkışlar</a>
+          {officialUrl ? <a className="tour-detail__top-cta" href={officialUrl}>Resmî sayfa <ArrowUpRight size={15} aria-hidden="true" /></a> : null}
+        </nav>
+      </div>
+
+      <header className="tour-detail__hero">
+        {heroImage ? <img src={heroImage} alt="" className="tour-detail__hero-image" /> : null}
+        <div className="tour-detail__hero-shade" />
+        <div className="tour-detail__hero-content">
+          <div className="tour-detail__breadcrumbs"><Link href="/passenger">Turlar</Link><span>/</span><span>Tur detayı</span></div>
+          <span className="tour-detail__eyebrow">EJDER TURİZM · KEŞİF ROTASI</span>
+          <h1>{tour.name}</h1>
+          <p>{countries.length ? countries.slice(0, 4).join(" · ") : "Yeni bir yolculuk için rotayı keşfedin"}</p>
+          <div className="tour-detail__hero-actions">
+            {officialUrl ? <a className="tour-detail__button tour-detail__button--light" href={officialUrl}>Resmî tur sayfasını incele <ArrowUpRight size={18} aria-hidden="true" /></a> : null}
+            <a className="tour-detail__button tour-detail__button--outline" href="#program">Programı keşfet <ArrowUpRight size={17} aria-hidden="true" /></a>
           </div>
         </div>
-        <ImageFrame src={tour.coverImageUrl} alt={tour.name} className="min-h-72 lg:min-h-full" />
       </header>
 
-      <section className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_380px]">
-        <div className="panel rounded-lg p-4">
-          <div className="mb-3 flex items-center justify-between gap-3">
-            <h2 className="font-semibold">Rota haritası</h2>
-            <span className="badge">{tour.days.filter((day: any) => day.lat != null && day.lng != null).length} nokta</span>
-          </div>
-          <div className="h-[460px] overflow-hidden rounded-md"><PublicMap days={tour.days} /></div>
-        </div>
-        <div className="panel rounded-lg p-4">
-          <h2 className="mb-3 font-semibold">Çıkış tarihleri</h2>
-          <div className="space-y-2">
-            {tour.departures.map((departure: any) => (
-              <div className="rounded-md border border-line bg-ink/70 p-3 text-sm" key={departure.id}>
-                <div className="flex items-start gap-2 text-white"><CalendarDays size={16} className="mt-0.5 text-mint" />{formatDepartureRange(departure)}</div>
-                <div className="mt-1 text-slate-400">{departure.price ? `${departure.price} ${departure.currency}` : departure.label || "Tarih seçilebilir"}</div>
-                <Link className="btn mt-3 w-full" href={`/passenger/${tour.id}?departureId=${departure.id}`}>Bu tarihle takip et</Link>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {pricedDepartures.length || tour.prices.length ? (
-        <section className="panel rounded-lg p-4">
-          <h2 className="mb-3 text-lg font-semibold">Fiyat bilgileri</h2>
-          <div className="grid gap-3 md:grid-cols-3">
-            {tour.prices.map((price: any) => (
-              <div className="rounded-md border border-line bg-ink/70 p-3 text-sm" key={price.id}>
-                <div className="font-semibold text-white">{price.roomType}</div>
-                <div className="mt-1 text-mint">{price.adultPrice ? `${price.adultPrice} ${price.currency}` : "Fiyat sorunuz"}</div>
-              </div>
-            ))}
-          </div>
+      <div className="tour-detail__content">
+        <section className="tour-detail__facts" aria-label="Tur özeti">
+          {tour.durationDays ? <div><Clock3 aria-hidden="true" /><span>SÜRE</span><strong>{tour.durationDays} gün</strong></div> : null}
+          {tour.departureCity ? <div><MapPin aria-hidden="true" /><span>KALKIŞ</span><strong>{tour.departureCity}</strong></div> : null}
+          {tour.airline ? <div><Plane aria-hidden="true" /><span>HAVAYOLU</span><strong>{tour.airline}</strong></div> : null}
+          {tour.visaStatus ? <div><ShieldCheck aria-hidden="true" /><span>VİZE</span><strong>{tour.visaStatus}</strong></div> : null}
+          {countries.length ? <div><Route aria-hidden="true" /><span>ROTA</span><strong>{countries.length} ülke</strong></div> : null}
         </section>
-      ) : null}
 
-      <section className="space-y-4">
-        <h2 className="text-xl font-semibold">Tur programı</h2>
-        <div className="relative space-y-4 border-l border-line pl-5">
-          {tour.days.map((day: any) => (
-            <article className="panel relative rounded-lg p-4" key={day.id}>
-              <span className="absolute -left-[27px] top-5 h-3 w-3 rounded-full border border-mint bg-mint" />
-              <div className="text-sm font-semibold text-mint">{day.dayNumber}. Gün · {[day.city, day.country].filter(Boolean).join(", ")}</div>
-              <h3 className="mt-1 text-lg font-semibold text-white">{day.title}</h3>
-              <p className="mt-2 text-sm leading-6 text-slate-300">{day.description}</p>
-              <div className="mt-3 flex flex-wrap gap-2 text-xs text-slate-300">
-                {day.hotelInfo ? <span className="badge">Otel: {day.hotelInfo}</span> : null}
-                {day.flightInfo ? <span className="badge">Uçuş: {day.flightInfo}</span> : null}
-              </div>
-            </article>
-          ))}
+        <div className="tour-detail__intro">
+          <div><span className="tour-detail__section-kicker">YOLCULUĞA GENEL BAKIŞ</span><h2>Rota boyunca neler var?</h2><p>Gün gün programı, durakları ve çıkış seçeneklerini aşağıda inceleyebilirsiniz.</p></div>
+          {nextDeparture ? <div className="tour-detail__next"><CalendarDays size={19} aria-hidden="true" /><div><span>Yaklaşan çıkış</span><strong>{formatDepartureRange(nextDeparture)}</strong></div></div> : null}
         </div>
-      </section>
 
-      {tour.images.length ? (
-        <section className="space-y-3">
-          <h2 className="text-xl font-semibold">Galeri</h2>
-          <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-4">
-            {tour.images.map((image: any) => <ImageFrame key={image.id} src={image.url} alt={image.alt || tour.name} className="h-48" />)}
-          </div>
+        <section className="tour-detail__map-grid" id="route" aria-labelledby="tour-route-heading">
+          <div className="tour-detail__map-card"><div className="tour-detail__card-heading"><div><span className="tour-detail__section-kicker">DÜNYA ÜZERİNDE</span><h2 id="tour-route-heading">Rota haritası</h2></div><span className="tour-detail__pill">{mapPoints} durak</span></div><div className="tour-detail__map"><PublicMap days={tour.days} /></div></div>
+          <div className="tour-detail__route-card"><span className="tour-detail__section-kicker">ROTA ÖZETİ</span><h2>Keşfedilecek yerler</h2><p>Tur programındaki ülkeler ve duraklar.</p><div className="tour-detail__countries">{countries.map((country) => <span key={country}><MapPin size={14} aria-hidden="true" />{country}</span>)}</div><a href="#program" className="tour-detail__text-link">Günlük programı gör <ArrowUpRight size={16} aria-hidden="true" /></a></div>
         </section>
-      ) : null}
+
+        <section className="tour-detail__section" id="departures" aria-labelledby="tour-departures-heading"><div className="tour-detail__section-heading"><div><span className="tour-detail__section-kicker">SEYAHATİNİ PLANLA</span><h2 id="tour-departures-heading">Çıkış tarihleri</h2></div><span className="tour-detail__pill">{tour.departures.length} seçenek</span></div><div className="tour-detail__departure-grid">{tour.departures.length ? tour.departures.map((departure: any) => <article className="tour-detail__departure" key={departure.id}><div className="tour-detail__departure-date"><CalendarDays size={20} aria-hidden="true" /><strong>{formatDepartureRange(departure)}</strong></div><p>{departure.price ? `${departure.price} ${departure.currency}` : departure.label || "Fiyat ve yer bilgisi için resmî sayfayı inceleyin"}</p><Link href={`/passenger/${tour.id}?departureId=${departure.id}`}>Bu tarihi haritada takip et <ArrowUpRight size={16} aria-hidden="true" /></Link></article>) : <p className="tour-detail__empty">Henüz çıkış tarihi eklenmemiş.</p>}</div></section>
+
+        {tour.prices.length ? <section className="tour-detail__section" aria-labelledby="tour-prices-heading"><div className="tour-detail__section-heading"><div><span className="tour-detail__section-kicker">KONAKLAMA SEÇENEKLERİ</span><h2 id="tour-prices-heading">Fiyat bilgileri</h2></div></div><div className="tour-detail__price-grid">{tour.prices.map((price: any) => <div className="tour-detail__price" key={price.id}><span>{price.roomType}</span><strong>{price.adultPrice ? `${price.adultPrice} ${price.currency}` : "Fiyat sorunuz"}</strong></div>)}</div></section> : null}
+
+        <section className="tour-detail__section" id="program" aria-labelledby="tour-program-heading"><div className="tour-detail__section-heading"><div><span className="tour-detail__section-kicker">ADIM ADIM KEŞFET</span><h2 id="tour-program-heading">Gün gün tur programı</h2></div><span className="tour-detail__pill">{tour.days.length} gün</span></div><div className="tour-detail__timeline">{tour.days.map((day: any) => <article className="tour-detail__day" key={day.id}><span className="tour-detail__day-index">{String(day.dayNumber).padStart(2, "0")}</span><div><span className="tour-detail__day-place">{[day.city, day.country].filter(Boolean).join(" · ")}</span><h3>{day.title}</h3>{day.description ? <p>{day.description}</p> : null}{day.hotelInfo || day.flightInfo ? <div className="tour-detail__day-tags">{day.hotelInfo ? <span>Otel: {day.hotelInfo}</span> : null}{day.flightInfo ? <span>Uçuş: {day.flightInfo}</span> : null}</div> : null}</div></article>)}</div></section>
+
+        {tour.images.length ? <section className="tour-detail__section" aria-labelledby="tour-gallery-heading"><div className="tour-detail__section-heading"><div><span className="tour-detail__section-kicker">YOLCULUKTAN KARELER</span><h2 id="tour-gallery-heading">Fotoğraf galerisi</h2></div></div><div className="tour-detail__gallery">{tour.images.map((image: any) => <div key={image.id}><img src={image.url} alt={image.alt || tour.name} loading="lazy" /></div>)}</div></section> : null}
+
+        <section className="tour-detail__closing"><div><span className="tour-detail__section-kicker">SIRADAKİ MACERA</span><h2>Bu rotayı yakından tanıyın</h2><p>Güncel tur ve rezervasyon bilgilerini resmî Ejder Turizm sayfasından inceleyin.</p></div><div className="tour-detail__closing-actions">{officialUrl ? <a className="tour-detail__button tour-detail__button--light" href={officialUrl}>Resmî tur sayfası <ArrowUpRight size={18} aria-hidden="true" /></a> : null}<Link className="tour-detail__button tour-detail__button--outline" href={`/passenger/${tour.id}`}>Rotayı haritada izle</Link></div></section>
+      </div>
     </main>
   );
 }
