@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { serializeTour, tourInclude } from "@/lib/tours";
@@ -7,8 +8,10 @@ import { hasDatabaseUrl, isDatabaseSchemaReady } from "@/lib/db-ready";
 import { SetupNotice } from "@/components/SetupNotice";
 import { isPrismaSetupError } from "@/lib/db-errors";
 import { departureRelativeLabel, formatDepartureRange } from "@/lib/departure-status";
+import { officialTourUrl } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
+export const metadata: Metadata = { robots: { index: false, follow: true } };
 
 function dayKey(date: Date) {
   const parts = new Intl.DateTimeFormat("en-CA", {
@@ -39,6 +42,7 @@ export default async function PassengerTourPage({ params, searchParams }: { para
   }
   if (!tour) notFound();
   const departure = tour.departures.find((item: any) => item.id === departureId) || tour.departures[0] || null;
+  const officialUrl = officialTourUrl(tour.sourceUrl);
 
   const today = dayNumber(dayKey(new Date()));
   const countriesThisWeek = new Map<string, { country: string; lat: number; lng: number; tourNames: Set<string> }>();
@@ -70,12 +74,12 @@ export default async function PassengerTourPage({ params, searchParams }: { para
               <img src="/logo.png" alt="Ejder Turizm" className="h-16 w-auto sm:h-20 lg:h-24" />
             </div>
             <div className="flex-1 text-center">
-              <h1 className="text-lg font-extrabold leading-tight tracking-tight text-[#7f1d1d] sm:text-xl">
+              <p className="text-lg font-extrabold leading-tight tracking-tight text-[#7f1d1d] sm:text-xl">
                 Bu Hafta{" "}
                 <span className="bg-gradient-to-r from-[#7f1d1d] via-[#991b1b] to-[#b91c1c] bg-clip-text text-transparent">
                   Dünyayı Keşfediyoruz
                 </span>
-              </h1>
+              </p>
               <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
                 {weeklyCountries.length > 0 ? (
                   <>
@@ -116,8 +120,9 @@ export default async function PassengerTourPage({ params, searchParams }: { para
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <div>{departure ? <span className="inline-flex items-center rounded-md border border-[#7f1d1d]/20 bg-[#7f1d1d]/5 px-2 py-1 text-xs font-medium text-[#7f1d1d]">{formatDepartureRange(departure)} · {departureRelativeLabel(departure)}</span> : null}</div>
         <div className="flex gap-2">
+          {officialUrl ? <a className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#7f1d1d]/40 bg-[#7f1d1d] px-3 py-2 text-sm font-semibold text-white transition hover:bg-[#7f1d1d]/90" href={officialUrl}>Resmî tur sayfası ↗</a> : null}
           {tour.slug ? <Link className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#7f1d1d]/20 bg-[#7f1d1d]/5 px-3 py-2 text-sm font-medium text-[#7f1d1d] transition hover:bg-[#7f1d1d]/10" href={`/tour/${tour.slug}`}>Tur detayı</Link> : null}
-          <Link className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#7f1d1d]/40 bg-[#7f1d1d] px-3 py-2 text-sm font-semibold text-white transition hover:bg-[#7f1d1d]/90" href="/passenger">Tüm turlar</Link>
+          <Link className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#7f1d1d]/20 bg-[#7f1d1d]/5 px-3 py-2 text-sm font-medium text-[#7f1d1d] transition hover:bg-[#7f1d1d]/10" href="/passenger">Tüm turlar</Link>
         </div>
       </div>
       <PassengerTracker tour={{ ...tour, selectedDeparture: departure }} />

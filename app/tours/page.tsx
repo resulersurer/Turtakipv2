@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import type { Metadata } from "next";
 import { serializeTour, tourInclude } from "@/lib/tours";
 import Link from "next/link";
 import { hasDatabaseUrl, isDatabaseSchemaReady } from "@/lib/db-ready";
@@ -9,6 +10,13 @@ import { classifyDeparture, departureRelativeLabel, formatDepartureRange } from 
 import { TourSearchBox } from "@/components/TourSearchBox";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Tur Listesi, Rotalar ve Çıkış Tarihleri",
+  description: "Ejder Turizm tur programlarını, rotalarını ve çıkış tarihlerini karşılaştırın; beğendiğiniz turun resmî sayfasına ulaşın.",
+  alternates: { canonical: "/tours" },
+  openGraph: { title: "Tur Listesi ve Rotalar | Ejder Turizm", description: "Tur programlarını ve çıkış tarihlerini keşfedin.", url: "/tours" }
+};
 
 const statusUi = {
   "Devam eden": {

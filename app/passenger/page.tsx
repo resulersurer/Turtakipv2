@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { ArrowUpRight, Bot, Headset, Mail } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { serializeTour, tourInclude } from "@/lib/tours";
@@ -12,6 +13,13 @@ import { PassengerSearchBox } from "@/components/PassengerSearchBox";
 import { PassengerFooter } from "@/components/passenger/PassengerFooter";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Canlı Tur Takibi ve Haftalık Rotalar",
+  description: "Ejder Turizm turlarının güncel rotalarını haritada görün; yaklaşan çıkışları ve bu hafta keşfedilen ülkeleri inceleyin.",
+  alternates: { canonical: "/passenger" },
+  openGraph: { title: "Canlı Tur Takibi ve Haftalık Rotalar | Ejder Turizm", description: "Güncel tur rotalarını ve yaklaşan çıkışları keşfedin.", url: "/passenger" }
+};
 
 const countryCenters: Record<string, { lat: number; lng: number; label: string }> = {
   japonya: { lat: 36.2048, lng: 138.2529, label: "Japonya" },

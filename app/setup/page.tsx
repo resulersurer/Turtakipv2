@@ -1,7 +1,9 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { SetupForm } from "@/components/SetupForm";
 
 export const dynamic = "force-dynamic";
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 export default function SetupPage() {
   const isProduction = process.env.NODE_ENV === "production";

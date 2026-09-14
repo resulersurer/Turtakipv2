@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CalendarDays, MapPinned, Plane, ShieldCheck } from "lucide-react";
 import { prisma } from "@/lib/prisma";
@@ -9,8 +10,27 @@ import { SetupNotice } from "@/components/SetupNotice";
 import { isPrismaSetupError } from "@/lib/db-errors";
 import { compactTourMeta } from "@/lib/display";
 import { formatDepartureRange } from "@/lib/departure-status";
+import { officialTourUrl } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  if (!hasDatabaseUrl() || !(await isDatabaseSchemaReady())) return { robots: { index: false, follow: false } };
+  const tour = await prisma.tour.findFirst({
+    where: { slug, status: "PUBLISHED" },
+    select: { name: true, durationDays: true, departureCity: true, coverImageUrl: true, sourceUrl: true }
+  });
+  if (!tour) return { robots: { index: false, follow: false } };
+  const canonical = officialTourUrl(tour.sourceUrl) || `/tour/${encodeURIComponent(slug)}`;
+  const description = `${tour.name} turunun rotasını, programını ve çıkış tarihlerini inceleyin${tour.durationDays ? `; ${tour.durationDays} günlük tur` : ""}${tour.departureCity ? `, ${tour.departureCity} kalkışlı` : ""}.`;
+  return {
+    title: tour.name,
+    description,
+    alternates: { canonical },
+    openGraph: { title: `${tour.name} | Ejder Turizm`, description, url: canonical, images: tour.coverImageUrl ? [{ url: tour.coverImageUrl, alt: tour.name }] : undefined }
+  };
+}
 
 function ImageFrame({ src, alt, className = "h-full" }: { src?: string | null; alt: string; className?: string }) {
   if (!src) return <div className={`${className} rounded-lg border border-line bg-ink/80`} />;
@@ -35,6 +55,7 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
   if (!tour) notFound();
   const meta = compactTourMeta([tour.departureCity, tour.airline, tour.visaStatus]);
   const pricedDepartures = tour.departures.filter((departure: any) => departure.price);
+  const officialUrl = officialTourUrl(tour.sourceUrl);
 
   return (
     <main className="page-shell space-y-6">
@@ -49,6 +70,7 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
             <span className="rounded-md border border-line bg-ink/70 p-3"><ShieldCheck className="mb-2" size={18} />{tour.visaStatus || "Vize bilgisi"}</span>
           </div>
           <div className="mt-5 flex flex-wrap gap-2">
+            {officialUrl ? <a className="btn-primary rounded-md" href={officialUrl}>Resmî tur sayfasını incele ↗</a> : null}
             <Link className="btn-primary rounded-md" href={`/passenger/${tour.id}`}>Yolcu takip görünümü</Link>
             <Link className="btn" href="/tours">Tüm turlar</Link>
           </div>
