@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
-import { ArrowUpRight, Bot, Headset, Mail } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Bot, Headset, Mail } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { serializeTour, tourInclude } from "@/lib/tours";
 import { PublicMap } from "@/components/maps/PublicMap";
@@ -358,10 +358,8 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
           <div className="campaigns-grid">
 
             {/* Halkbank — İlk satırda ilk 2 sütunu kaplıyor */}
-            <a
-              href="https://www.ejderturizm.com.tr/ContentLink.aspx?contpg=275"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/passenger/campaigns/halkbank-parafpara"
               className="campaign-hero campaign-hero--span2"
             >
               <div className="campaign-hero__img-wrap">
@@ -380,11 +378,10 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
                   <h3 className="campaign-hero__title">Halkbank ParafPara Kampanyası</h3>
                 </div>
                 <span className="campaign-hero__cta">
-                  İncele <ArrowUpRight size={15} aria-hidden="true" />
-                  <span className="sr-only">(yeni sekmede açılır)</span>
+                  Detayları İncele <ArrowRight size={15} aria-hidden="true" />
                 </span>
               </div>
-            </a>
+            </Link>
 
             {/* 6 Tur Kampanya Kartı: Asya, Uzak Rotalar, 2026, Vizesiz, Latin, Afrika */}
             {[...campaignLinks.slice(2), ...campaignLinks.slice(0, 2)].map((campaign) => (
