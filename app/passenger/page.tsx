@@ -354,15 +354,38 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
             </div>
           </div>
 
-          {/* ── Üst Satır: Halkbank hero + 2 yan kart ── */}
-          <div className="campaigns-top-row">
+          {/* ── Tek Grid: 6 tur kartı + Halkbank 2 sütun ── */}
+          <div className="campaigns-grid">
 
-            {/* Halkbank Hero Kartı */}
+            {/* 6 kampanya kartı */}
+            {campaignLinks.map((campaign) => (
+              <a
+                key={campaign.href}
+                href={campaign.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`${campaign.title} (yeni sekmede açılır)`}
+                className="campaign-grid-card"
+              >
+                <div className="campaign-grid-card__img-wrap">
+                  <Image
+                    src={campaign.image}
+                    alt={campaign.title}
+                    width={360}
+                    height={240}
+                    unoptimized
+                  />
+                  <div className="campaign-grid-card__glow" aria-hidden="true" />
+                </div>
+              </a>
+            ))}
+
+            {/* Halkbank — 2 sütun kaplıyor */}
             <a
               href="https://www.ejderturizm.com.tr/ContentLink.aspx?contpg=275"
               target="_blank"
               rel="noopener noreferrer"
-              className="campaign-hero"
+              className="campaign-hero campaign-hero--span2"
             >
               <div className="campaign-hero__img-wrap">
                 <Image
@@ -386,53 +409,6 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
               </div>
             </a>
 
-            {/* Sağ sütun: ilk 2 kampanya fotosu yan yana */}
-            {campaignLinks.slice(0, 2).map((campaign) => (
-              <a
-                key={campaign.href}
-                href={campaign.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`${campaign.title} (yeni sekmede açılır)`}
-                className="campaign-side-card"
-              >
-                <div className="campaign-side-card__img-wrap">
-                  <Image
-                    src={campaign.image}
-                    alt={campaign.title}
-                    width={360}
-                    height={240}
-                    unoptimized
-                  />
-                  <div className="campaign-side-card__overlay" aria-hidden="true" />
-                </div>
-              </a>
-            ))}
-          </div>
-
-          {/* ── Alt Satır: kalan 4 kampanya 2×2 grid ── */}
-          <div className="campaigns-bottom-row">
-            {campaignLinks.slice(2).map((campaign) => (
-              <a
-                key={campaign.href}
-                href={campaign.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`${campaign.title} (yeni sekmede açılır)`}
-                className="campaign-grid-card"
-              >
-                <div className="campaign-grid-card__img-wrap">
-                  <Image
-                    src={campaign.image}
-                    alt={campaign.title}
-                    width={360}
-                    height={240}
-                    unoptimized
-                  />
-                  <div className="campaign-grid-card__glow" aria-hidden="true" />
-                </div>
-              </a>
-            ))}
           </div>
 
         </div>

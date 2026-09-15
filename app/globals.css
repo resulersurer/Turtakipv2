@@ -675,7 +675,26 @@ a {
   box-shadow: 0 2px 6px #a9334740;
 }
 
-/* ── Grid Layout ── */
+/* ── Tek Grid ── */
+.campaigns-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .campaigns-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+}
+
+.campaign-hero--span2 {
+  grid-column: span 2;
+}
+
+.campaign-hero--span2 .campaign-hero__img-wrap {
+  height: 180px;
+}
+
+/* ── Grid Layout (eski, kullanılmıyor) ── */
 .campaigns-top-row {
   display: grid;
   gap: 16px;
