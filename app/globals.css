@@ -700,7 +700,8 @@ a {
 /* ── Halkbank Hero Card ── */
 .campaign-hero {
   position: relative;
-  display: block;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
   border-radius: 20px;
   border: 1px solid #ecd5d9;
@@ -724,10 +725,12 @@ a {
 
 .campaign-hero__img-wrap {
   position: relative;
+  flex: 1;
   overflow: hidden;
+  min-height: 180px;
 }
 
-.campaign-hero__img-wrap img { display: block; width: 100%; height: auto; transition: transform 400ms cubic-bezier(.22,.68,0,1.2); }
+.campaign-hero__img-wrap img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform 400ms cubic-bezier(.22,.68,0,1.2); }
 .campaign-hero:hover .campaign-hero__img-wrap img { transform: scale(1.03); }
 
 .campaign-hero__img-wrap::after {
@@ -851,7 +854,7 @@ a {
   overflow: hidden;
   width: 100%;
   height: 100%;
-  min-height: 100px;
+  min-height: 120px;
 }
 
 .campaign-side-card__img-wrap img {
@@ -859,6 +862,7 @@ a {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
   transition: transform 360ms cubic-bezier(.22,.68,0,1.2);
 }
 
@@ -902,16 +906,16 @@ a {
 .campaign-grid-card__img-wrap {
   position: relative;
   overflow: hidden;
+  height: 150px;
 }
 
 .campaign-grid-card__img-wrap img {
   display: block;
   width: 100%;
-  height: auto;
-  max-height: 160px;
-  object-fit: contain;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
   transition: transform 360ms cubic-bezier(.22,.68,0,1.2);
-  padding: 4px;
 }
 
 .campaign-grid-card:hover .campaign-grid-card__img-wrap img { transform: scale(1.05); }
