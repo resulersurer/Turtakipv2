@@ -354,33 +354,10 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
             </div>
           </div>
 
-          {/* ── Tek Grid: 6 tur kartı + Halkbank 2 sütun ── */}
+          {/* ── Tek Grid: Halkbank (2 sütun) + Tur Kartları ── */}
           <div className="campaigns-grid">
 
-            {/* 6 kampanya kartı */}
-            {campaignLinks.map((campaign) => (
-              <a
-                key={campaign.href}
-                href={campaign.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`${campaign.title} (yeni sekmede açılır)`}
-                className="campaign-grid-card"
-              >
-                <div className="campaign-grid-card__img-wrap">
-                  <Image
-                    src={campaign.image}
-                    alt={campaign.title}
-                    width={438}
-                    height={620}
-                    unoptimized
-                  />
-                  <div className="campaign-grid-card__glow" aria-hidden="true" />
-                </div>
-              </a>
-            ))}
-
-            {/* Halkbank — 2 sütun kaplıyor */}
+            {/* Halkbank — İlk satırda ilk 2 sütunu kaplıyor */}
             <a
               href="https://www.ejderturizm.com.tr/ContentLink.aspx?contpg=275"
               target="_blank"
@@ -408,6 +385,29 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
                 </span>
               </div>
             </a>
+
+            {/* 6 Tur Kampanya Kartı: Asya, Uzak Rotalar, 2026, Vizesiz, Latin, Afrika */}
+            {[...campaignLinks.slice(2), ...campaignLinks.slice(0, 2)].map((campaign) => (
+              <a
+                key={campaign.href}
+                href={campaign.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`${campaign.title} (yeni sekmede açılır)`}
+                className="campaign-grid-card"
+              >
+                <div className="campaign-grid-card__img-wrap">
+                  <Image
+                    src={campaign.image}
+                    alt={campaign.title}
+                    width={438}
+                    height={620}
+                    unoptimized
+                  />
+                  <div className="campaign-grid-card__glow" aria-hidden="true" />
+                </div>
+              </a>
+            ))}
 
           </div>
 
