@@ -16,6 +16,15 @@ import { FeaturedTours } from "@/components/passenger/FeaturedTours";
 
 export const dynamic = "force-dynamic";
 
+const campaignLinks = [
+  { title: "Latin Turları", image: "https://image.elitema.com.tr/db_images/154/21/245/2-360.jpg", href: "https://www.ejderturizm.com.tr/TourList.aspx?contpg=227&pcsbcat=130" },
+  { title: "Afrika Turları", image: "https://image.elitema.com.tr/db_images/154/21/246/3-360.jpg", href: "https://www.ejderturizm.com.tr/TourList.aspx?contpg=232&pcmncat=16,1&pcsbcat=19" },
+  { title: "Asya Turları", image: "https://image.elitema.com.tr/db_images/154/21/247/1-360.jpg", href: "https://www.ejderturizm.com.tr/TourList.aspx?contpg=226&pcsbcat=129" },
+  { title: "Uzak Rotalar", image: "https://image.elitema.com.tr/db_images/154/21/268/img-5898.png", href: "https://www.ejderturizm.com.tr/TourList.aspx?contpg=269&pcmncat=1&pcsbcat=143" },
+  { title: "2026 Turları", image: "https://image.elitema.com.tr/db_images/154/21/269/img-5897.png", href: "https://www.ejderturizm.com.tr/TourList.aspx?contpg=260&pcmncat=1&pcsbcat=138" },
+  { title: "Vizesiz ve Kolay Vizeli Turlar", image: "https://image.elitema.com.tr/db_images/154/21/255/web2024-2--3.png", href: "https://www.ejderturizm.com.tr/TourList.aspx?contpg=252&pcsbcat=137" }
+];
+
 export const metadata: Metadata = {
   title: "Canlı Tur Takibi ve Haftalık Rotalar",
   description: "Ejder Turizm turlarının güncel rotalarını haritada görün; yaklaşan çıkışları ve bu hafta keşfedilen ülkeleri inceleyin.",
@@ -331,6 +340,7 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
           <h2 id="campaigns-heading" className="text-xl font-bold text-[#7f1d1d]">Kampanyalar</h2>
           <p className="mt-1 text-sm text-slate-600">Seyahatinize avantaj katacak fırsatları keşfedin.</p>
         </div>
+        <div className="grid items-start gap-4 lg:grid-cols-2">
         <a
           href="https://www.ejderturizm.com.tr/ContentLink.aspx?contpg=275"
           target="_blank"
@@ -353,6 +363,28 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
             </span>
           </div>
         </a>
+        <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2">
+          {campaignLinks.map((campaign) => (
+            <a
+              key={campaign.href}
+              href={campaign.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${campaign.title} (yeni sekmede açılır)`}
+              className="block min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:border-[#7f1d1d]/40 hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#7f1d1d]"
+            >
+              <Image
+                src={campaign.image}
+                alt={campaign.title}
+                width={360}
+                height={240}
+                unoptimized
+                className="h-auto w-full"
+              />
+            </a>
+          ))}
+        </div>
+        </div>
       </section>
 
       <div className="w-full px-4 py-8 sm:px-8 lg:px-10 space-y-8">
