@@ -684,7 +684,7 @@ a {
 }
 
 @media (min-width: 1024px) {
-  .campaigns-top-row { grid-template-columns: minmax(0, 1fr) 300px; }
+  .campaigns-top-row { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr); }
 }
 
 .campaigns-bottom-row {
@@ -725,12 +725,11 @@ a {
 
 .campaign-hero__img-wrap {
   position: relative;
-  flex: 1;
   overflow: hidden;
-  min-height: 180px;
+  height: 160px;
 }
 
-.campaign-hero__img-wrap img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform 400ms cubic-bezier(.22,.68,0,1.2); }
+.campaign-hero__img-wrap img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center top; transition: transform 400ms cubic-bezier(.22,.68,0,1.2); }
 .campaign-hero:hover .campaign-hero__img-wrap img { transform: scale(1.03); }
 
 .campaign-hero__img-wrap::after {
@@ -819,12 +818,6 @@ a {
 }
 
 /* ── Side Small Cards ── */
-.campaigns-side {
-  display: grid;
-  grid-template-rows: 1fr 1fr;
-  gap: 12px;
-}
-
 .campaign-side-card {
   position: relative;
   display: block;
@@ -836,6 +829,8 @@ a {
   text-decoration: none;
   transition: transform 280ms cubic-bezier(.22,.68,0,1.2), box-shadow 280ms ease, border-color 240ms ease;
   will-change: transform;
+  height: 100%;
+  min-height: 160px;
 }
 
 .campaign-side-card:hover {

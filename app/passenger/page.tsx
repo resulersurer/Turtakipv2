@@ -386,30 +386,28 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
               </div>
             </a>
 
-            {/* Sağ sütun: ilk 2 kampanya fotosu */}
-            <div className="campaigns-side">
-              {campaignLinks.slice(0, 2).map((campaign) => (
-                <a
-                  key={campaign.href}
-                  href={campaign.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={`${campaign.title} (yeni sekmede açılır)`}
-                  className="campaign-side-card"
-                >
-                  <div className="campaign-side-card__img-wrap">
-                    <Image
-                      src={campaign.image}
-                      alt={campaign.title}
-                      width={360}
-                      height={240}
-                      unoptimized
-                    />
-                    <div className="campaign-side-card__overlay" aria-hidden="true" />
-                  </div>
-                </a>
-              ))}
-            </div>
+            {/* Sağ sütun: ilk 2 kampanya fotosu yan yana */}
+            {campaignLinks.slice(0, 2).map((campaign) => (
+              <a
+                key={campaign.href}
+                href={campaign.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`${campaign.title} (yeni sekmede açılır)`}
+                className="campaign-side-card"
+              >
+                <div className="campaign-side-card__img-wrap">
+                  <Image
+                    src={campaign.image}
+                    alt={campaign.title}
+                    width={360}
+                    height={240}
+                    unoptimized
+                  />
+                  <div className="campaign-side-card__overlay" aria-hidden="true" />
+                </div>
+              </a>
+            ))}
           </div>
 
           {/* ── Alt Satır: kalan 4 kampanya 2×2 grid ── */}
