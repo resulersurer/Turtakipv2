@@ -846,7 +846,7 @@ a {
   position: relative;
   overflow: hidden;
   width: 100%;
-  aspect-ratio: 219 / 310;
+  aspect-ratio: 219 / 240;
 }
 
 .campaign-side-card__img-wrap img {
@@ -899,7 +899,7 @@ a {
   position: relative;
   overflow: hidden;
   width: 100%;
-  aspect-ratio: 219 / 310;
+  aspect-ratio: 219 / 240;
 }
 
 .campaign-grid-card__img-wrap img {
