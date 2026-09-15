@@ -335,80 +335,108 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
 
       <FeaturedTours tours={featuredTours} />
 
-      <section aria-labelledby="campaigns-heading" className="w-full px-4 pb-10 sm:px-8 lg:px-10">
-        <div className="mb-4">
-          <h2 id="campaigns-heading" className="text-xl font-bold text-[#7f1d1d]">Kampanyalar</h2>
-          <p className="mt-1 text-sm text-slate-600">Seyahatinize avantaj katacak fırsatları keşfedin.</p>
-        </div>
-        {/* Üst satır: Halkbank solda + 2 kampanya fotosu sağda */}
-        <div className="grid items-stretch gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,320px)]">
-          {/* Halkbank banner */}
-          <a
-            href="https://www.ejderturizm.com.tr/ContentLink.aspx?contpg=275"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group block overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:border-[#7f1d1d]/40 hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#7f1d1d]"
-          >
-            <Image
-              src="https://image.elitema.com.tr/db_images/154/21/273/h-banner.png"
-              alt="Halkbank ParafPara kampanyası"
-              width={1200}
-              height={400}
-              unoptimized
-              className="h-auto w-full"
-            />
-            <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6">
-              <h3 className="font-semibold text-slate-900">Halkbank ParafPara Kampanyası</h3>
-              <span className="inline-flex items-center gap-2 text-sm font-semibold text-[#7f1d1d]">
-                Kampanya koşullarını incele <ArrowUpRight size={17} aria-hidden="true" />
-                <span className="sr-only">(yeni sekmede açılır)</span>
-              </span>
+      <section aria-labelledby="campaigns-heading" className="campaigns-section">
+        <div className="campaigns-inner">
+
+          {/* ── Başlık ── */}
+          <div className="campaigns-header">
+            <div className="campaigns-header__left">
+              <div className="campaigns-eyebrow">
+                <span className="campaigns-eyebrow__dot" aria-hidden="true" />
+                ÖZEL FIRSATLAR
+              </div>
+              <h2 id="campaigns-heading" className="campaigns-title">Kampanyalar</h2>
+              <p className="campaigns-subtitle">Seyahatinize avantaj katacak fırsatları keşfedin.</p>
             </div>
-          </a>
-          {/* Sağ sütun: ilk 2 kampanya fotos dikey */}
-          <div className="grid grid-cols-1 gap-3 sm:gap-4">
-            {campaignLinks.slice(0, 2).map((campaign) => (
+            <div className="campaigns-badge" aria-hidden="true">
+              <span className="campaigns-badge__count">7</span>
+              Aktif Kampanya
+            </div>
+          </div>
+
+          {/* ── Üst Satır: Halkbank hero + 2 yan kart ── */}
+          <div className="campaigns-top-row">
+
+            {/* Halkbank Hero Kartı */}
+            <a
+              href="https://www.ejderturizm.com.tr/ContentLink.aspx?contpg=275"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="campaign-hero"
+            >
+              <div className="campaign-hero__img-wrap">
+                <Image
+                  src="https://image.elitema.com.tr/db_images/154/21/273/h-banner.png"
+                  alt="Halkbank ParafPara kampanyası"
+                  width={1200}
+                  height={400}
+                  unoptimized
+                />
+                <div className="campaign-hero__shimmer" aria-hidden="true" />
+              </div>
+              <div className="campaign-hero__body">
+                <div className="campaign-hero__info">
+                  <div className="campaign-hero__label">Banka Kampanyası</div>
+                  <h3 className="campaign-hero__title">Halkbank ParafPara Kampanyası</h3>
+                </div>
+                <span className="campaign-hero__cta">
+                  İncele <ArrowUpRight size={15} aria-hidden="true" />
+                  <span className="sr-only">(yeni sekmede açılır)</span>
+                </span>
+              </div>
+            </a>
+
+            {/* Sağ sütun: ilk 2 kampanya fotosu */}
+            <div className="campaigns-side">
+              {campaignLinks.slice(0, 2).map((campaign) => (
+                <a
+                  key={campaign.href}
+                  href={campaign.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${campaign.title} (yeni sekmede açılır)`}
+                  className="campaign-side-card"
+                >
+                  <div className="campaign-side-card__img-wrap">
+                    <Image
+                      src={campaign.image}
+                      alt={campaign.title}
+                      width={360}
+                      height={240}
+                      unoptimized
+                    />
+                    <div className="campaign-side-card__overlay" aria-hidden="true" />
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* ── Alt Satır: kalan 4 kampanya 2×2 grid ── */}
+          <div className="campaigns-bottom-row">
+            {campaignLinks.slice(2).map((campaign) => (
               <a
                 key={campaign.href}
                 href={campaign.href}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={`${campaign.title} (yeni sekmede açılır)`}
-                className="block min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:border-[#7f1d1d]/40 hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#7f1d1d] flex-1"
+                className="campaign-grid-card"
               >
-                <Image
-                  src={campaign.image}
-                  alt={campaign.title}
-                  width={360}
-                  height={240}
-                  unoptimized
-                  className="h-full w-full object-cover"
-                />
+                <div className="campaign-grid-card__img-wrap">
+                  <Image
+                    src={campaign.image}
+                    alt={campaign.title}
+                    width={360}
+                    height={240}
+                    unoptimized
+                  />
+                  <div className="campaign-grid-card__glow" aria-hidden="true" />
+                </div>
               </a>
             ))}
           </div>
-        </div>
-        {/* Alt satır: kalan 4 kampanya fotos 2x2 grid */}
-        <div className="mt-4 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-          {campaignLinks.slice(2).map((campaign) => (
-            <a
-              key={campaign.href}
-              href={campaign.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`${campaign.title} (yeni sekmede açılır)`}
-              className="block min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:border-[#7f1d1d]/40 hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#7f1d1d]"
-            >
-              <Image
-                src={campaign.image}
-                alt={campaign.title}
-                width={360}
-                height={240}
-                unoptimized
-                className="h-auto max-h-40 w-full object-contain"
-              />
-            </a>
-          ))}
+
         </div>
       </section>
 
