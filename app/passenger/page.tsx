@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Metadata } from "next";
 import { ArrowUpRight, Bot, Headset, Mail } from "lucide-react";
 import { prisma } from "@/lib/prisma";
@@ -325,6 +326,35 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
 
       <FeaturedTours tours={featuredTours} />
 
+      <section aria-labelledby="campaigns-heading" className="w-full px-4 pb-10 sm:px-8 lg:px-10">
+        <div className="mb-4">
+          <h2 id="campaigns-heading" className="text-xl font-bold text-[#7f1d1d]">Kampanyalar</h2>
+          <p className="mt-1 text-sm text-slate-600">Seyahatinize avantaj katacak fırsatları keşfedin.</p>
+        </div>
+        <a
+          href="https://www.ejderturizm.com.tr/ContentLink.aspx?contpg=275"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group block overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:border-[#7f1d1d]/40 hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#7f1d1d]"
+        >
+          <Image
+            src="https://image.elitema.com.tr/db_images/154/21/273/h-banner.png"
+            alt="Halkbank ParafPara kampanyası"
+            width={1200}
+            height={400}
+            unoptimized
+            className="h-auto w-full"
+          />
+          <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6">
+            <h3 className="font-semibold text-slate-900">Halkbank ParafPara Kampanyası</h3>
+            <span className="inline-flex items-center gap-2 text-sm font-semibold text-[#7f1d1d]">
+              Kampanya koşullarını incele <ArrowUpRight size={17} aria-hidden="true" />
+              <span className="sr-only">(yeni sekmede açılır)</span>
+            </span>
+          </div>
+        </a>
+      </section>
+
       <div className="w-full px-4 py-8 sm:px-8 lg:px-10 space-y-8">
         {/* Arama sonucu bulunamadı */}
         {q && !hasResults ? (
@@ -356,6 +386,16 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
             </span>
           </div>
 
+          <details className="group/tour-list">
+            <summary className="inline-flex cursor-pointer list-none items-center gap-2 rounded-lg border border-[#7f1d1d]/20 bg-white px-4 py-2.5 text-sm font-semibold text-[#7f1d1d] transition hover:bg-[#7f1d1d]/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#7f1d1d] [&::-webkit-details-marker]:hidden">
+              <span className="sr-only">{group.label}: </span>
+              <span className="group-open/tour-list:hidden">Turları göster ({group.items.length})</span>
+              <span className="hidden group-open/tour-list:inline">Turları gizle</span>
+              <svg aria-hidden="true" className="h-4 w-4 transition-transform group-open/tour-list:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="m6 9 6 6 6-6" />
+              </svg>
+            </summary>
+            <div className="pt-4">
           {group.items.length ? (
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4">
               {group.items.map(({ tour, departure, relative, range }) => {
@@ -478,6 +518,8 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
               Bu bölümde tur çıkışı bulunmuyor.
             </div>
           ) : null}
+            </div>
+          </details>
         </section>
       ))}
       </div>
