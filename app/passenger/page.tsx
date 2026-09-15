@@ -371,8 +371,8 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
                   <Image
                     src={campaign.image}
                     alt={campaign.title}
-                    width={360}
-                    height={240}
+                    width={438}
+                    height={620}
                     unoptimized
                   />
                   <div className="campaign-grid-card__glow" aria-hidden="true" />
@@ -391,8 +391,8 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
                 <Image
                   src="https://image.elitema.com.tr/db_images/154/21/273/h-banner.png"
                   alt="Halkbank ParafPara kampanyası"
-                  width={1200}
-                  height={400}
+                  width={1920}
+                  height={652}
                   unoptimized
                 />
                 <div className="campaign-hero__shimmer" aria-hidden="true" />
