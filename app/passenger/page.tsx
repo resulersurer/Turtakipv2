@@ -370,35 +370,8 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
         {/* ═══════════════════════════════════════════════
             TUR GRUPLARI & KARTLAR
         ═══════════════════════════════════════════════ */}
-        {groups.map((group) => (
-        <section className="space-y-4" key={group.key}>
-          {/* Grup başlığı */}
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-3">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[#7f1d1d]/20 bg-white p-0.5 shadow-sm">
-                <img src={group.iconSrc} alt="" className="h-full w-full rounded-md object-cover" />
-              </div>
-              <h2 className={`text-lg font-bold tracking-tight ${group.heading}`}>{group.label}</h2>
-            </div>
-            <div className="flex-1 h-px bg-gradient-to-r from-[#7f1d1d]/40 via-[#7f1d1d]/15 to-transparent" />
-            <span className={`rounded-full border px-3 py-1 text-xs font-bold tracking-wide ${group.count}`}>
-              {group.items.length} tur
-            </span>
-          </div>
-
-          <details className="group/tour-list">
-            <summary className="inline-flex cursor-pointer list-none items-center gap-2 rounded-lg border border-[#7f1d1d]/20 bg-white px-4 py-2.5 text-sm font-semibold text-[#7f1d1d] transition hover:bg-[#7f1d1d]/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#7f1d1d] [&::-webkit-details-marker]:hidden">
-              <span className="sr-only">{group.label}: </span>
-              <span className="group-open/tour-list:hidden">Turları göster ({group.items.length})</span>
-              <span className="hidden group-open/tour-list:inline">Turları gizle</span>
-              <svg aria-hidden="true" className="h-4 w-4 transition-transform group-open/tour-list:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="m6 9 6 6 6-6" />
-              </svg>
-            </summary>
-            <div className="pt-4">
-          {group.items.length ? (
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4">
-              {group.items.map(({ tour, departure, relative, range }) => {
+        {groups.map((group) => {
+          const tourCards = group.items.map(({ tour, departure, relative, range }) => {
                 const otherMeta = compactTourMeta([tour.durationDays ? `${tour.durationDays} gün` : null, tour.departureCity]);
                 const mapPoints = tour.days.filter((day: any) => day.lat != null && day.lng != null).length;
                 return (
@@ -511,17 +484,52 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
                     />
                   </Link>
                 );
-              })}
+              });
+          return (
+        <section className="space-y-4" key={group.key}>
+          {/* Grup başlığı */}
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[#7f1d1d]/20 bg-white p-0.5 shadow-sm">
+                <img src={group.iconSrc} alt="" className="h-full w-full rounded-md object-cover" />
+              </div>
+              <h2 className={`text-lg font-bold tracking-tight ${group.heading}`}>{group.label}</h2>
+            </div>
+            <div className="flex-1 h-px bg-gradient-to-r from-[#7f1d1d]/40 via-[#7f1d1d]/15 to-transparent" />
+            <span className={`rounded-full border px-3 py-1 text-xs font-bold tracking-wide ${group.count}`}>
+              {group.items.length} tur
+            </span>
+          </div>
+
+          {group.items.length ? (
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4">
+              {tourCards.slice(0, 8)}
             </div>
           ) : !q ? (
             <div className="rounded-xl border border-slate-700/40 bg-slate-900/40 p-6 text-sm text-slate-500 backdrop-blur">
               Bu bölümde tur çıkışı bulunmuyor.
             </div>
           ) : null}
+          {tourCards.length > 8 ? (
+          <details className="group/tour-list">
+            <summary className="inline-flex cursor-pointer list-none items-center gap-2 rounded-lg border border-[#7f1d1d]/20 bg-white px-4 py-2.5 text-sm font-semibold text-[#7f1d1d] transition hover:bg-[#7f1d1d]/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#7f1d1d] [&::-webkit-details-marker]:hidden">
+              <span className="sr-only">{group.label}: </span>
+              <span className="group-open/tour-list:hidden">Tüm turları göster ({group.items.length})</span>
+              <span className="hidden group-open/tour-list:inline">Daha az göster</span>
+              <svg aria-hidden="true" className="h-4 w-4 transition-transform group-open/tour-list:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="m6 9 6 6 6-6" />
+              </svg>
+            </summary>
+            <div className="pt-4">
+              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4">
+                {tourCards.slice(8)}
+              </div>
             </div>
           </details>
+          ) : null}
         </section>
-      ))}
+          );
+        })}
       </div>
       <PassengerFooter />
     </main>
