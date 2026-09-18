@@ -16,6 +16,7 @@
     "@prisma/client": "^5.22.0",
     "@vercel/analytics": "^2.0.1",
     "@vercel/blob": "^0.27.3",
+    "@vercel/speed-insights": "^2.0.0",
     "cheerio": "^1.0.0",
     "cities.json": "^1.1.50",
     "clsx": "^2.1.1",
