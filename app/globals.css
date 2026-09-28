@@ -64,9 +64,17 @@ a {
   width: 100%;
   min-width: 0;
   padding: 6px clamp(16px, 2.5vw, 40px);
-  text-align: center;
   background: linear-gradient(120deg, #fff, #fbf0f2 50%, #fff);
 }
+.passenger-weekly-banner__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+}
+.passenger-weekly-banner__content { min-width: 0; text-align: center; }
+.passenger-weekly-banner .member-nav-links { justify-content: flex-end; }
 
 .header-contact {
   display: grid;
@@ -193,6 +201,9 @@ a {
 }
 
 @media (max-width: 639px) {
+  .passenger-weekly-banner__inner { grid-template-columns: 1fr; gap: 6px; }
+  .passenger-weekly-banner .member-nav-links { justify-content: center; }
+  .passenger-weekly-banner .member-nav-link { min-height: 34px; padding: 6px 10px; font-size: 12px; }
   .passenger-header__layout { gap: 10px; }
   .passenger-header__logo { height: 62px; }
   .passenger-header__nav { flex-wrap: wrap; justify-content: flex-end; }

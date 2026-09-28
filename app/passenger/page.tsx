@@ -210,28 +210,33 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
           KURUMSAL HEADER
       ═══════════════════════════════════════════════ */}
       <section aria-labelledby="weekly-heading" className="passenger-weekly-banner">
-        <h1 id="weekly-heading" className="text-lg font-extrabold leading-tight tracking-tight text-[#7f1d1d] sm:text-xl">
-          Bu Hafta{" "}
-          <span className="bg-gradient-to-r from-[#7f1d1d] via-[#991b1b] to-[#b91c1c] bg-clip-text text-transparent">
-            Dünyayı Keşfediyoruz
-          </span>
-        </h1>
-        <div className="mt-1 flex flex-wrap items-center justify-center gap-2">
-          {weeklyCountries.length > 0 ? (
-            <>
-              <span className="text-[11px] font-medium uppercase tracking-wider text-[#7f1d1d]/60">Bu hafta:</span>
-              {weeklyCountries.slice(0, 6).map((c) => (
-                <span key={c.country} className="rounded-md border border-[#7f1d1d]/15 bg-[#7f1d1d]/5 px-2 py-0.5 text-[11px] font-medium text-[#7f1d1d]/80">
-                  {c.country}
-                </span>
-              ))}
-              {weeklyCountries.length > 6 && (
-                <span className="text-[11px] font-medium text-[#7f1d1d]/60">+{weeklyCountries.length - 6} daha</span>
+        <div className="passenger-weekly-banner__inner">
+          <div className="passenger-weekly-banner__content">
+            <h1 id="weekly-heading" className="text-lg font-extrabold leading-tight tracking-tight text-[#7f1d1d] sm:text-xl">
+              Bu Hafta{" "}
+              <span className="bg-gradient-to-r from-[#7f1d1d] via-[#991b1b] to-[#b91c1c] bg-clip-text text-transparent">
+                Dünyayı Keşfediyoruz
+              </span>
+            </h1>
+            <div className="mt-1 flex flex-wrap items-center justify-center gap-2">
+              {weeklyCountries.length > 0 ? (
+                <>
+                  <span className="text-[11px] font-medium uppercase tracking-wider text-[#7f1d1d]/60">Bu hafta:</span>
+                  {weeklyCountries.slice(0, 6).map((c) => (
+                    <span key={c.country} className="rounded-md border border-[#7f1d1d]/15 bg-[#7f1d1d]/5 px-2 py-0.5 text-[11px] font-medium text-[#7f1d1d]/80">
+                      {c.country}
+                    </span>
+                  ))}
+                  {weeklyCountries.length > 6 && (
+                    <span className="text-[11px] font-medium text-[#7f1d1d]/60">+{weeklyCountries.length - 6} daha</span>
+                  )}
+                </>
+              ) : (
+                <span className="text-[11px] text-[#7f1d1d]/60">Bu hafta aktif rota bulunmuyor.</span>
               )}
-            </>
-          ) : (
-            <span className="text-[11px] text-[#7f1d1d]/60">Bu hafta aktif rota bulunmuyor.</span>
-          )}
+            </div>
+          </div>
+          <MemberNav />
         </div>
       </section>
 
@@ -299,7 +304,6 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
               Tur Listesi
             </Link>
-            <MemberNav />
           </nav>
         </div>
       </section>
