@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { tourWriteSchema } from "@/lib/validators";
 import type { ParsedTour } from "@/lib/import/normalizeTour";
 import { cleanImportedText } from "@/lib/display";
+import { ReservationError } from "@/lib/reservations/domain";
 
 export const tourInclude = {
   departures: { orderBy: { startDate: "asc" } },
@@ -53,24 +54,43 @@ export async function saveTour(input: unknown, id?: string) {
     const tour = existingId
       ? await tx.tour.update({ where: { id: existingId }, data: base })
       : await tx.tour.create({ data: base });
-    await tx.tourDeparture.deleteMany({ where: { tourId: tour.id } });
+    // Preserve departure IDs and inventory when editing or re-importing a tour.
+    await tx.$queryRaw`SELECT "id" FROM "TourDeparture" WHERE "tourId" = ${tour.id} ORDER BY "id" FOR UPDATE`;
+    const previous = await tx.tourDeparture.findMany({ where: { tourId: tour.id } });
+    const retained = new Set<string>();
+    for (const departure of departures) {
+      const match = departure.id
+        ? previous.find((row) => row.id === departure.id)
+        : previous.find((row) => row.startDate.getTime() === departure.startDate.getTime());
+      if (departure.id && !match) throw new ReservationError("Çıkış bu tura ait değil.", 400);
+      if (match && retained.has(match.id)) throw new ReservationError("Aynı çıkış birden fazla kez gönderilemez.", 400);
+      const values = {
+        startDate: departure.startDate, endDate: departure.endDate,
+        label: departure.label, price: departure.price,
+        currency: departure.currency, availabilityStatus: departure.availabilityStatus
+      };
+      if (match) {
+        // A booked departure date is an immutable part of the booking history.
+        if (match.startDate.getTime() !== departure.startDate.getTime() && await tx.reservation.count({ where: { departureId: match.id } })) {
+          throw new ReservationError("Rezervasyon geçmişi olan çıkışın tarihi değiştirilemez. Yeni bir çıkış ekleyin.");
+        }
+        await tx.tourDeparture.update({ where: { id: match.id }, data: values });
+        retained.add(match.id);
+      } else {
+        const created = await tx.tourDeparture.create({ data: { ...values, tourId: tour.id } });
+        retained.add(created.id);
+      }
+    }
+    const removed = previous.filter((row) => !retained.has(row.id)).map((row) => row.id);
+    if (removed.length) {
+      if (await tx.reservation.count({ where: { departureId: { in: removed } } })) {
+        throw new ReservationError("Rezervasyon geçmişi olan çıkış kaldırılamaz. Mevcut çıkış tarihlerini koruyun.");
+      }
+      await tx.tourDeparture.deleteMany({ where: { id: { in: removed } } });
+    }
     await tx.tourDay.deleteMany({ where: { tourId: tour.id } });
     await tx.tourImage.deleteMany({ where: { tourId: tour.id } });
     await tx.tourPrice.deleteMany({ where: { tourId: tour.id } });
-    if (departures.length) {
-      await tx.tourDeparture.createMany({
-        data: departures.map((departure) => ({
-          tourId: tour.id,
-          startDate: departure.startDate,
-          endDate: departure.endDate,
-          label: departure.label,
-          price: departure.price,
-          currency: departure.currency,
-          availabilityStatus: departure.availabilityStatus
-        })),
-        skipDuplicates: true
-      });
-    }
     if (days.length) {
       await tx.tourDay.createMany({ data: days.map((day) => ({ ...day, tourId: tour.id })), skipDuplicates: true });
     }
@@ -99,6 +119,9 @@ export async function saveTour(input: unknown, id?: string) {
 
 export async function deleteTour(id: string) {
   await prisma.$transaction(async (tx) => {
+    if (await tx.reservation.count({ where: { departure: { tourId: id } } })) {
+      throw new ReservationError("Rezervasyon geçmişi bulunan tur silinemez. Turu arşivleyebilirsiniz.");
+    }
     await tx.importLog.updateMany({ where: { tourId: id }, data: { tourId: null } });
     await tx.tourPrice.deleteMany({ where: { tourId: id } });
     await tx.tourImage.deleteMany({ where: { tourId: id } });
@@ -111,7 +134,7 @@ export async function deleteTour(id: string) {
 export async function deleteToursByStatus(status: TourStatus) {
   return prisma.$transaction(
     async (tx) => {
-      const tours = await tx.tour.findMany({ where: { status }, select: { id: true } });
+      const tours = await tx.tour.findMany({ where: { status, departures: { every: { reservations: { none: {} } } } }, select: { id: true } });
       const ids = tours.map((tour) => tour.id);
       if (!ids.length) return 0;
       await tx.importLog.updateMany({ where: { tourId: { in: ids } }, data: { tourId: null } });

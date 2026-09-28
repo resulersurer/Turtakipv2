@@ -1,3 +1,4 @@
+import { MemberNav } from "@/components/members/MemberNav";
 import { prisma } from "@/lib/prisma";
 import type { Metadata } from "next";
 import { serializeTour, tourInclude } from "@/lib/tours";
@@ -115,7 +116,7 @@ export default async function PublicToursPage({ searchParams }: { searchParams: 
                   </h1>
                   <p className="mt-1 text-sm text-slate-500">Program, çıkış tarihleri ve detaylı bilgiler.</p>
                 </div>
-                <nav className="flex items-center gap-1 rounded-xl border border-[#7f1d1d]/15 bg-[#7f1d1d]/5 p-1">
+                <nav aria-label="Tur listesi menüsü" className="flex flex-wrap justify-center items-center gap-1 rounded-xl border border-[#7f1d1d]/15 bg-[#7f1d1d]/5 p-1">
                   <a
                     href="https://www.ejderturizm.com.tr/"
                     className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-[#7f1d1d] transition-all duration-200 hover:bg-white hover:shadow-sm"
@@ -130,6 +131,7 @@ export default async function PublicToursPage({ searchParams }: { searchParams: 
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
                     Yolcu Takip
                   </Link>
+                  <MemberNav />
                 </nav>
               </div>
             </div>

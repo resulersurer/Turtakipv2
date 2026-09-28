@@ -20,6 +20,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <nav aria-label="Yönetim menüsü" className="admin-nav">
             <Link href="/admin">Genel bakış</Link>
             <Link href="/admin/tours">Turlar</Link>
+            <Link href="/admin/reservations">Rezervasyonlar</Link>
             <Link href="/admin/import">İçe aktar</Link>
             <Link href="/passenger">Yolcu görünümü ↗</Link>
           </nav>

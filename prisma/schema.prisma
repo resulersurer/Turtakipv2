@@ -65,11 +65,63 @@ model TourDeparture {
   price              Decimal?    @db.Decimal(12, 2)
   currency           String      @default("EUR")
   availabilityStatus String?
+  capacity           Int?
+  blockedSeats       Int         @default(0)
+  reservations       Reservation[]
   tour               Tour        @relation(fields: [tourId], references: [id], onDelete: Cascade)
   prices             TourPrice[]
 
   @@unique([tourId, startDate])
   @@index([startDate])
+}
+
+enum ReservationStatus {
+  HOLD
+  CONFIRMED
+  CANCELLED
+}
+
+model Reservation {
+  id            String            @id @default(cuid())
+  requestId     String            @unique
+  requestHash   String
+  code          String            @unique
+  departureId   String
+  contactName   String
+  contactPhone  String
+  contactEmail  String?
+  notes         String?
+  seats         Int
+  status        ReservationStatus
+  holdExpiresAt DateTime?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  departure     TourDeparture     @relation(fields: [departureId], references: [id], onDelete: Restrict)
+  passengers    ReservationPassenger[]
+  events        ReservationEvent[]
+
+  @@index([departureId, status, holdExpiresAt])
+  @@index([createdAt])
+}
+
+model ReservationPassenger {
+  id            String      @id @default(cuid())
+  reservationId String
+  fullName      String
+  sortOrder     Int
+  reservation   Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+
+  @@index([reservationId])
+}
+
+model ReservationEvent {
+  id            String      @id @default(cuid())
+  reservationId String
+  message       String
+  createdAt     DateTime    @default(now())
+  reservation   Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+
+  @@index([reservationId, createdAt])
 }
 
 model TourDay {
@@ -158,4 +210,71 @@ model ImportJobItem {
   @@unique([jobId, url])
   @@index([status])
   @@index([sortOrder])
+}
+
+model Member {
+  id            String          @id @default(cuid())
+  name          String
+  email         String          @unique
+  emailVerified Boolean         @default(false)
+  image         String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  sessions      MemberSession[]
+  accounts      MemberAccount[]
+}
+
+model MemberSession {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      Member   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model MemberAccount {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  Member    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@unique([providerId, accountId])
+  @@index([userId])
+}
+
+model MemberVerification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+}
+
+model MemberRateLimit {
+  id          String @id @default(cuid())
+  key         String @unique
+  count       Int
+  lastRequest BigInt
+
+  @@index([lastRequest])
 }

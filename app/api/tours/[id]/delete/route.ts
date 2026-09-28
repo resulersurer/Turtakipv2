@@ -1,3 +1,4 @@
+import { reservationErrorResponse } from "@/lib/reservations/http";
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { databaseMissingResponse, databaseSchemaMissingResponse, hasDatabaseUrl, isDatabaseSchemaReady } from "@/lib/db-ready";
@@ -10,7 +11,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   if (auth) return auth;
 
   const { id } = await params;
-  await deleteTour(id);
+  try { await deleteTour(id); } catch (error) { return reservationErrorResponse(error); }
 
   const accept = request.headers.get("accept") || "";
   if (accept.includes("text/html")) {

@@ -10,13 +10,18 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:deploy": "prisma migrate deploy",
-    "prisma:studio": "prisma studio"
+    "prisma:studio": "prisma studio",
+    "test:reservations": "tsx --test scripts/reservations.test.ts",
+    "test:reservations:integration": "tsx --test scripts/reservations.integration.test.ts",
+    "test:members": "tsx --test scripts/members.test.ts",
+    "test:members:integration": "tsx --test scripts/members.integration.test.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
     "@vercel/analytics": "^2.0.1",
     "@vercel/blob": "^0.27.3",
     "@vercel/speed-insights": "^2.0.0",
+    "better-auth": "^1.7.6",
     "cheerio": "^1.0.0",
     "cities.json": "^1.1.50",
     "clsx": "^2.1.1",
@@ -41,6 +46,7 @@
     "eslint-config-next": "^15.1.0",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
+    "tsx": "^4.23.15",
     "typescript": "^5.7.2"
   }
 }

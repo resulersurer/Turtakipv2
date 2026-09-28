@@ -1,3 +1,4 @@
+import { reservationErrorResponse } from "@/lib/reservations/http";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
@@ -26,8 +27,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
   const auth = await requireAdmin();
   if (auth) return auth;
   const { id } = await params;
-  const tour = await saveTour(await request.json(), id);
-  return NextResponse.json(serializeTour(tour));
+  try {
+    const tour = await saveTour(await request.json(), id);
+    return NextResponse.json(serializeTour(tour));
+  } catch (error) { return reservationErrorResponse(error); }
 }
 
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -36,7 +39,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
   const auth = await requireAdmin();
   if (auth) return auth;
   const { id } = await params;
-  await deleteTour(id);
+  try { await deleteTour(id); } catch (error) { return reservationErrorResponse(error); }
   const accept = request.headers.get("accept") || "";
   if (accept.includes("text/html")) {
     return NextResponse.redirect(new URL(request.headers.get("referer") || "/admin/tours", request.url));

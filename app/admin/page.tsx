@@ -50,12 +50,12 @@ export default async function AdminPage() {
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold">Ejder Turizm Admin</h1>
-          <p className="text-slate-400">Import, yayın ve tur takip operasyonları.</p>
+          <p className="text-slate-400">Tur, rezervasyon ve yolcu operasyonları.</p>
         </div>
         <div className="flex flex-wrap gap-2">
           {published > 0 ? (
             <form action="/api/tours/delete-published" method="post">
-              <button className="btn" type="submit">Yayındakileri sil</button>
+              <button className="btn" type="submit">Rezervasyonsuz yayındakileri sil</button>
             </form>
           ) : null}
           {drafts > 0 ? (
@@ -63,6 +63,7 @@ export default async function AdminPage() {
               <button className="btn-primary rounded-md" type="submit">Tüm taslakları yayınla</button>
             </form>
           ) : null}
+          <Link className="btn" href="/admin/reservations">Rezervasyonlar</Link>
           <Link className="btn" href="/admin/import">Import</Link>
           <Link className="btn-primary rounded-md" href="/admin/tours">Turlar</Link>
         </div>

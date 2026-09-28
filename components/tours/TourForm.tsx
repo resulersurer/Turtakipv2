@@ -21,7 +21,7 @@ type TourFormData = {
   visaStatus?: string | null;
   status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
   coverImageUrl?: string | null;
-  departures: Array<{ startDate: string; endDate?: string | null; label?: string | null; price?: number | null; currency: string; availabilityStatus?: string | null }>;
+  departures: Array<{ id?: string; startDate: string; endDate?: string | null; label?: string | null; price?: number | null; currency: string; availabilityStatus?: string | null }>;
   days: Array<{ dayNumber: number; title: string; dateOffset: number; hour?: string | null; city?: string | null; country?: string | null; description?: string | null; hotelInfo?: string | null; flightInfo?: string | null; photoUrl?: string | null; lat?: number | null; lng?: number | null; sortOrder: number }>;
   images: Array<{ url: string; alt?: string | null; sortOrder: number }>;
   prices: Array<{ roomType: string; adultPrice?: number | null; childPrice?: number | null; currency: string }>;

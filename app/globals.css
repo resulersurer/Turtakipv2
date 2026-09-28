@@ -991,3 +991,12 @@ a {
     @apply inline-flex items-center rounded-md border border-line bg-ink/70 px-2 py-1 text-xs text-slate-200;
   }
 }
+
+/* Shared membership links on public tour pages. */
+.member-nav-links { display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px; }
+.member-nav-links .member-nav-link { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 40px; padding: 9px 12px; border-radius: 9px; font-size: 13px; font-weight: 650; color: #7f1d1d; white-space: nowrap; }
+.member-nav-links .member-nav-link:hover { background: #fbf0f2; }
+.member-nav-links .member-nav-link--primary { color: #fff; background: #7f1d1d; }
+.member-nav-links .member-nav-link--primary:hover { color: #fff; background: #641c28; }
+.member-nav-links a:focus-visible { outline: 3px solid #b86c76; outline-offset: 3px; }
+.passenger-header__nav .member-nav-links { justify-content: flex-end; }

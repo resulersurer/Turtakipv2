@@ -1,3 +1,4 @@
+import { MemberNav } from "@/components/members/MemberNav";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -59,6 +60,7 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
           <a href="#program">Program</a>
           <a href="#departures">Çıkışlar</a>
           {officialUrl ? <a className="tour-detail__top-cta" href={officialUrl}>Resmî sayfa <ArrowUpRight size={15} aria-hidden="true" /></a> : null}
+          <MemberNav />
         </nav>
       </div>
 

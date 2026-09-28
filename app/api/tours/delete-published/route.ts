@@ -1,3 +1,4 @@
+import { reservationErrorResponse } from "@/lib/reservations/http";
 import { NextRequest, NextResponse } from "next/server";
 import { TourStatus } from "@prisma/client";
 import { requireAdmin } from "@/lib/auth";
@@ -10,7 +11,8 @@ export async function POST(request: NextRequest) {
   const auth = await requireAdmin();
   if (auth) return auth;
 
-  const count = await deleteToursByStatus(TourStatus.PUBLISHED);
+  let count: number;
+  try { count = await deleteToursByStatus(TourStatus.PUBLISHED); } catch (error) { return reservationErrorResponse(error); }
   const accept = request.headers.get("accept") || "";
   if (accept.includes("text/html")) {
     return NextResponse.redirect(new URL(request.headers.get("referer") || "/admin/tours", request.url));

@@ -1,3 +1,4 @@
+import { MemberNav } from "@/components/members/MemberNav";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -37,7 +38,7 @@ export default async function PassengerTourPage({ params, searchParams }: { para
     <main className="tracker-detail">
       <div className="tracker-detail__topbar">
         <Link href="/passenger" className="tracker-detail__brand"><img src="/logo.png" alt="Ejder Turizm" /></Link>
-        <nav aria-label="Tur takip menüsü"><Link href="/passenger"><ArrowLeft size={16} aria-hidden="true" /> Tüm turlar</Link>{tour.slug ? <Link href={`/tour/${tour.slug}`}>Tur programı</Link> : null}{officialUrl ? <a className="tracker-detail__top-cta" href={officialUrl}>Resmî tur sayfası <ArrowUpRight size={16} aria-hidden="true" /></a> : null}</nav>
+        <nav aria-label="Tur takip menüsü"><Link href="/passenger"><ArrowLeft size={16} aria-hidden="true" /> Tüm turlar</Link>{tour.slug ? <Link href={`/tour/${tour.slug}`}>Tur programı</Link> : null}{officialUrl ? <a className="tracker-detail__top-cta" href={officialUrl}>Resmî tur sayfası <ArrowUpRight size={16} aria-hidden="true" /></a> : null}<MemberNav /></nav>
       </div>
 
       <header className="tracker-detail__hero">
