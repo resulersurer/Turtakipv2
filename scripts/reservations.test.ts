@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { assertBookable, assertCapacity, csvCell, effectiveStatus, occupancy } from "../lib/reservations/domain";
-import { capacitySchema, reservationSchema } from "../lib/reservations/validators";
+import { capacitySchema, memberReservationSchema, reservationSchema } from "../lib/reservations/validators";
 
 const now = new Date("2026-09-25T12:00:00Z");
 const rows = [
@@ -43,6 +43,13 @@ test("reservation requires named passengers, contact details and a hold deadline
   const valid = { requestId: "91d8aa21-b2f9-43fc-a523-20759cb93af6", departureId: "departure", contactName: "Test Kişi", contactPhone: "+90 555 123 4567", status: "CONFIRMED", passengers: ["Test Yolcu"] };
   assert.equal(reservationSchema.safeParse(valid).success, true);
   for (const change of [{ passengers: [] }, { passengers: [" "] }, { status: "HOLD" }, { contactPhone: "abcdefg" }, { requestId: "not-a-uuid" }]) assert.equal(reservationSchema.safeParse({ ...valid, ...change }).success, false);
+});
+
+test("member reservations accept only customer fields and limit passenger count", () => {
+  const valid = { requestId: "91d8aa21-b2f9-43fc-a523-20759cb93af6", departureId: "departure", contactPhone: "+90 555 123 4567", passengers: ["Test Yolcu"] };
+  assert.equal(memberReservationSchema.safeParse(valid).success, true);
+  assert.equal(memberReservationSchema.safeParse({ ...valid, passengers: Array.from({ length: 9 }, (_, index) => `Yolcu ${index}`) }).success, false);
+  assert.equal(memberReservationSchema.safeParse({ ...valid, contactPhone: "telefon" }).success, false);
 });
 test("CSV escapes quotes and prevents formulas in passenger and contact fields", () => {
   assert.equal(csvCell('Ali "Can"'), '"Ali ""Can"""');

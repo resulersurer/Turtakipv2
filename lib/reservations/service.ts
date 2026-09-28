@@ -2,7 +2,7 @@ import { createHash, randomUUID } from "node:crypto";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { assertBookable, assertCapacity, effectiveStatus, occupancy, ReservationError } from "./domain";
-import { capacitySchema, reservationSchema, statusSchema } from "./validators";
+import { capacitySchema, memberReservationSchema, reservationSchema, statusSchema } from "./validators";
 
 const reservationInclude = {
   passengers: { orderBy: { sortOrder: "asc" } },
@@ -45,9 +45,9 @@ export async function setCapacity(id: string, input: unknown) {
   }, transactionOptions);
 }
 
-export async function createReservation(input: unknown) {
+export async function createReservation(input: unknown, memberId?: string, requirePublished = false) {
   const data = reservationSchema.parse(input);
-  const requestHash = createHash("sha256").update(JSON.stringify(data)).digest("hex");
+  const requestHash = createHash("sha256").update(JSON.stringify({ ...data, memberId: memberId || null })).digest("hex");
   return prisma.$transaction(async (tx) => {
     const departure = await lockDeparture(tx, data.departureId);
     const prior = await tx.reservation.findUnique({ where: { requestId: data.requestId }, include: reservationInclude });
@@ -56,6 +56,7 @@ export async function createReservation(input: unknown) {
       return prior;
     }
     const now = new Date();
+    if (requirePublished && departure.tour.status !== "PUBLISHED") throw new ReservationError("Bu tur rezervasyona açık değil.", 409);
     assertBookable(departure.startDate, departure.tour.status, now);
     const expires = data.status === "HOLD" ? new Date(data.holdExpiresAt!) : null;
     if (expires && expires <= now) throw new ReservationError("Opsiyon bitişi gelecekte olmalıdır.", 400);
@@ -65,6 +66,7 @@ export async function createReservation(input: unknown) {
       requestHash,
       code: `R-${randomUUID().replace(/-/g, "").slice(0, 12).toUpperCase()}`,
       departureId: data.departureId,
+      memberId: memberId || null,
       contactName: data.contactName,
       contactPhone: data.contactPhone,
       contactEmail: data.contactEmail || null,
@@ -76,6 +78,31 @@ export async function createReservation(input: unknown) {
       events: { create: { message: data.status === "HOLD" ? "Opsiyonlu rezervasyon oluşturuldu." : "Kesin rezervasyon oluşturuldu." } }
     }, include: reservationInclude });
   }, transactionOptions);
+}
+
+export async function createMemberReservation(input: unknown, member: { id: string; name: string; email: string }) {
+  const data = memberReservationSchema.parse(input);
+  return createReservation({
+    ...data,
+    contactName: member.name,
+    contactEmail: member.email,
+    status: "CONFIRMED"
+  }, member.id, true);
+}
+
+export async function getDepartureAvailability(tourId: string) {
+  const departures = await prisma.tourDeparture.findMany({
+    where: { tourId, tour: { status: "PUBLISHED" } },
+    orderBy: { startDate: "asc" },
+    select: {
+      id: true,
+      capacity: true,
+      blockedSeats: true,
+      reservations: { select: { status: true, seats: true, holdExpiresAt: true } }
+    }
+  });
+  const now = new Date();
+  return new Map(departures.map(({ reservations, ...departure }) => [departure.id, occupancy(departure.capacity, departure.blockedSeats, reservations, now)]));
 }
 
 export async function changeReservationStatus(id: string, input: unknown) {

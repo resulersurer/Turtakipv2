@@ -87,6 +87,7 @@ model Reservation {
   requestHash   String
   code          String            @unique
   departureId   String
+  memberId      String?
   contactName   String
   contactPhone  String
   contactEmail  String?
@@ -97,10 +98,12 @@ model Reservation {
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt
   departure     TourDeparture     @relation(fields: [departureId], references: [id], onDelete: Restrict)
+  member        Member?           @relation(fields: [memberId], references: [id], onDelete: SetNull)
   passengers    ReservationPassenger[]
   events        ReservationEvent[]
 
   @@index([departureId, status, holdExpiresAt])
+  @@index([memberId, createdAt])
   @@index([createdAt])
 }
 
@@ -222,6 +225,7 @@ model Member {
   updatedAt     DateTime        @updatedAt
   sessions      MemberSession[]
   accounts      MemberAccount[]
+  reservations  Reservation[]
 }
 
 model MemberSession {

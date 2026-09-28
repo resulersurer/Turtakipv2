@@ -54,8 +54,32 @@
 .tour-detail__departure-date { display: flex; align-items: center; gap: 9px; color: #652b3b; font-size: 14px; }
 .tour-detail__departure-date svg { flex: none; color: #a6485a; }
 .tour-detail__departure p { min-height: 38px; margin: 15px 0; color: #7b6a6f; font-size: 13px; }
-.tour-detail__departure a { display: inline-flex; align-items: center; gap: 4px; color: #8b3446; font-size: 12px; font-weight: 800; }
-.tour-detail__departure a:hover, .tour-detail__text-link:hover { text-decoration: underline; text-underline-offset: 4px; }
+.tour-detail__departure .tour-detail__track-link { display: inline-flex; align-items: center; gap: 4px; margin-top: 16px; color: #8b3446; font-size: 12px; font-weight: 800; }
+.tour-detail__departure .tour-detail__track-link:hover, .tour-detail__text-link:hover { text-decoration: underline; text-underline-offset: 4px; }
+.tour-detail__seat-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin: 14px 0; }
+.tour-detail__seat-summary div { display: grid; gap: 3px; padding: 10px; border: 1px solid #efdee2; border-radius: 10px; background: #fcf7f8; text-align: center; }
+.tour-detail__seat-summary span { color: #8b7379; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+.tour-detail__seat-summary strong { color: #692638; font-size: 19px; }
+.tour-detail__booking { margin-top: 14px; }
+.tour-detail__reserve-button, .tour-detail__booking-guest a { display: inline-flex; align-items: center; justify-content: center; gap: 7px; width: 100%; min-height: 42px; padding: 10px 13px; border: 1px solid #7f1d1d; border-radius: 10px; background: #7f1d1d; color: #fff; font-size: 12px; font-weight: 800; }
+.tour-detail__reserve-button:hover, .tour-detail__booking-guest a:hover { background: #641c28; }
+.tour-detail__reserve-button:disabled { cursor: not-allowed; border-color: #d7c9cc; background: #e8dfe1; color: #846f74; }
+.tour-detail__booking-guest { margin-top: 14px; }
+.tour-detail__booking-form { display: grid; gap: 12px; padding: 14px; border: 1px solid #ead9dd; border-radius: 12px; background: #fffafa; }
+.tour-detail__booking-form label { display: grid; gap: 6px; color: #5f3741; font-size: 11px; font-weight: 800; }
+.tour-detail__booking-form input, .tour-detail__booking-form textarea { width: 100%; min-width: 0; padding: 10px 11px; border: 1px solid #d9c9cd; border-radius: 8px; background: #fff; color: #33272a; font-size: 14px; font-weight: 400; }
+.tour-detail__passenger-heading, .tour-detail__passenger-actions, .tour-detail__booking-actions { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.tour-detail__passenger-heading { color: #6d3947; font-size: 11px; font-weight: 800; }
+.tour-detail__passenger-actions button, .tour-detail__booking-actions > button:first-child { display: inline-flex; align-items: center; gap: 5px; padding: 7px 8px; border: 1px solid #ddcdd1; border-radius: 7px; background: #fff; color: #743346; font-size: 10px; font-weight: 700; }
+.tour-detail__passenger-actions button:disabled { opacity: .45; }
+.tour-detail__booking-actions { align-items: stretch; margin-top: 3px; }
+.tour-detail__booking-actions .tour-detail__reserve-button { width: auto; flex: 1; }
+.tour-detail__booking-error, .tour-detail__booking-success { display: flex; align-items: center; gap: 6px; margin: 0 0 10px; padding: 10px; border-radius: 8px; font-size: 11px; line-height: 1.5; }
+.tour-detail__booking-success svg { flex: none; }
+.tour-detail__booking-success span { min-width: 0; }
+.tour-detail__booking-success strong { white-space: nowrap; }
+.tour-detail__booking-error { border: 1px solid #fecaca; background: #fef2f2; color: #991b1b; }
+.tour-detail__booking-success { border: 1px solid #bbf7d0; background: #f0fdf4; color: #166534; }
 .tour-detail__price { display: flex; justify-content: space-between; gap: 10px; color: #7a636b; font-size: 13px; }
 .tour-detail__price strong { color: #74283a; }
 .tour-detail__empty { color: #7a636b; }

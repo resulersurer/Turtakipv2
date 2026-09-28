@@ -11,6 +11,9 @@ import { SetupNotice } from "@/components/SetupNotice";
 import { isPrismaSetupError } from "@/lib/db-errors";
 import { classifyDeparture, formatDepartureRange } from "@/lib/departure-status";
 import { officialTourUrl } from "@/lib/seo";
+import { getMemberSession } from "@/lib/members/session";
+import { getDepartureAvailability } from "@/lib/reservations/service";
+import { MemberBooking } from "@/components/reservations/MemberBooking";
 import "./tour-detail.css";
 
 export const dynamic = "force-dynamic";
@@ -44,6 +47,11 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
     throw error;
   }
   if (!tour) notFound();
+
+  const [availability, memberSession] = await Promise.all([
+    getDepartureAvailability(tour.id),
+    getMemberSession().catch(() => null)
+  ]);
 
   const officialUrl = officialTourUrl(tour.sourceUrl);
   const countries = [...new Set<string>(tour.days.map((day: any) => day.country).filter(Boolean))];
@@ -98,7 +106,18 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
           <div className="tour-detail__route-card"><span className="tour-detail__section-kicker">ROTA ÖZETİ</span><h2>Keşfedilecek yerler</h2><p>Tur programındaki ülkeler ve duraklar.</p><div className="tour-detail__countries">{countries.map((country) => <span key={country}><MapPin size={14} aria-hidden="true" />{country}</span>)}</div><a href="#program" className="tour-detail__text-link">Günlük programı gör <ArrowUpRight size={16} aria-hidden="true" /></a></div>
         </section>
 
-        <section className="tour-detail__section" id="departures" aria-labelledby="tour-departures-heading"><div className="tour-detail__section-heading"><div><span className="tour-detail__section-kicker">SEYAHATİNİ PLANLA</span><h2 id="tour-departures-heading">Çıkış tarihleri</h2></div><span className="tour-detail__pill">{tour.departures.length} seçenek</span></div><div className="tour-detail__departure-grid">{tour.departures.length ? tour.departures.map((departure: any) => <article className="tour-detail__departure" key={departure.id}><div className="tour-detail__departure-date"><CalendarDays size={20} aria-hidden="true" /><strong>{formatDepartureRange(departure)}</strong></div><p>{departure.price ? `${departure.price} ${departure.currency}` : departure.label || "Fiyat ve yer bilgisi için resmî sayfayı inceleyin"}</p><Link href={`/passenger/${tour.id}?departureId=${departure.id}`}>Bu tarihi haritada takip et <ArrowUpRight size={16} aria-hidden="true" /></Link></article>) : <p className="tour-detail__empty">Henüz çıkış tarihi eklenmemiş.</p>}</div></section>
+        <section className="tour-detail__section" id="departures" aria-labelledby="tour-departures-heading"><div className="tour-detail__section-heading"><div><span className="tour-detail__section-kicker">SEYAHATİNİ PLANLA</span><h2 id="tour-departures-heading">Çıkış tarihleri ve koltuk durumu</h2></div><span className="tour-detail__pill">{tour.departures.length} seçenek</span></div><div className="tour-detail__departure-grid">{tour.departures.length ? tour.departures.map((departure: any) => {
+          const seats = availability.get(departure.id);
+          const occupied = seats && seats.capacity !== null ? seats.capacity - (seats.available ?? 0) : null;
+          const returnTo = `/tour/${tour.slug}#departures`;
+          return <article className="tour-detail__departure" key={departure.id}>
+            <div className="tour-detail__departure-date"><CalendarDays size={20} aria-hidden="true" /><strong>{formatDepartureRange(departure)}</strong></div>
+            <p>{departure.price ? `${departure.price} ${departure.currency}` : departure.label || "Fiyat bilgisi için resmî sayfayı inceleyin"}</p>
+            {memberSession && seats ? <div className="tour-detail__seat-summary" aria-label="Koltuk durumu"><div><span>Toplam</span><strong>{seats.capacity ?? "—"}</strong></div><div><span>Dolu</span><strong>{occupied ?? "—"}</strong></div><div><span>Boş</span><strong>{seats.available ?? "—"}</strong></div></div> : null}
+            {seats ? <MemberBooking departureId={departure.id} availability={seats} signedIn={Boolean(memberSession)} returnTo={returnTo} /> : null}
+            <Link className="tour-detail__track-link" href={`/passenger/${tour.id}?departureId=${departure.id}`}>Bu tarihi haritada takip et <ArrowUpRight size={16} aria-hidden="true" /></Link>
+          </article>;
+        }) : <p className="tour-detail__empty">Henüz çıkış tarihi eklenmemiş.</p>}</div></section>
 
         {tour.prices.length ? <section className="tour-detail__section" aria-labelledby="tour-prices-heading"><div className="tour-detail__section-heading"><div><span className="tour-detail__section-kicker">KONAKLAMA SEÇENEKLERİ</span><h2 id="tour-prices-heading">Fiyat bilgileri</h2></div></div><div className="tour-detail__price-grid">{tour.prices.map((price: any) => <div className="tour-detail__price" key={price.id}><span>{price.roomType}</span><strong>{price.adultPrice ? `${price.adultPrice} ${price.currency}` : "Fiyat sorunuz"}</strong></div>)}</div></section> : null}
 

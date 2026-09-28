@@ -18,3 +18,11 @@ export const reservationSchema = z.object({
 }).refine((value) => value.status !== "HOLD" || Boolean(value.holdExpiresAt), { message: "Opsiyon bitiş zamanını seçin.", path: ["holdExpiresAt"] });
 
 export const statusSchema = z.object({ status: z.enum(["CONFIRMED", "CANCELLED"]) });
+
+export const memberReservationSchema = z.object({
+  requestId: z.string().uuid(),
+  departureId: z.string().min(1),
+  contactPhone: z.string().trim().min(7, "Geçerli bir telefon numarası girin.").max(30).regex(/^[+\d\s().-]+$/, "Geçerli bir telefon numarası girin."),
+  notes: z.string().trim().max(1000, "Not en fazla 1000 karakter olabilir.").optional(),
+  passengers: z.array(z.string().trim().min(2, "Her yolcunun adını ve soyadını girin.").max(120)).min(1).max(8, "Tek rezervasyonda en fazla 8 yolcu ekleyebilirsiniz.")
+});

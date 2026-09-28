@@ -156,6 +156,8 @@ Tur ekranlarındaki **Üye ol** ve **Giriş yap** bağlantıları müşteri üye
 
 Üye hesapları yönetici hesabından ayrıdır. Müşteri oturumu `/admin` yetkisi sağlamaz. Şifreler düz metin tutulmaz; Better Auth tarafından güçlü parola özeti olarak saklanır. Oturumlar yedi gün geçerlidir ve sunucu tarafında doğrulanır. Giriş, kayıt ve şifre değişikliği istekleri PostgreSQL üzerinde kalıcı hız sınırına tabidir.
 
+Giriş yapan üyeler yayınlanmış turların detay sayfasında her çıkışın toplam, dolu ve boş koltuk sayısını görebilir. Kapasitesi yönetici tarafından tanımlanmış gelecek çıkışlar için telefon ve yolcu bilgileriyle kesin rezervasyon oluşturabilir. İletişim adı ve e-posta oturumdaki üye hesabından alınır; rezervasyon üye kaydına bağlanır. Bir üye rezervasyonunda en fazla sekiz yolcu bulunabilir.
+
 Yeni şema `prisma/migrations/20260925110000_members/migration.sql` migration'ıyla uygulanır. Üyelik için Vercel ortam değişkenlerine aşağıdakileri ekleyin:
 
 ```bash

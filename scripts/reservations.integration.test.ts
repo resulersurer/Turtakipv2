@@ -12,6 +12,7 @@ let prisma: typeof import("../lib/prisma").prisma;
 let service: typeof import("../lib/reservations/service");
 let tours: typeof import("../lib/tours");
 const tourIds: string[] = [];
+const memberIds: string[] = [];
 const future = new Date("2090-06-15T00:00:00Z");
 
 before(async () => {
@@ -23,6 +24,7 @@ after(async () => {
   if (!prisma) return;
   await prisma.reservation.deleteMany({ where: { departure: { tourId: { in: tourIds } } } });
   await prisma.tour.deleteMany({ where: { id: { in: tourIds } } });
+  await prisma.member.deleteMany({ where: { id: { in: memberIds } } });
   await prisma.$disconnect();
 });
 
@@ -53,6 +55,20 @@ test("parallel retries with the same request ID create only one booking", async 
   assert.equal(results[0].id, results[1].id);
   assert.equal(await prisma.reservation.count({ where: { departureId: departure.id } }), 1);
   await assert.rejects(service.createReservation({ ...payload, status: "HOLD", holdExpiresAt: new Date(Date.now() + 60000).toISOString() }), /farklı bilgilerle/);
+});
+
+test("member booking derives contact identity, links ownership and requires a published tour", async () => {
+  const { tour, departure } = await fixture(3);
+  const member = await prisma.member.create({ data: { name: "Üye Test", email: `booking-${randomUUID()}@example.com` } });
+  memberIds.push(member.id);
+  const payload = { requestId: randomUUID(), departureId: departure.id, contactPhone: "+90 555 123 4567", passengers: ["Üye Yolcu"] };
+  await assert.rejects(service.createMemberReservation(payload, member), /açık değil/);
+  await prisma.tour.update({ where: { id: tour.id }, data: { status: "PUBLISHED" } });
+  const reservation = await service.createMemberReservation(payload, member);
+  assert.equal(reservation.contactName, member.name);
+  assert.equal(reservation.contactEmail, member.email);
+  assert.equal((await prisma.reservation.findUniqueOrThrow({ where: { id: reservation.id } })).memberId, member.id);
+  assert.equal((await service.getDepartureAvailability(tour.id)).get(departure.id)?.available, 2);
 });
 
 test("capacity must be configured and cannot be reduced below occupied and blocked seats", async () => {
