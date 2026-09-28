@@ -25,9 +25,9 @@ export default async function AdminTourEditPage({ params }: { params: Promise<{ 
   if (id !== "new" && !tour) notFound();
   return (
     <main className="page-shell space-y-5">
-      <header className="flex items-center justify-between">
-        <div><h1 className="text-2xl font-semibold">{tour ? "Tur düzenle" : "Yeni tur"}</h1><p className="text-slate-400">Program, çıkış tarihleri ve harita pinleri.</p></div>
-        <Link className="btn" href="/admin/tours">Liste</Link>
+      <header className="admin-page-header">
+        <div className="admin-page-header__title"><span className="admin-eyebrow">Tur operasyonu</span><h1>{tour ? "Tur düzenle" : "Yeni tur"}</h1><p>Temel bilgiler, çıkış tarihleri, fiyatlar, günlük program ve harita noktalarını yönetin.</p></div>
+        <div className="admin-page-actions"><Link className="btn" href="/admin/tours">Tur listesine dön</Link></div>
       </header>
       <TourForm initial={tour ? (serializeTour(tour) as any) : undefined} />
     </main>

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarDays, Copy, Eye, Pencil, Plane, Send, Trash2 } from "lucide-react";
+import { Armchair, CalendarDays, Copy, Eye, Pencil, Plane, Send, Trash2 } from "lucide-react";
 import { compactTourMeta } from "@/lib/display";
 
 type Tour = {
@@ -10,7 +10,7 @@ type Tour = {
   durationDays?: number | null;
   departureCity?: string | null;
   airline?: string | null;
-  departures?: Array<{ startDate: string | Date; endDate?: string | Date | null }>;
+  departures?: Array<{ startDate: string | Date; endDate?: string | Date | null; capacity?: number | null }>;
   days?: Array<unknown>;
   coverImageUrl?: string | null;
 };
@@ -20,6 +20,24 @@ export function TourCard({ tour, admin = false }: { tour: Tour; admin?: boolean 
   const first = starts[0]?.toLocaleDateString("tr-TR", { day: "2-digit", month: "short", year: "numeric" });
   const last = starts.at(-1)?.toLocaleDateString("tr-TR", { day: "2-digit", month: "short", year: "numeric" });
   const meta = compactTourMeta([tour.durationDays ? `${tour.durationDays} gün` : null, tour.departureCity, tour.airline]);
+  const capacityMissing = (tour.departures || []).filter((departure) => departure.capacity == null).length;
+
+  if (admin) return <article className="panel admin-tour-row">
+    <div className="admin-tour-row__image">{tour.coverImageUrl ? <img src={tour.coverImageUrl} alt="" /> : <Plane size={25} aria-hidden="true" />}</div>
+    <div className="admin-tour-row__content">
+      <div className="admin-tour-row__title"><div><h3>{tour.name}</h3>{meta ? <p>{meta}</p> : null}</div><span className={`badge admin-status admin-status--${tour.status.toLowerCase()}`}>{tour.status === "PUBLISHED" ? "Yayında" : tour.status === "DRAFT" ? "Taslak" : "Arşiv"}</span></div>
+      <div className="admin-tour-row__meta">
+        <span><CalendarDays size={15} />{first && last ? `${first} – ${last}` : "Tarih yok"}</span>
+        <span><Plane size={15} />{tour.departures?.length || 0} çıkış</span>
+        <span><Armchair size={15} />{capacityMissing ? `${capacityMissing} kapasite eksik` : "Kapasiteler hazır"}</span>
+      </div>
+    </div>
+    <div className="admin-tour-row__actions">
+      <Link className="btn" href={`/admin/tours/${tour.id}`} title="Düzenle"><Pencil size={16} />Düzenle</Link>
+      {tour.status === "PUBLISHED" ? <Link className="btn" href={`/tour/${tour.slug}`} title="Yolcu görünümü"><Eye size={16} />Görüntüle</Link> : <form action={`/api/tours/${tour.id}/publish`} method="post"><button className="btn-primary" title="Yayınla"><Send size={16} />Yayınla</button></form>}
+      <details className="admin-tour-row__more"><summary aria-label="Diğer işlemler">•••</summary><div><form action={`/api/tours/${tour.id}/duplicate`} method="post"><button type="submit"><Copy size={15} />Kopyala</button></form><form action={`/api/tours/${tour.id}/delete`} method="post"><button type="submit"><Trash2 size={15} />Sil</button></form></div></details>
+    </div>
+  </article>;
 
   return (
     <article className="panel overflow-hidden rounded-lg">
@@ -41,22 +59,8 @@ export function TourCard({ tour, admin = false }: { tour: Tour; admin?: boolean 
           <span>{tour.durationDays || "-"} gün</span>
         </div>
         <div className="flex flex-wrap gap-2">
-          {admin ? (
-            <>
-              <Link className="btn" href={`/admin/tours/${tour.id}`} title="Düzenle"><Pencil size={16} />Düzenle</Link>
-              {tour.status === "PUBLISHED" ? <Link className="btn" href={`/passenger/${tour.id}`} title="Yolcu görünümü"><Eye size={16} />Yolcu</Link> : null}
-              {tour.status !== "PUBLISHED" ? <form action={`/api/tours/${tour.id}/publish`} method="post"><button className="btn-primary rounded-md" title="Yayınla"><Send size={16} />Yayınla</button></form> : null}
-              <form action={`/api/tours/${tour.id}/duplicate`} method="post"><button className="btn" title="Kopyala"><Copy size={16} />Kopyala</button></form>
-              <form action={`/api/tours/${tour.id}/delete`} method="post">
-                <button className="btn" title="Sil" type="submit"><Trash2 size={16} />Sil</button>
-              </form>
-            </>
-          ) : (
-            <>
-              <Link className="btn-primary rounded-md" href={`/tour/${tour.slug}`}>Detay</Link>
-              <Link className="btn" href={`/passenger/${tour.id}`}>Takip</Link>
-            </>
-          )}
+          <Link className="btn-primary rounded-md" href={`/tour/${tour.slug}`}>Detay</Link>
+          <Link className="btn" href={`/passenger/${tour.id}`}>Takip</Link>
         </div>
       </div>
     </article>

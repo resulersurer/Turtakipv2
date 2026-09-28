@@ -46,28 +46,24 @@ export default async function AdminToursPage({ searchParams }: { searchParams: P
     return true;
   }).sort((a, b) => tourSortValue(a) - tourSortValue(b));
   return (
-    <main className="page-shell space-y-5">
-      <header className="flex flex-wrap items-center justify-between gap-3">
-        <div><h1 className="text-2xl font-semibold">Turlar</h1><p className="text-slate-400">Arama, durum ve takvim filtreleriyle operasyon listesi.</p></div>
-        <div className="flex flex-wrap gap-2">
-          {publishedCount > 0 ? (
-            <form action="/api/tours/delete-published" method="post">
-              <button className="btn" type="submit">Yayındakileri toplu sil ({publishedCount})</button>
-            </form>
-          ) : null}
-          <Link className="btn" href="/admin/import">Import</Link>
-          <Link className="btn-primary rounded-md" href="/admin/tours/new">Yeni tur</Link>
+    <main className="page-shell space-y-6">
+      <header className="admin-page-header">
+        <div className="admin-page-header__title"><span className="admin-eyebrow">Tur operasyonu</span><h1>Turlar</h1><p>Tur içeriklerini, çıkış tarihlerini, yayın durumunu ve kapasite hazırlığını yönetin.</p></div>
+        <div className="admin-page-actions">
+          {publishedCount > 0 ? <details className="admin-bulk-actions"><summary className="btn">Toplu işlemler</summary><div><p>Rezervasyonu olmayan {publishedCount} yayındaki tur silinebilir.</p><form action="/api/tours/delete-published" method="post"><button type="submit">Yayındakileri toplu sil</button></form></div></details> : null}
+          <Link className="btn" href="/admin/import">İçe aktar</Link>
+          <Link className="btn-primary" href="/admin/tours/new">Yeni tur</Link>
         </div>
       </header>
-      <form className="panel grid gap-3 rounded-lg p-4 md:grid-cols-5">
-        <input className="input" name="q" defaultValue={params.q} placeholder="Tur veya şehir ara" />
-        <select className="input" name="status" defaultValue={params.status || ""}><option value="">Tüm durumlar</option><option>DRAFT</option><option>PUBLISHED</option><option>ARCHIVED</option></select>
-        <input className="input" name="month" defaultValue={params.month} placeholder="Ay 1-12" />
-        <input className="input" name="isoWeek" defaultValue={params.isoWeek} placeholder="ISO hafta" />
-        <select className="input" name="weekday" defaultValue={params.weekday || ""}><option value="">Gün</option><option value="1">Pzt</option><option value="2">Sal</option><option value="3">Çar</option><option value="4">Per</option><option value="5">Cum</option><option value="6">Cmt</option><option value="0">Paz</option></select>
-        <button className="btn-primary rounded-md md:col-span-5">Filtrele</button>
+      <form className="panel admin-filter-panel">
+        <label><span>Tur ara</span><input className="input" name="q" defaultValue={params.q} placeholder="Tur veya şehir" /></label>
+        <label><span>Durum</span><select className="input" name="status" defaultValue={params.status || ""}><option value="">Tümü</option><option value="DRAFT">Taslak</option><option value="PUBLISHED">Yayında</option><option value="ARCHIVED">Arşiv</option></select></label>
+        <label><span>Ay</span><input className="input" name="month" type="number" min="1" max="12" defaultValue={params.month} placeholder="1-12" /></label>
+        <label><span>Haftanın günü</span><select className="input" name="weekday" defaultValue={params.weekday || ""}><option value="">Tümü</option><option value="1">Pazartesi</option><option value="2">Salı</option><option value="3">Çarşamba</option><option value="4">Perşembe</option><option value="5">Cuma</option><option value="6">Cumartesi</option><option value="0">Pazar</option></select></label>
+        <button className="btn-primary">Filtrele</button>
       </form>
-      {filtered.length ? <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{filtered.map((tour) => <TourCard key={tour.id} tour={tour} admin />)}</section> : <div className="panel rounded-lg p-8 text-center text-slate-400">Tur bulunamadı.</div>}
+      <div className="admin-section-heading"><div><h2>Tur listesi</h2><p>{filtered.length} tur gösteriliyor</p></div></div>
+      {filtered.length ? <section className="admin-tour-list">{filtered.map((tour) => <TourCard key={tour.id} tour={tour} admin />)}</section> : <div className="panel p-8 text-center text-slate-400">Filtrelere uygun tur bulunamadı.</div>}
     </main>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { CalendarDays, Check, Download, Plus, RefreshCw, Users, X } from "lucide-react";
 import { assertBookable, csvCell, effectiveStatus, occupancy, type BookingStatus } from "@/lib/reservations/domain";
@@ -89,8 +90,9 @@ function BookingForm({ departureId, available, busy, onSave, onClose }: {
 }
 
 export function ReservationDashboard() {
+  const searchParams = useSearchParams();
   const [data, setData] = useState<Dashboard | null>(null);
-  const [selectedId, setSelectedId] = useState("");
+  const [selectedId, setSelectedId] = useState(() => searchParams.get("departureId") || "");
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -166,7 +168,7 @@ export function ReservationDashboard() {
   };
 
   return <main className="page-shell space-y-6">
-    <header className="flex items-center justify-between gap-4"><div><p className="text-sm font-semibold text-slate-500">OPERASYON</p><h1 className="text-3xl">Rezervasyonlar</h1><p className="text-slate-500">Çıkış kontenjanı, opsiyonlar ve yolcular tek ekranda.</p></div><button className="btn" disabled={busy || loading} onClick={() => { setLoading(true); void load(); }}><RefreshCw size={16} />Yenile</button></header>
+    <header className="admin-page-header"><div className="admin-page-header__title"><span className="admin-eyebrow">Koltuk operasyonu</span><h1>Rezervasyonlar</h1><p>Çıkış kapasitesi, doluluk, opsiyonlar ve yolcu kayıtlarını tek ekrandan yönetin.</p></div><div className="admin-page-actions"><button className="btn" disabled={busy || loading} onClick={() => { setLoading(true); void load(); }}><RefreshCw size={16} />Yenile</button></div></header>
     {error && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-red-800">{error}</div>}
     {notice && <div role="status" className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-800">{notice}</div>}
     {loading && <p role="status" className="text-slate-500">Rezervasyonlar yükleniyor…</p>}

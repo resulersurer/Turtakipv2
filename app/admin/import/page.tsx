@@ -12,9 +12,9 @@ export default async function ImportPage() {
   if (!(await isAdmin())) return <AdminLogin />;
   return (
     <main className="page-shell space-y-6">
-      <header className="flex items-center justify-between gap-3">
-        <div><h1 className="text-2xl font-semibold">Tur import</h1><p className="text-slate-400">İçe aktarılan kayıtlar taslak oluşturur; yayın öncesi düzenlenir.</p></div>
-        <Link className="btn" href="/admin">Dashboard</Link>
+      <header className="admin-page-header">
+        <div className="admin-page-header__title"><span className="admin-eyebrow">Veri aktarımı</span><h1>Tur içe aktar</h1><p>Tek bir turu veya bir liste sayfasındaki tüm turları taslak olarak aktarın; kontrol ettikten sonra yayınlayın.</p></div>
+        <div className="admin-page-actions"><Link className="btn" href="/admin/tours">Tur listesi</Link></div>
       </header>
       <section className="grid gap-4 lg:grid-cols-2">
         <ImportPreview mode="tour" />

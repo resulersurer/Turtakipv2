@@ -13,12 +13,12 @@ export function AdminLogin() {
     else setError("Şifre hatalı veya ADMIN_PASSWORD tanımlı değil.");
   }
   return (
-    <div className="page-shell flex min-h-screen items-center justify-center">
-      <div className="panel w-full max-w-sm rounded-lg p-5">
-        <h1 className="text-xl font-semibold">Admin girişi</h1>
-        <input className="input mt-4" type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Admin şifresi" />
+    <div className="admin-login">
+      <div className="panel admin-login__card">
+        <span className="admin-eyebrow">Güvenli yönetim alanı</span><h1>Admin girişi</h1><p>Tur, kapasite ve rezervasyon operasyonlarına erişmek için yönetici şifrenizi girin.</p>
+        <label><span>Yönetici şifresi</span><input className="input" type="password" value={password} onChange={(event) => setPassword(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") void login(); }} autoComplete="current-password" /></label>
         {error ? <p className="mt-2 text-sm text-coral">{error}</p> : null}
-        <button className="btn-primary mt-4 w-full rounded-md" onClick={login}>Giriş yap</button>
+        <button className="btn-primary w-full" onClick={login}>Giriş yap</button>
       </div>
     </div>
   );

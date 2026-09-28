@@ -1,132 +1,95 @@
 import Link from "next/link";
-import type { Prisma } from "@prisma/client";
+import { AlertTriangle, Armchair, CalendarDays, FileClock, PlaneTakeoff, Plus, TicketCheck, UsersRound } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { isAdmin } from "@/lib/auth";
 import { AdminLogin } from "@/components/AdminLogin";
 import { hasDatabaseUrl, isDatabaseSchemaReady } from "@/lib/db-ready";
 import { SetupNotice } from "@/components/SetupNotice";
 import { isPrismaSetupError } from "@/lib/db-errors";
+import { occupancy } from "@/lib/reservations/domain";
 
 export const dynamic = "force-dynamic";
 
-type DraftTour = Prisma.TourGetPayload<{
-  include: {
-    departures: true;
-    days: { select: { id: true } };
-  };
-}>;
+const dateFormat = new Intl.DateTimeFormat("tr-TR", { timeZone: "Europe/Istanbul", day: "2-digit", month: "short", year: "numeric" });
+const reservationStatus = { HOLD: "Opsiyon", CONFIRMED: "Kesin", CANCELLED: "İptal" } as const;
 
 export default async function AdminPage() {
   if (!hasDatabaseUrl() || !(await isDatabaseSchemaReady())) return <SetupNotice />;
   if (!(await isAdmin())) return <AdminLogin />;
-
-  let published = 0;
-  let drafts = 0;
-  let logs: Awaited<ReturnType<typeof prisma.importLog.findMany>> = [];
-  let draftTours: DraftTour[] = [];
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
   try {
-    [published, drafts, logs, draftTours] = await Promise.all([
+    const [published, drafts, members, upcoming, recentReservations, recentImports, draftTours] = await Promise.all([
       prisma.tour.count({ where: { status: "PUBLISHED" } }),
       prisma.tour.count({ where: { status: "DRAFT" } }),
-      prisma.importLog.findMany({ orderBy: { createdAt: "desc" }, take: 6, include: { tour: true } }),
+      prisma.member.count(),
+      prisma.tourDeparture.findMany({
+        where: { startDate: { gte: today }, tour: { status: "PUBLISHED" } },
+        orderBy: { startDate: "asc" },
+        include: { tour: { select: { id: true, name: true } }, reservations: { select: { status: true, seats: true, holdExpiresAt: true } } }
+      }),
+      prisma.reservation.findMany({
+        orderBy: { createdAt: "desc" }, take: 6,
+        include: { member: { select: { name: true } }, departure: { include: { tour: { select: { name: true } } } } }
+      }),
+      prisma.importLog.findMany({ orderBy: { createdAt: "desc" }, take: 5, include: { tour: true } }),
       prisma.tour.findMany({
-        where: { status: "DRAFT" },
-        orderBy: { updatedAt: "desc" },
-        take: 8,
-        include: {
-          departures: { orderBy: { startDate: "asc" } },
-          days: { select: { id: true } }
-        }
+        where: { status: "DRAFT" }, orderBy: { updatedAt: "desc" }, take: 5,
+        include: { departures: { orderBy: { startDate: "asc" } }, days: { select: { id: true } } }
       })
     ]);
+    const summaries = upcoming.map((departure) => occupancy(departure.capacity, departure.blockedSeats, departure.reservations));
+    const missingCapacity = upcoming.filter((departure) => departure.capacity === null).length;
+    const availableSeats = summaries.reduce((total, summary) => total + Math.max(0, summary.available || 0), 0);
+    const activeBookings = summaries.reduce((total, summary) => total + summary.confirmed + summary.held, 0);
+    const nextDepartures = upcoming.slice(0, 6);
+
+    return <main className="page-shell space-y-7">
+      <header className="admin-page-header">
+        <div className="admin-page-header__title"><span className="admin-eyebrow">Operasyon merkezi</span><h1>Genel bakış</h1><p>Tur yayınları, yaklaşan çıkışlar, koltuk durumu ve üye rezervasyonlarını tek ekrandan takip edin.</p></div>
+        <div className="admin-page-actions"><Link className="btn" href="/admin/import">Tur içe aktar</Link><Link className="btn-primary" href="/admin/tours/new"><Plus size={17} />Yeni tur</Link></div>
+      </header>
+
+      <section className="admin-kpi-grid" aria-label="Operasyon özeti">
+        {[
+          { label: "Yayındaki tur", value: published, detail: `${drafts} taslak yayın bekliyor`, icon: PlaneTakeoff },
+          { label: "Yaklaşan çıkış", value: upcoming.length, detail: `${missingCapacity} çıkışta kapasite eksik`, icon: CalendarDays },
+          { label: "Rezerve koltuk", value: activeBookings, detail: "Kesin ve geçerli opsiyon koltukları", icon: TicketCheck },
+          { label: "Müsait koltuk", value: availableSeats, detail: `${members} kayıtlı üye`, icon: Armchair }
+        ].map((item) => { const Icon = item.icon; return <article className="admin-kpi" key={item.label}><div className="admin-kpi__top"><span>{item.label}</span><span className="admin-kpi__icon"><Icon size={18} /></span></div><strong>{item.value}</strong><small>{item.detail}</small></article>; })}
+      </section>
+
+      {missingCapacity > 0 ? <div className="admin-alert"><AlertTriangle size={19} /><div><strong>{missingCapacity} yaklaşan çıkış rezervasyona kapalı</strong><p>Üyelerin boş koltuk görebilmesi ve rezervasyon yapabilmesi için toplam kapasiteyi tanımlayın.</p></div><Link className="btn admin-list-item__action" href="/admin/reservations">Kapasiteleri düzenle</Link></div> : null}
+
+      <div className="admin-dashboard-grid">
+        <section className="panel p-5">
+          <div className="admin-section-heading"><div><h2>Yaklaşan çıkışlar</h2><p>Tarih ve koltuk doluluğuna göre operasyon sırası</p></div><Link className="btn" href="/admin/reservations">Tümünü yönet</Link></div>
+          <div className="admin-list">{nextDepartures.length ? nextDepartures.map((departure) => {
+            const summary = occupancy(departure.capacity, departure.blockedSeats, departure.reservations);
+            return <article className="admin-list-item" key={departure.id}><div className="admin-list-item__main"><h3>{departure.tour.name}</h3><p>{dateFormat.format(departure.startDate)} · {summary.capacity === null ? "Kapasite tanımsız" : `${summary.available} boş / ${summary.capacity} toplam`}</p></div><Link className="btn admin-list-item__action" href={`/admin/reservations?departureId=${departure.id}`}>Yönet</Link></article>;
+          }) : <p className="py-8 text-center text-sm text-slate-500">Yaklaşan yayınlanmış çıkış bulunmuyor.</p>}</div>
+        </section>
+
+        <section className="panel p-5">
+          <div className="admin-section-heading"><div><h2>Son rezervasyonlar</h2><p>Üye ve operasyon ekibi kayıtları</p></div><UsersRound size={20} /></div>
+          <div className="admin-list">{recentReservations.length ? recentReservations.map((reservation) => <article className="admin-list-item" key={reservation.id}><div className="admin-list-item__main"><h3>{reservation.contactName}</h3><p>{reservation.departure.tour.name} · {reservation.seats} koltuk · {reservation.member ? "Üye" : "Admin"}</p></div><span className="badge">{reservationStatus[reservation.status]}</span></article>) : <p className="py-8 text-center text-sm text-slate-500">Henüz rezervasyon yok.</p>}</div>
+        </section>
+      </div>
+
+      <div className="admin-dashboard-grid">
+        <section className="panel p-5">
+          <div className="admin-section-heading"><div><h2>Yayın bekleyen taslaklar</h2><p>Eksik bilgileri tamamlayıp yayına alın</p></div>{drafts > 0 ? <form action="/api/tours/publish-drafts" method="post"><button className="btn-primary" type="submit">Tümünü yayınla</button></form> : null}</div>
+          <div className="admin-list">{draftTours.length ? draftTours.map((tour) => <article className="admin-list-item" key={tour.id}><div className="admin-list-item__main"><h3>{tour.name}</h3><p>{tour.departures.length} çıkış · {tour.days.length} program günü</p></div><Link className="btn admin-list-item__action" href={`/admin/tours/${tour.id}`}>Düzenle</Link></article>) : <p className="py-8 text-center text-sm text-slate-500">Yayın bekleyen taslak yok.</p>}</div>
+        </section>
+        <section className="panel p-5">
+          <div className="admin-section-heading"><div><h2>İçe aktarma geçmişi</h2><p>Son veri aktarım sonuçları</p></div><FileClock size={20} /></div>
+          <div className="admin-list">{recentImports.length ? recentImports.map((log) => <article className="admin-list-item" key={log.id}><div className="admin-list-item__main"><h3>{log.tour?.name || log.message}</h3><p>{dateFormat.format(log.createdAt)} · {log.status}</p></div><span className="badge">{log.status}</span></article>) : <p className="py-8 text-center text-sm text-slate-500">İçe aktarma kaydı yok.</p>}</div>
+        </section>
+      </div>
+    </main>;
   } catch (error) {
     if (isPrismaSetupError(error)) return <SetupNotice />;
     throw error;
   }
-
-  return (
-    <main className="page-shell space-y-6">
-      <header className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold">Ejder Turizm Admin</h1>
-          <p className="text-slate-400">Tur, rezervasyon ve yolcu operasyonları.</p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {published > 0 ? (
-            <form action="/api/tours/delete-published" method="post">
-              <button className="btn" type="submit">Rezervasyonsuz yayındakileri sil</button>
-            </form>
-          ) : null}
-          {drafts > 0 ? (
-            <form action="/api/tours/publish-drafts" method="post">
-              <button className="btn-primary rounded-md" type="submit">Tüm taslakları yayınla</button>
-            </form>
-          ) : null}
-          <Link className="btn" href="/admin/reservations">Rezervasyonlar</Link>
-          <Link className="btn" href="/admin/import">Import</Link>
-          <Link className="btn-primary rounded-md" href="/admin/tours">Turlar</Link>
-        </div>
-      </header>
-
-      <section className="grid gap-4 md:grid-cols-3">
-        <div className="panel rounded-lg p-4"><div className="text-3xl font-semibold">{published}</div><div className="text-sm text-slate-400">Yayındaki tur</div></div>
-        <div className="panel rounded-lg p-4"><div className="text-3xl font-semibold">{drafts}</div><div className="text-sm text-slate-400">Taslak tur</div></div>
-        <div className="panel rounded-lg p-4"><div className="text-3xl font-semibold">{logs.length}</div><div className="text-sm text-slate-400">Son import kaydı</div></div>
-      </section>
-
-      {draftTours.length > 0 ? (
-        <section className="panel rounded-lg p-4">
-          <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <h2 className="font-semibold">Yayın bekleyen taslaklar</h2>
-              <p className="text-sm text-slate-400">Bu turlar passenger ekranında görünmez; yayına alınca listelenir.</p>
-            </div>
-            <form action="/api/tours/publish-drafts" method="post">
-              <button className="btn-primary rounded-md" type="submit">Hepsini yayınla</button>
-            </form>
-          </div>
-          <div className="grid gap-3 lg:grid-cols-2">
-            {draftTours.map((tour) => {
-              const firstDeparture = tour.departures[0]?.startDate
-                ? tour.departures[0].startDate.toLocaleDateString("tr-TR", { day: "2-digit", month: "long", year: "numeric" })
-                : "Tarih yok";
-              return (
-                <article className="rounded-md border border-line bg-ink/70 p-3" key={tour.id}>
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <h3 className="font-semibold">{tour.name}</h3>
-                      <p className="text-sm text-slate-400">
-                        {tour.departures.length} çıkış tarihi · {tour.days.length} gün · İlk tarih: {firstDeparture}
-                      </p>
-                    </div>
-                    <form action={`/api/tours/${tour.id}/publish`} method="post">
-                      <button className="btn-primary rounded-md" type="submit">Yayınla</button>
-                    </form>
-                  </div>
-                  <div className="mt-3 flex flex-wrap gap-2 text-sm">
-                    <Link className="btn" href={`/admin/tours/${tour.id}`}>Düzenle</Link>
-                    <Link className="btn" href={`/passenger/${tour.id}`}>Ön izle</Link>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        </section>
-      ) : null}
-
-      <section className="panel rounded-lg p-4">
-        <h2 className="mb-3 font-semibold">Import geçmişi</h2>
-        <div className="space-y-2">
-          {logs.map((log) => (
-            <div className="rounded-md border border-line bg-ink/70 p-3 text-sm" key={log.id}>
-              <span className="badge">{log.status}</span>
-              <span className="ml-2">{log.message}</span>
-              <div className="text-xs text-slate-500">{log.sourceUrl}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-    </main>
-  );
 }
