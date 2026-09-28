@@ -81,6 +81,23 @@ enum ReservationStatus {
   CANCELLED
 }
 
+enum CashAccountType {
+  CASH
+  BANK
+}
+
+enum CashEntryDirection {
+  INCOME
+  EXPENSE
+}
+
+enum CashEntryType {
+  RESERVATION_PAYMENT
+  EXPENSE
+  REFUND
+  ADJUSTMENT
+}
+
 model Reservation {
   id            String            @id @default(cuid())
   requestId     String            @unique
@@ -101,10 +118,73 @@ model Reservation {
   member        Member?           @relation(fields: [memberId], references: [id], onDelete: SetNull)
   passengers    ReservationPassenger[]
   events        ReservationEvent[]
+  finance       ReservationFinance?
 
   @@index([departureId, status, holdExpiresAt])
   @@index([memberId, createdAt])
   @@index([createdAt])
+}
+
+model ReservationFinance {
+  id               String        @id @default(cuid())
+  reservationId    String        @unique
+  totalAmount      Decimal       @db.Decimal(12, 2)
+  currency         String        @default("TRY")
+  installmentCount Int           @default(1)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  reservation      Reservation   @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  installments     Installment[]
+  entries          CashEntry[]
+}
+
+model Installment {
+  id        String             @id @default(cuid())
+  financeId String
+  sequence  Int
+  dueDate   DateTime
+  amount    Decimal            @db.Decimal(12, 2)
+  createdAt DateTime           @default(now())
+  finance   ReservationFinance @relation(fields: [financeId], references: [id], onDelete: Cascade)
+  entries   CashEntry[]
+
+  @@unique([financeId, sequence])
+  @@index([dueDate])
+}
+
+model CashAccount {
+  id             String          @id @default(cuid())
+  name           String
+  type           CashAccountType
+  currency       String          @default("TRY")
+  openingBalance Decimal         @default(0) @db.Decimal(12, 2)
+  active         Boolean         @default(true)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  entries        CashEntry[]
+
+  @@index([active])
+}
+
+model CashEntry {
+  id            String             @id @default(cuid())
+  accountId     String
+  financeId     String?
+  installmentId String?
+  direction     CashEntryDirection
+  type          CashEntryType
+  amount        Decimal            @db.Decimal(12, 2)
+  description   String
+  reference     String?
+  occurredAt    DateTime           @default(now())
+  createdAt     DateTime           @default(now())
+  account       CashAccount        @relation(fields: [accountId], references: [id], onDelete: Restrict)
+  finance       ReservationFinance? @relation(fields: [financeId], references: [id], onDelete: Restrict)
+  installment   Installment?       @relation(fields: [installmentId], references: [id], onDelete: Restrict)
+
+  @@index([accountId, occurredAt])
+  @@index([financeId, occurredAt])
+  @@index([installmentId])
 }
 
 model ReservationPassenger {

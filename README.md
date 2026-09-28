@@ -102,6 +102,7 @@ npm run prisma:studio
 - `/admin/tours`: arama ve tarih filtreli admin tur listesi
 - `/admin/tours/[id]`: tur, çıkış tarihi, program günü ve harita düzenleme
 - `/admin/reservations`: çıkış bazında kapasite, rezervasyon ve yolcu yönetimi
+- `/admin/accounting`: kasa, banka, taksit ve rezervasyon tahsilatı yönetimi
 - `/giris`: müşteri hesabına giriş
 - `/kayit`: müşteri hesabı oluşturma
 - `/hesabim`: ad-soyad ve şifre yönetimi
@@ -130,7 +131,7 @@ npm run prisma:studio
 - Kod, yolcu adı, iletişim kişisi ve telefonla arama yapılır. CSV, seçilen çıkışta mevcut arama/durum filtresindeki yolcuları içerir; kesin yolcu listesi için **Kesin** filtresini seçin.
 - Arşivlenmiş turlara ve Türkiye takvimine göre geçmiş çıkışlara yeni rezervasyon açılamaz.
 - Tur düzenleme ve aynı tarihle tekrar içe aktarma çıkış kimliğini ve kontenjanı korur. Rezervasyon geçmişi olan çıkışın tarihi değiştirilemez veya çıkış silinemez; tur arşivlenebilir. Toplu tur silme rezervasyon geçmişi olan turları atlar.
-- İlk sürüm personel kullanımı içindir; numaralı koltuk şeması, müşteri self servis rezervasyonu ve ödeme işlemleri içermez. İşlem geçmişi ortak yönetici hesabına aittir, personel bazında kimlik kaydı tutulmaz.
+- İlk sürüm personel kullanımı içindir; numaralı koltuk şeması içermez. İşlem geçmişi ortak yönetici hesabına aittir, personel bazında kimlik kaydı tutulmaz.
 
 Şema değişikliği: `prisma/migrations/20260925090000_reservations/migration.sql`. Mevcut veritabanını güncellemek için `npm run prisma:deploy` ve `npm run prisma:generate` çalıştırın. Yapılandırılmış Vercel build akışı migration'ı zaten uygular.
 
@@ -180,3 +181,14 @@ TEST_DATABASE_URL="postgresql://USER:PASSWORD@127.0.0.1:5432/turtakip_reservatio
 ```
 
 Bu testler kayıt, aynı e-postayla tekrar kayıt, güçlü şifre kuralları, oturum süresi, sahte cookie, çıkış, profil güncelleme, şifre değiştirme, origin kontrolü, hız sınırı ve yönetici hesabından yetki ayrımını doğrular.
+
+## Muhasebe ve Taksit Takibi
+
+`/admin/accounting` ekranında TRY, EUR, USD veya GBP para biriminde nakit kasa ve banka hesapları açılabilir. Her hesabın açılış bakiyesi ve gelir/gider hareketlerinden hesaplanan güncel bakiyesi ayrı tutulur.
+
+- Ödeme planı, mevcut bir rezervasyona toplam borç, para birimi, ilk vade ve 1–24 taksit seçilerek bağlanır. Kuruş farkı son taksite eklenir.
+- Rezervasyon tahsilatı bir ödeme planına ve taksite bağlanır. Tahsilat kalan rezervasyon borcunu aşamaz ve kullanılan hesabın para birimi planla aynı olmalıdır.
+- Gider, iade ve bakiye düzeltme hareketleri kasa veya banka hesabına manuel kaydedilebilir. Dekont ya da işlem referansı isteğe bağlıdır.
+- Panel toplam bakiyeleri, açık ödeme planlarını, geciken taksitleri, ödenen ve kalan tutarları gösterir.
+
+Bu sürüm harici ödeme sağlayıcısına bağlanmaz ve kart verisi işlemez. Online ödeme daha sonra eklendiğinde aynı ödeme planı ve kasa hareketi modeli kullanılabilir. Şema değişikliği `prisma/migrations/20260928180000_accounting/migration.sql` dosyasındadır; Vercel build akışı migration'ı otomatik uygular.
