@@ -36,6 +36,13 @@ async function syncOne(url: string, trigger: Trigger): Promise<AutomaticTourResu
   }
 }
 
+async function updateProgress(runId: string, results: AutomaticTourResult[]) {
+  "use step";
+  const counts = { created: 0, updated: 0, unchanged: 0, failed: 0 };
+  for (const result of results) counts[result] += 1;
+  await prisma.importSyncRun.update({ where: { id: runId }, data: counts });
+}
+
 async function finish(runId: string, results: AutomaticTourResult[]) {
   "use step";
   const counts = { created: 0, updated: 0, unchanged: 0, failed: 0 };
@@ -50,6 +57,9 @@ export async function automaticImportWorkflow(trigger: Trigger, sourceKey?: stri
   "use workflow";
   const prepared = await prepare(trigger, sourceKey);
   const results: AutomaticTourResult[] = [];
-  for (const url of prepared.urls) results.push(await syncOne(url, trigger));
+  for (const url of prepared.urls) {
+    results.push(await syncOne(url, trigger));
+    if (results.length % 5 === 0 || results.length === prepared.urls.length) await updateProgress(prepared.runId, results);
+  }
   return finish(prepared.runId, results);
 }
