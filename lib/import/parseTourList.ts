@@ -7,7 +7,7 @@ function collectTourLinks(html: string, sourceUrl: string, links: Set<string>) {
     try {
       const url = new URL(href.replace(/&amp;/g, "&").replace(/\s+/g, ""), sourceUrl);
       const isTourDetail =
-        /\/(?:T%C3%BCm-Turlar|Tüm-Turlar|Tum-Turlar)\//i.test(url.pathname) &&
+        /(^|\.)ejderturizm\.com\.tr$/i.test(url.hostname) &&
         /_23\.html$/i.test(url.pathname) &&
         Boolean(url.searchParams.get("syprdky"));
       if (!isTourDetail) return;
@@ -25,7 +25,7 @@ function collectTourLinks(html: string, sourceUrl: string, links: Set<string>) {
   });
 
   const rawMatches =
-    html.match(/(?:https?:\/\/www\.ejderturizm\.com\.tr)?\/(?:T%C3%BCm-Turlar|Tüm-Turlar|Tum-Turlar)\/[^"'<>\\\s]+_23\.html\?[^"'<>\\\s]*syprdky=[^"'<>\\\s]+/gi) || [];
+    html.match(/(?:https?:\/\/www\.ejderturizm\.com\.tr)?\/[^"'<>\\\s]+_23\.html\?[^"'<>\\\s]*syprdky=[^"'<>\\\s]+/gi) || [];
   for (const href of rawMatches) addLink(href);
 }
 

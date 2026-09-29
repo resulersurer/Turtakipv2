@@ -51,7 +51,7 @@ const localHints: Record<string, GeocodeResult> = {
   cienfuegos: { label: "Cienfuegos, Cuba", lat: 22.1599, lng: -80.4438, country: "Küba", city: "Cienfuegos" }
 };
 
-export async function geocode(query: string): Promise<GeocodeResult[]> {
+export async function geocode(query: string, options: { external?: boolean } = {}): Promise<GeocodeResult[]> {
   const key = query.trim().toLocaleLowerCase("tr-TR").replace("ı", "i");
   const hint = Object.keys(localHints).find((name) => key.includes(name));
   if (hint) return [localHints[hint]];
@@ -67,6 +67,7 @@ export async function geocode(query: string): Promise<GeocodeResult[]> {
       }
     ];
   }
+  if (options.external === false) return [];
   const url = new URL("https://nominatim.openstreetmap.org/search");
   url.searchParams.set("q", query);
   url.searchParams.set("format", "json");

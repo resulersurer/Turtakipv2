@@ -39,8 +39,8 @@ function wait(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function fetchTourPageWithRetry(sourceUrl: string) {
-  const attempts = 4;
+async function fetchTourPageWithRetry(sourceUrl: string, fast = false) {
+  const attempts = fast ? 2 : 4;
   let lastError: unknown;
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     try {
@@ -50,7 +50,7 @@ async function fetchTourPageWithRetry(sourceUrl: string) {
           Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
         },
         cache: "no-store",
-        signal: AbortSignal.timeout(25000)
+        signal: AbortSignal.timeout(fast ? 15000 : 25000)
       });
       if (response.ok || (response.status < 500 && response.status !== 429)) return response;
       lastError = new Error(`Sayfa alinamadi: ${response.status}`);
@@ -167,7 +167,20 @@ function extractDepartureDateTexts(pageText: string) {
   return pageText.match(/\d{1,2}\s+[A-Za-zÇĞİÖŞÜçğıöşü]+\s+20\d{2}/g) || [];
 }
 
-export async function parseTourHtml(html: string, sourceUrl: string): Promise<ParsedTour> {
+export async function geocodeTourDays(parsed: ParsedTour, options: { external?: boolean } = {}) {
+  for (const day of parsed.days) {
+    if (day.city && day.lat == null) {
+      const [match] = await geocode(`${day.city} ${day.country || ""}`, options);
+      if (match) {
+        day.lat = match.lat;
+        day.lng = match.lng;
+      }
+    }
+  }
+  return parsed;
+}
+
+export async function parseTourHtml(html: string, sourceUrl: string, options: { geocodeDays?: boolean } = {}): Promise<ParsedTour> {
   const $ = cheerio.load(html);
   const title = normalizeText($("h1").first().text()) || normalizeText($("title").text()).replace(/\|.*$/, "") || "İçe Aktarılan Tur";
   const pageText = normalizeText($("body").text());
@@ -229,15 +242,7 @@ export async function parseTourHtml(html: string, sourceUrl: string): Promise<Pa
   }
 
   parsed.days = extractDays($);
-  for (const day of parsed.days) {
-    if (day.city && day.lat == null) {
-      const [match] = await geocode(`${day.city} ${day.country || ""}`);
-      if (match) {
-        day.lat = match.lat;
-        day.lng = match.lng;
-      }
-    }
-  }
+  if (options.geocodeDays !== false) await geocodeTourDays(parsed);
 
   if (!parsed.departures.length) parsed.warnings.push("Çıkış tarihi parse edilemedi.");
   if (!parsed.days.length) parsed.warnings.push("Gün programı 1. GÜN başlıklarından parse edilemedi.");
@@ -246,8 +251,8 @@ export async function parseTourHtml(html: string, sourceUrl: string): Promise<Pa
   return parsed;
 }
 
-export async function parseTourPage(sourceUrl: string) {
-  const response = await fetchTourPageWithRetry(sourceUrl);
+export async function parseTourPage(sourceUrl: string, options: { geocodeDays?: boolean; fast?: boolean } = {}) {
+  const response = await fetchTourPageWithRetry(sourceUrl, options.fast);
   if (!response.ok) throw new Error(`Sayfa alınamadı: ${response.status}`);
-  return parseTourHtml(await response.text(), sourceUrl);
+  return parseTourHtml(await response.text(), sourceUrl, options);
 }

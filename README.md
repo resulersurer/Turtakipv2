@@ -33,6 +33,7 @@ ADMIN_PASSWORD="change-me"
 ADMIN_COOKIE_SECRET="replace-with-a-long-random-string"
 BLOB_READ_WRITE_TOKEN=""
 GEOCODE_USER_AGENT="ejder-tour-tracker/1.0"
+CRON_SECRET="replace-with-a-long-random-string"
 ```
 
 `BLOB_READ_WRITE_TOKEN` tanımlı değilse `/api/upload` güvenli şekilde 501 döner. Supabase Storage tercih edilirse `app/api/upload/route.ts` içinde aynı sözleşmeyle `{ url }` dönecek şekilde provider değiştirilebilir.
@@ -94,6 +95,16 @@ npm run prisma:studio
 - Import sonucu doğrudan yayına alınmaz; tur `DRAFT` durumunda kaydedilir.
 - Aynı kaynak tekrar import edilirse `sourceUrl`, `externalId` veya `slug` üzerinden mevcut kayıt güncellenir.
 - Import logları `/api/import/logs` ve admin dashboard üzerinde görünür.
+
+### Günlük otomatik senkronizasyon
+
+`/admin/import` ekranındaki otomatik senkronizasyon bölümü Ejder Turizm'in 2026 ve 2027 liste sayfalarını takip eder. Vercel Cron kaynak sunucuyu yormamak ve fonksiyon süresini sınırlamak için 2026 listesini her gün Türkiye saatiyle 06.00'da, 2027 listesini 07.00'da `/api/cron/import-sync` adresinden ayrı ayrı çalıştırır. İstek `CRON_SECRET` ile doğrulanır; bu değişkeni Vercel Production ortamına ekleyin.
+
+- Yeni turlar taslak oluşturulur; mevcut turun yayın/taslak durumu korunarak içerik ve çıkış tarihleri güncellenir.
+- İçeriği değişmeyen turlar hash karşılaştırmasıyla yeniden yazılmaz.
+- Her iki liste başarıyla okunduğunda artık hiçbir kaynakta görünmeyen turlar arşivlenir. Kaynaklardan biri alınamazsa güvenlik için arşivleme yapılmaz.
+- Kaynaktan kaldırılan, rezervasyon geçmişi bulunan çıkış tarihleri silinmez; `SOURCE_REMOVED` durumuyla korunur.
+- Yönetici aynı işlemi `/admin/import` ekranındaki **Şimdi senkronize et** düğmesiyle çalıştırabilir ve son çalışma sayılarını görebilir.
 
 ## Sayfalar
 

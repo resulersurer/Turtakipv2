@@ -31,7 +31,7 @@ function uniqueBy<T>(items: T[], key: (item: T) => string) {
   });
 }
 
-export async function saveTour(input: unknown, id?: string) {
+export async function saveTour(input: unknown, id?: string, options: { preserveBookedRemovedDepartures?: boolean } = {}) {
   const data = tourWriteSchema.parse(input);
   const departures = uniqueBy(data.departures, (departure) => departure.startDate.toISOString());
   const days = uniqueBy(data.days, (day) => String(day.dayNumber));
@@ -83,10 +83,13 @@ export async function saveTour(input: unknown, id?: string) {
     }
     const removed = previous.filter((row) => !retained.has(row.id)).map((row) => row.id);
     if (removed.length) {
-      if (await tx.reservation.count({ where: { departureId: { in: removed } } })) {
+      const booked = await tx.reservation.findMany({ where: { departureId: { in: removed } }, select: { departureId: true }, distinct: ["departureId"] });
+      const bookedIds = booked.map((item) => item.departureId);
+      if (bookedIds.length && !options.preserveBookedRemovedDepartures) {
         throw new ReservationError("Rezervasyon geçmişi olan çıkış kaldırılamaz. Mevcut çıkış tarihlerini koruyun.");
       }
-      await tx.tourDeparture.deleteMany({ where: { id: { in: removed } } });
+      if (bookedIds.length) await tx.tourDeparture.updateMany({ where: { id: { in: bookedIds } }, data: { availabilityStatus: "SOURCE_REMOVED" } });
+      await tx.tourDeparture.deleteMany({ where: { id: { in: removed.filter((id) => !bookedIds.includes(id)) } } });
     }
     await tx.tourDay.deleteMany({ where: { tourId: tour.id } });
     await tx.tourImage.deleteMany({ where: { tourId: tour.id } });
@@ -112,7 +115,7 @@ export async function saveTour(input: unknown, id?: string) {
     },
     {
       maxWait: 10000,
-      timeout: 30000
+      timeout: 60000
     }
   );
 }
@@ -152,20 +155,28 @@ export async function deleteToursByStatus(status: TourStatus) {
   );
 }
 
-export async function upsertImportedTour(parsed: ParsedTour) {
+export async function upsertImportedTour(parsed: ParsedTour, options: { automatic?: boolean; sourceHash?: string } = {}) {
   const existing = await prisma.tour.findFirst({
     where: {
       OR: [{ sourceUrl: parsed.sourceUrl }, { externalId: parsed.externalId || undefined }, { slug: parsed.slug }]
-    }
+    },
+    include: { days: true }
   });
+  if (options.automatic && existing) {
+    parsed.days = parsed.days.map((day) => {
+      const previous = existing.days.find((item) => item.dayNumber === day.dayNumber && item.city === day.city);
+      return previous ? { ...day, lat: previous.lat, lng: previous.lng } : day;
+    });
+  }
   const saved = await saveTour(
     {
       ...parsed,
-      status: "DRAFT",
+      status: existing?.status || "DRAFT",
       importedAt: new Date()
     },
-    existing?.id
+    existing?.id,
+    { preserveBookedRemovedDepartures: options.automatic }
   );
-  await prisma.tour.update({ where: { id: saved.id }, data: { importedAt: new Date() } });
+  await prisma.tour.update({ where: { id: saved.id }, data: { importedAt: new Date(), sourceHash: options.sourceHash } });
   return prisma.tour.findUniqueOrThrow({ where: { id: saved.id }, include: tourInclude });
 }
