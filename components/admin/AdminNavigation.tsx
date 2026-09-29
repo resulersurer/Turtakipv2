@@ -3,12 +3,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Banknote, CalendarCheck2, ExternalLink, FileInput, LayoutDashboard, LogOut, Map, PlaneTakeoff } from "lucide-react";
+import { Banknote, CalendarCheck2, ExternalLink, FileInput, LayoutDashboard, LogOut, Map, PlaneTakeoff, Users } from "lucide-react";
 
 const items = [
   { href: "/admin", label: "Genel bakış", description: "Operasyon özeti", icon: LayoutDashboard, exact: true },
   { href: "/admin/tours", label: "Turlar", description: "Tur ve çıkışlar", icon: PlaneTakeoff },
   { href: "/admin/reservations", label: "Rezervasyonlar", description: "Koltuk ve yolcular", icon: CalendarCheck2 },
+  { href: "/admin/members", label: "Üyeler", description: "Kayıtlı kullanıcılar", icon: Users },
   { href: "/admin/accounting", label: "Muhasebe", description: "Kasa ve tahsilatlar", icon: Banknote },
   { href: "/admin/import", label: "İçe aktar", description: "Tur verisi aktarımı", icon: FileInput }
 ];
