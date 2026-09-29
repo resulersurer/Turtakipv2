@@ -27,8 +27,9 @@ export default async function YearToursPage({ params, searchParams }: { params: 
   const selectedMonth = Number((await searchParams).month || 0);
   const start = new Date(Date.UTC(year, 0, 1));
   const end = new Date(Date.UTC(year + 1, 0, 1));
+  const sourceKey = `ejder-${year}`;
   const tours = await prisma.tour.findMany({
-    where: { status: "PUBLISHED", departures: { some: { startDate: { gte: start, lt: end } } } },
+    where: { status: "PUBLISHED", sourceLinks: { some: { active: true, source: { key: sourceKey, active: true } } } },
     include: { departures: { where: { startDate: { gte: start, lt: end } }, orderBy: { startDate: "asc" }, include: { reservations: { select: { status: true, seats: true, holdExpiresAt: true } } } }, days: { orderBy: { sortOrder: "asc" } }, images: { orderBy: { sortOrder: "asc" } }, prices: true },
     orderBy: { name: "asc" }
   });
