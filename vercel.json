@@ -7,6 +7,10 @@
     {
       "path": "/api/cron/import-sync?source=ejder-2027",
       "schedule": "0 4 * * *"
+    },
+    {
+      "path": "/api/cron/import-sync?source=ejder-vip",
+      "schedule": "0 5 * * *"
     }
   ]
 }

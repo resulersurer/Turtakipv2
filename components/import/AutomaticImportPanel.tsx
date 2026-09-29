@@ -35,7 +35,7 @@ export function AutomaticImportPanel() {
   const latest = data?.runs[0];
   return <section className="panel p-5">
     <div className="admin-section-heading">
-      <div><span className="admin-eyebrow">Her gün 06.00 ve 07.00 · Türkiye saati</span><h2>Otomatik tur senkronizasyonu</h2><p>2026 ve 2027 listelerini ayrı ayrı kontrol eder; yeni turları ekler, tarihleri günceller ve kaldırılan turları arşivler.</p></div>
+      <div><span className="admin-eyebrow">Her gün 06.00, 07.00 ve 08.00 · Türkiye saati</span><h2>Otomatik tur senkronizasyonu</h2><p>2026, 2027 ve EJDER VIP listelerini ayrı ayrı kontrol eder; yeni turları ekler, tarihleri günceller ve kaldırılan turları arşivler.</p></div>
       <CalendarClock size={22} />
     </div>
     {error ? <p className="my-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800" role="alert">{error}</p> : null}

@@ -15,7 +15,7 @@ export default async function ImportPage() {
   return (
     <main className="page-shell space-y-6">
       <header className="admin-page-header">
-        <div className="admin-page-header__title"><span className="admin-eyebrow">Veri aktarımı</span><h1>Tur içe aktar</h1><p>Ejder Turizm 2026 ve 2027 turlarını günlük senkronize edin veya gerektiğinde tekil aktarım çalıştırın.</p></div>
+        <div className="admin-page-header__title"><span className="admin-eyebrow">Veri aktarımı</span><h1>Tur içe aktar</h1><p>Ejder Turizm 2026, 2027 ve EJDER VIP turlarını günlük senkronize edin veya gerektiğinde tekil aktarım çalıştırın.</p></div>
         <div className="admin-page-actions"><Link className="btn" href="/admin/tours">Tur listesi</Link></div>
       </header>
       <AutomaticImportPanel />
