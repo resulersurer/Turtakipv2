@@ -49,6 +49,13 @@ export async function saveTour(input: unknown, id?: string, options: { preserveB
     coverImageUrl: data.coverImageUrl
   };
   const existingId = id;
+  if (!existingId && departures.length) {
+    const duplicate = await prisma.tour.findFirst({
+      where: { name: { equals: data.name, mode: "insensitive" }, departures: { some: { startDate: { in: departures.map((item) => item.startDate) } } } },
+      select: { id: true, name: true }
+    });
+    if (duplicate) throw new ReservationError(`Aynı ad ve çıkış tarihine sahip bir tur zaten var: ${duplicate.name}`, 409);
+  }
   return prisma.$transaction(
     async (tx) => {
     const tour = existingId

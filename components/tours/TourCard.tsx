@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Armchair, CalendarDays, Copy, Eye, Pencil, Plane, Send, Trash2 } from "lucide-react";
+import { AlertTriangle, Armchair, CalendarDays, Copy, Eye, Pencil, Plane, Send, Trash2 } from "lucide-react";
 import { compactTourMeta } from "@/lib/display";
 
 type Tour = {
@@ -15,7 +15,7 @@ type Tour = {
   coverImageUrl?: string | null;
 };
 
-export function TourCard({ tour, admin = false }: { tour: Tour; admin?: boolean }) {
+export function TourCard({ tour, admin = false, duplicate = false }: { tour: Tour; admin?: boolean; duplicate?: boolean }) {
   const starts = (tour.departures || []).map((departure) => new Date(departure.startDate)).sort((a, b) => a.getTime() - b.getTime());
   const first = starts[0]?.toLocaleDateString("tr-TR", { day: "2-digit", month: "short", year: "numeric" });
   const last = starts.at(-1)?.toLocaleDateString("tr-TR", { day: "2-digit", month: "short", year: "numeric" });
@@ -25,7 +25,7 @@ export function TourCard({ tour, admin = false }: { tour: Tour; admin?: boolean 
   if (admin) return <article className="panel admin-tour-row">
     <div className="admin-tour-row__image">{tour.coverImageUrl ? <img src={tour.coverImageUrl} alt="" /> : <Plane size={25} aria-hidden="true" />}</div>
     <div className="admin-tour-row__content">
-      <div className="admin-tour-row__title"><div><h3>{tour.name}</h3>{meta ? <p>{meta}</p> : null}</div><span className={`badge admin-status admin-status--${tour.status.toLowerCase()}`}>{tour.status === "PUBLISHED" ? "Yayında" : tour.status === "DRAFT" ? "Taslak" : "Arşiv"}</span></div>
+      <div className="admin-tour-row__title"><div><div className="flex flex-wrap items-center gap-2"><h3>{tour.name}</h3>{duplicate ? <span className="badge border-amber-300 bg-amber-50 text-amber-800"><AlertTriangle size={13}/>Olası tekrar</span> : null}</div>{meta ? <p>{meta}</p> : null}</div><span className={`badge admin-status admin-status--${tour.status.toLowerCase()}`}>{tour.status === "PUBLISHED" ? "Yayında" : tour.status === "DRAFT" ? "Taslak" : "Arşiv"}</span></div>
       <div className="admin-tour-row__meta">
         <span><CalendarDays size={15} />{first && last ? `${first} – ${last}` : "Tarih yok"}</span>
         <span><Plane size={15} />{tour.departures?.length || 0} çıkış</span>
