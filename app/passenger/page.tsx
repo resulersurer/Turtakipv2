@@ -22,7 +22,7 @@ const campaignLinks = [
   { title: "Afrika Turları", image: "https://image.elitema.com.tr/db_images/154/21/246/3-360.jpg", href: "https://www.ejderturizm.com.tr/TourList.aspx?contpg=232&pcmncat=16,1&pcsbcat=19" },
   { title: "Asya Turları", image: "https://image.elitema.com.tr/db_images/154/21/247/1-360.jpg", href: "https://www.ejderturizm.com.tr/TourList.aspx?contpg=226&pcsbcat=129" },
   { title: "Uzak Rotalar", image: "https://image.elitema.com.tr/db_images/154/21/268/img-5898.png", href: "https://www.ejderturizm.com.tr/TourList.aspx?contpg=269&pcmncat=1&pcsbcat=143" },
-  { title: "2026 Turları", image: "https://image.elitema.com.tr/db_images/154/21/269/img-5897.png", href: "https://www.ejderturizm.com.tr/TourList.aspx?contpg=260&pcmncat=1&pcsbcat=138" },
+  { title: "2026 Turları", image: "https://image.elitema.com.tr/db_images/154/21/269/img-5897.png", href: "/passenger/tours/2026" },
   { title: "Vizesiz ve Kolay Vizeli Turlar", image: "https://image.elitema.com.tr/db_images/154/21/255/web2024-2--3.png", href: "https://www.ejderturizm.com.tr/TourList.aspx?contpg=252&pcsbcat=137" }
 ];
 
@@ -311,16 +311,16 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
       <nav aria-label="Ejder Turizm bağlantıları" className="passenger-links">
         <div className="passenger-links__inner">
           {[
-            { label: "2027 Turları", href: "https://www.ejderturizm.com.tr/TourList.aspx?contpg=276&pcmncat=16,1&pcsbcat=147" },
-            { label: "2026 Turları", href: "https://www.ejderturizm.com.tr/TourList.aspx?contpg=260&pcmncat=1&pcsbcat=138" },
+            { label: "2027 Turları", href: "/passenger/tours/2027" },
+            { label: "2026 Turları", href: "/passenger/tours/2026" },
             { label: "EJDER VIP", href: "https://www.ejderturizm.com.tr/TourList.aspx?contpg=259&pcmncat=16,1&pcsbcat=65" },
             { label: "Tur Talep Formu", href: "https://www.ejderturizm.com.tr/talep_1000.html" },
             { label: "Bize Ulaşın", href: "https://www.ejderturizm.com.tr/Bize-ulasin.html" }
           ].map(({ label, href }, index) => (
-            <a key={href} href={href} className={`passenger-links__item${index === 0 ? " passenger-links__item--featured" : ""}`}>
+            <Link key={href} href={href} className={`passenger-links__item${index === 0 ? " passenger-links__item--featured" : ""}`}>
               <span>{label}</span>
               <ArrowUpRight aria-hidden="true" className="passenger-links__arrow" />
-            </a>
+            </Link>
           ))}
         </div>
       </nav>
@@ -391,12 +391,12 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
 
             {/* 6 Tur Kampanya Kartı: Asya, Uzak Rotalar, 2026, Vizesiz, Latin, Afrika */}
             {[...campaignLinks.slice(2), ...campaignLinks.slice(0, 2)].map((campaign) => (
-              <a
+              <Link
                 key={campaign.href}
                 href={campaign.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`${campaign.title} (yeni sekmede açılır)`}
+                target={campaign.href.startsWith("http") ? "_blank" : undefined}
+                rel={campaign.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                aria-label={campaign.title}
                 className="campaign-grid-card"
               >
                 <div className="campaign-grid-card__img-wrap">
@@ -409,7 +409,7 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
                   />
                   <div className="campaign-grid-card__glow" aria-hidden="true" />
                 </div>
-              </a>
+              </Link>
             ))}
 
           </div>

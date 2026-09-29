@@ -8,6 +8,8 @@ export const dynamic = "force-dynamic";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const pages: MetadataRoute.Sitemap = [
     { url: `${siteUrl}/passenger`, changeFrequency: "daily", priority: 0.9 },
+    { url: `${siteUrl}/passenger/tours/2026`, changeFrequency: "daily", priority: 0.85 },
+    { url: `${siteUrl}/passenger/tours/2027`, changeFrequency: "daily", priority: 0.85 },
     { url: `${siteUrl}/tours`, changeFrequency: "daily", priority: 0.8 }
   ];
   if (!hasDatabaseUrl() || !(await isDatabaseSchemaReady())) return pages;

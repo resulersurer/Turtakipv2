@@ -2,8 +2,8 @@ import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Mail, Phone } from "lucide-react";
 
 const tourLinks = [
-  { label: "2027 Turları", href: "https://www.ejderturizm.com.tr/TourList.aspx?contpg=276&pcmncat=16,1&pcsbcat=147" },
-  { label: "2026 Turları", href: "https://www.ejderturizm.com.tr/TourList.aspx?contpg=260&pcmncat=1&pcsbcat=138" },
+  { label: "2027 Turları", href: "/passenger/tours/2027" },
+  { label: "2026 Turları", href: "/passenger/tours/2026" },
   { label: "EJDER VIP", href: "https://www.ejderturizm.com.tr/TourList.aspx?contpg=259&pcmncat=16,1&pcsbcat=65" },
   { label: "Tur Talep Formu", href: "https://www.ejderturizm.com.tr/talep_1000.html" },
   { label: "Bize Ulaşın", href: "https://www.ejderturizm.com.tr/Bize-ulasin.html" }
@@ -19,9 +19,9 @@ export function PassengerFooter() {
           <p>İlham veren rotalara göz atın veya size özel bir tur planlayalım.</p>
         </div>
         <div className="passenger-footer__feature-actions">
-          <a href={tourLinks[0].href} className="passenger-footer__button passenger-footer__button--light">
+          <Link href={tourLinks[0].href} className="passenger-footer__button passenger-footer__button--light">
             2027 Turlarını Gör <ArrowUpRight size={17} aria-hidden="true" />
-          </a>
+          </Link>
           <a href="https://www.ejderturizm.com.tr/talep_1000.html" className="passenger-footer__button passenger-footer__button--outline">
             Tur Talep Formu <ArrowRight size={17} aria-hidden="true" />
           </a>
@@ -36,7 +36,7 @@ export function PassengerFooter() {
         <nav aria-label="Footer tur bağlantıları" className="passenger-footer__column">
           <h2>Keşfet</h2>
           <div className="passenger-footer__links">
-            {tourLinks.map(({ label, href }) => <a key={href} href={href}><span>{label}</span><ArrowUpRight size={14} aria-hidden="true" /></a>)}
+            {tourLinks.map(({ label, href }) => href.startsWith("/") ? <Link key={href} href={href}><span>{label}</span><ArrowUpRight size={14} aria-hidden="true" /></Link> : <a key={href} href={href}><span>{label}</span><ArrowUpRight size={14} aria-hidden="true" /></a>)}
           </div>
         </nav>
 
