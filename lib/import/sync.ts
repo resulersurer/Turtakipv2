@@ -6,7 +6,8 @@ import { upsertImportedTour } from "@/lib/tours";
 
 export const AUTOMATIC_IMPORT_SOURCES = [
   { key: "ejder-2026", label: "2026 Turları", listUrl: "https://www.ejderturizm.com.tr/TourList.aspx?contpg=260&pcmncat=1&pcsbcat=138" },
-  { key: "ejder-2027", label: "2027 Turları", listUrl: "https://www.ejderturizm.com.tr/TourList.aspx?contpg=276&pcmncat=16,1&pcsbcat=147" }
+  { key: "ejder-2027", label: "2027 Turları", listUrl: "https://www.ejderturizm.com.tr/TourList.aspx?contpg=276&pcmncat=16,1&pcsbcat=147" },
+  { key: "ejder-vip", label: "EJDER VIP", listUrl: "https://www.ejderturizm.com.tr/TourList.aspx?contpg=259&pcmncat=16,1&pcsbcat=65" }
 ] as const;
 
 export function fingerprint(parsed: Awaited<ReturnType<typeof parseTourPage>>) {

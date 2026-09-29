@@ -1,0 +1,11 @@
+.vip-tours .year-tours__hero { background:linear-gradient(120deg,#17120c,#60451f 58%,#b68a43); }
+.vip-tours .year-tours__eyebrow { color:#f7dfac; }
+.vip-tours .year-tours__hero p { color:#f5ead2; }
+.vip-tours .year-tours__hero-actions a:first-child { color:#6b4b1e; }
+.vip-tours .year-tours__stats svg,.vip-tours .year-tours__heading>div:first-child>span,.vip-tours .year-tour-card__kicker,.vip-tours .year-tour-card__facts svg,.vip-tours .year-tour-card__bottom>a,.vip-tours .year-tour-card__bottom>div strong { color:#96702d; }
+.vip-tours__promise { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; width:min(100%,1280px); margin:70px auto 0; padding:0 24px; }
+.vip-tours__promise>div { padding:26px; border:1px solid #e4d8c3; border-radius:16px; background:#fffdf8; }
+.vip-tours__promise svg { color:#9c762f; }
+.vip-tours__promise h2 { margin:15px 0 8px; font-size:18px; }
+.vip-tours__promise p { color:#796f61; font-size:13px; line-height:1.65; }
+@media(max-width:760px){.vip-tours__promise{grid-template-columns:1fr;margin-top:50px;padding:0 16px}}

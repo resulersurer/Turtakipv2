@@ -313,7 +313,7 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
           {[
             { label: "2027 Turları", href: "/passenger/tours/2027" },
             { label: "2026 Turları", href: "/passenger/tours/2026" },
-            { label: "EJDER VIP", href: "https://www.ejderturizm.com.tr/TourList.aspx?contpg=259&pcmncat=16,1&pcsbcat=65" },
+            { label: "EJDER VIP", href: "/passenger/tours/vip" },
             { label: "Tur Talep Formu", href: "https://www.ejderturizm.com.tr/talep_1000.html" },
             { label: "Bize Ulaşın", href: "https://www.ejderturizm.com.tr/Bize-ulasin.html" }
           ].map(({ label, href }, index) => (
