@@ -34,6 +34,8 @@ ADMIN_COOKIE_SECRET="replace-with-a-long-random-string"
 BLOB_READ_WRITE_TOKEN=""
 GEOCODE_USER_AGENT="ejder-tour-tracker/1.0"
 CRON_SECRET="replace-with-a-long-random-string"
+INTEGRATION_API_KEY="shared-long-random-string"
+NEXT_PUBLIC_LEAD_APP_URL="https://ejder-lead.vercel.app"
 ```
 
 `BLOB_READ_WRITE_TOKEN` tanımlı değilse `/api/upload` güvenli şekilde 501 döner. Supabase Storage tercih edilirse `app/api/upload/route.ts` içinde aynı sözleşmeyle `{ url }` dönecek şekilde provider değiştirilebilir.
@@ -130,6 +132,7 @@ npm run prisma:studio
 - API inputları Zod ile validate edilir.
 - Import metinleri HTML olarak basılmaz; `dangerouslySetInnerHTML` kullanılmaz.
 - Secret değerler environment variable olarak yönetilir.
+- `/api/integrations/lead-data` yalnızca ortak `INTEGRATION_API_KEY` ile çalışan sunucudan sunucuya entegrasyona açıktır; yayınlanmış turlar ile kesin rezervasyonların ödeme özetini Ejder Lead'e sağlar.
 
 ## Personel Rezervasyon Sistemi
 

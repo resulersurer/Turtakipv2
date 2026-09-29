@@ -39,6 +39,7 @@ export function AdminNavigation() {
       })}
     </nav>
     <div className="admin-sidebar__footer">
+      <a href={process.env.NEXT_PUBLIC_LEAD_APP_URL || "https://ejder-lead.vercel.app"} target="_blank" rel="noreferrer"><ExternalLink size={18} aria-hidden="true" /><span>Lead yönetimi</span><ExternalLink size={14} aria-hidden="true" /></a>
       <Link href="/passenger"><Map size={18} aria-hidden="true" /><span>Yolcu görünümü</span><ExternalLink size={14} aria-hidden="true" /></Link>
       <button type="button" onClick={signOut}><LogOut size={18} aria-hidden="true" /><span>Çıkış yap</span></button>
     </div>
