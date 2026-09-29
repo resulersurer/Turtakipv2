@@ -40,8 +40,9 @@ async function finish(runId: string, results: AutomaticTourResult[]) {
   "use step";
   const counts = { created: 0, updated: 0, unchanged: 0, failed: 0 };
   for (const result of results) counts[result] += 1;
-  const candidates = await prisma.tour.findMany({ where: { AND: [{ sourceLinks: { some: { missingSince: { lte: new Date(Date.now() - 12 * 60 * 60 * 1000) } } } }, { sourceLinks: { none: { active: true } } }], status: { not: "ARCHIVED" } }, select: { id: true } });
+  const candidates = await prisma.tour.findMany({ where: { AND: [{ sourceLinks: { some: { missingSince: { lte: new Date(Date.now() - 12 * 60 * 60 * 1000) } } } }, { sourceLinks: { none: { active: true } } }], status: { not: "ARCHIVED" } }, select: { id: true, name: true, sourceUrl: true } });
   const archived = candidates.length ? (await prisma.tour.updateMany({ where: { id: { in: candidates.map((item) => item.id) } }, data: { status: "ARCHIVED" } })).count : 0;
+  if (candidates.length) await prisma.importLog.createMany({ data: candidates.map((tour) => ({ sourceUrl: tour.sourceUrl || "automatic-sync", tourId: tour.id, status: "SUCCESS" as const, message: "Tur kaynak listelerde bulunamadığı için arşivlendi.", rawSummary: { trigger: "CRON", changeType: "ARCHIVED", changes: ["Tur arşivlendi"] } })) });
   return prisma.importSyncRun.update({ where: { id: runId }, data: { ...counts, archived, status: counts.failed ? "PARTIAL" : "COMPLETED", finishedAt: new Date() } });
 }
 

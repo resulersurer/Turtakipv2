@@ -21,19 +21,42 @@ export function fingerprint(parsed: Awaited<ReturnType<typeof parseTourPage>>) {
 
 export type AutomaticTourResult = "created" | "updated" | "unchanged" | "failed";
 
+function day(value: Date) { return value.toISOString().slice(0, 10); }
+
+function describeChanges(existing: { name: string; durationDays: number | null; departureCity: string | null; airline: string | null; visaStatus: string | null; coverImageUrl: string | null; departures: Array<{ startDate: Date; price: { toNumber(): number } | null; currency: string }> } | null, parsed: Awaited<ReturnType<typeof parseTourPage>>) {
+  if (!existing) return { changeType: "CREATED", changes: ["Yeni tur oluşturuldu"], addedDates: parsed.departures.map((item) => day(item.startDate)), removedDates: [] as string[] };
+  const changes: string[] = [];
+  const fields = [["Tur adı", existing.name, parsed.name], ["Süre", existing.durationDays, parsed.durationDays], ["Kalkış şehri", existing.departureCity, parsed.departureCity], ["Havayolu", existing.airline, parsed.airline], ["Vize durumu", existing.visaStatus, parsed.visaStatus], ["Kapak görseli", existing.coverImageUrl, parsed.coverImageUrl]] as const;
+  for (const [label, before, after] of fields) if ((before ?? null) !== (after ?? null)) changes.push(`${label}: ${before || "—"} → ${after || "—"}`);
+  const oldDates = new Set(existing.departures.map((item) => day(item.startDate)));
+  const newDates = new Set(parsed.departures.map((item) => day(item.startDate)));
+  const addedDates = [...newDates].filter((value) => !oldDates.has(value));
+  const removedDates = [...oldDates].filter((value) => !newDates.has(value));
+  if (addedDates.length) changes.push(`${addedDates.length} yeni çıkış tarihi eklendi`);
+  if (removedDates.length) changes.push(`${removedDates.length} çıkış tarihi kaldırıldı`);
+  for (const departure of parsed.departures) {
+    const previous = existing.departures.find((item) => day(item.startDate) === day(departure.startDate));
+    const oldPrice = previous?.price?.toNumber() ?? null;
+    if (previous && (oldPrice !== (departure.price ?? null) || previous.currency !== (departure.currency || "EUR"))) changes.push(`${day(departure.startDate)} fiyatı: ${oldPrice ?? "—"} ${previous.currency} → ${departure.price ?? "—"} ${departure.currency || "EUR"}`);
+  }
+  if (!changes.length) changes.push("Tur programı, açıklamalar veya görseller güncellendi");
+  return { changeType: "UPDATED", changes, addedDates, removedDates };
+}
+
 export async function syncAutomaticTour(url: string, trigger: "CRON" | "MANUAL"): Promise<AutomaticTourResult> {
   const parsed = await parseTourPage(url, { geocodeDays: false, fast: true });
   const sourceHash = fingerprint(parsed);
-  const existing = await prisma.tour.findFirst({ where: { OR: [{ sourceUrl: url }, { externalId: parsed.externalId || undefined }, { slug: parsed.slug }] }, select: { id: true, sourceHash: true } });
+  const existing = await prisma.tour.findFirst({ where: { OR: [{ sourceUrl: url }, { externalId: parsed.externalId || undefined }, { slug: parsed.slug }] }, include: { departures: { select: { startDate: true, price: true, currency: true } } } });
   if (existing?.sourceHash === sourceHash) {
     await prisma.tour.update({ where: { id: existing.id }, data: { importedAt: new Date() } });
     await prisma.importSourceTour.updateMany({ where: { detailUrl: url, active: true }, data: { tourId: existing.id } });
     return "unchanged";
   }
+  const changeSummary = describeChanges(existing, parsed);
   await geocodeTourDays(parsed, { external: false });
   const tour = await upsertImportedTour(parsed, { automatic: true, sourceHash });
   await prisma.importSourceTour.updateMany({ where: { detailUrl: url, active: true }, data: { tourId: tour.id } });
-  await prisma.importLog.create({ data: { sourceUrl: url, tourId: tour.id, status: parsed.warnings.length ? "PARTIAL" : "SUCCESS", message: existing ? "Otomatik senkronizasyonda güncellendi." : "Otomatik senkronizasyonda yeni taslak oluşturuldu.", rawSummary: { trigger, warnings: parsed.warnings, departures: parsed.departures.length } } });
+  await prisma.importLog.create({ data: { sourceUrl: url, tourId: tour.id, status: parsed.warnings.length ? "PARTIAL" : "SUCCESS", message: existing ? "Otomatik senkronizasyonda güncellendi." : "Otomatik senkronizasyonda yeni taslak oluşturuldu.", rawSummary: { trigger, ...changeSummary, warnings: parsed.warnings, departures: parsed.departures.length } } });
   return existing ? "updated" : "created";
 }
 

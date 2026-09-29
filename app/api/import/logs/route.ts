@@ -9,6 +9,6 @@ export async function GET() {
   if (!(await isDatabaseSchemaReady())) return databaseSchemaMissingResponse();
   const auth = await requireAdmin();
   if (auth) return auth;
-  const logs = await prisma.importLog.findMany({ orderBy: { createdAt: "desc" }, take: 50, include: { tour: true } });
+  const logs = await prisma.importLog.findMany({ orderBy: { createdAt: "desc" }, take: 100, include: { tour: true } });
   return NextResponse.json(serializeTour(logs));
 }

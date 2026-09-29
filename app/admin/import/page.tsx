@@ -5,6 +5,7 @@ import { ImportPreview } from "@/components/import/ImportPreview";
 import { hasDatabaseUrl, isDatabaseSchemaReady } from "@/lib/db-ready";
 import { SetupNotice } from "@/components/SetupNotice";
 import { AutomaticImportPanel } from "@/components/import/AutomaticImportPanel";
+import { ImportChangeHistory } from "@/components/import/ImportChangeHistory";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +23,7 @@ export default async function ImportPage() {
         <ImportPreview mode="tour" />
         <ImportPreview mode="list" />
       </section>
+      <ImportChangeHistory />
     </main>
   );
 }

@@ -105,6 +105,7 @@ npm run prisma:studio
 - Her iki liste başarıyla okunduğunda artık hiçbir kaynakta görünmeyen turlar arşivlenir. Kaynaklardan biri alınamazsa güvenlik için arşivleme yapılmaz.
 - Kaynaktan kaldırılan, rezervasyon geçmişi bulunan çıkış tarihleri silinmez; `SOURCE_REMOVED` durumuyla korunur.
 - Yönetici aynı işlemi `/admin/import` ekranındaki **Şimdi senkronize et** düğmesiyle çalıştırabilir ve son çalışma sayılarını görebilir.
+- Sayfanın altındaki **İçe aktarma değişiklik geçmişi** son 100 işlemi; yeni/arşivlenen turları, eklenen veya kaldırılan çıkış tarihlerini, fiyat ve temel tur bilgisi değişikliklerini zaman damgasıyla gösterir.
 
 ## Sayfalar
 
