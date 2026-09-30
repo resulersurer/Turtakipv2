@@ -38,6 +38,14 @@ enum TourRequestStatus {
   CLOSED
 }
 
+enum MemberRole {
+  MANAGEMENT
+  STAFF
+  PASSENGER
+  GUIDE
+  AGENCY
+}
+
 model Tour {
   id            String             @id @default(cuid())
   externalId    String?            @unique
@@ -363,12 +371,15 @@ model Member {
   email         String          @unique
   emailVerified Boolean         @default(false)
   image         String?
+  role          MemberRole      @default(PASSENGER)
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
   sessions      MemberSession[]
   accounts      MemberAccount[]
   reservations  Reservation[]
   tourRequests  TourRequest[]
+
+  @@index([role])
 }
 
 model TourRequest {

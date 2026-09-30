@@ -5,6 +5,8 @@ import { isAdmin } from "@/lib/auth";
 import { AdminLogin } from "@/components/AdminLogin";
 import { hasDatabaseUrl, isDatabaseSchemaReady } from "@/lib/db-ready";
 import { SetupNotice } from "@/components/SetupNotice";
+import { MemberRoleSelect } from "@/components/admin/MemberRoleSelect";
+import { isMemberRole, memberRoleLabels, memberRoles } from "@/lib/member-roles";
 
 export const dynamic = "force-dynamic";
 const PAGE_SIZE = 50;
@@ -15,9 +17,11 @@ export default async function AdminMembersPage({ searchParams }: { searchParams:
   if (!(await isAdmin())) return <AdminLogin />;
   const params = await searchParams;
   const q = params.q?.trim() || "";
+  const role = isMemberRole(params.role) ? params.role : undefined;
   const requestedPage = Math.max(1, Number(params.page) || 1);
   const where = {
     ...(q ? { OR: [{ name: { contains: q, mode: "insensitive" as const } }, { email: { contains: q, mode: "insensitive" as const } }] } : {}),
+    ...(role ? { role } : {}),
     ...(params.verified === "1" ? { emailVerified: true } : params.verified === "0" ? { emailVerified: false } : {})
   };
   const now = new Date();
@@ -33,7 +37,7 @@ export default async function AdminMembersPage({ searchParams }: { searchParams:
   const members = await prisma.member.findMany({
     where,
     select: {
-      id: true, name: true, email: true, emailVerified: true, image: true, createdAt: true, updatedAt: true,
+      id: true, name: true, email: true, emailVerified: true, role: true, image: true, createdAt: true, updatedAt: true,
       _count: { select: { reservations: true, sessions: true } },
       sessions: { orderBy: { updatedAt: "desc" }, take: 1, select: { updatedAt: true, expiresAt: true } }
     },
@@ -43,12 +47,13 @@ export default async function AdminMembersPage({ searchParams }: { searchParams:
     const query = new URLSearchParams();
     if (q) query.set("q", q);
     if (params.verified) query.set("verified", params.verified);
+    if (role) query.set("role", role);
     query.set("page", String(target));
     return `/admin/members?${query.toString()}`;
   };
 
   return <main className="page-shell space-y-6">
-    <header className="admin-page-header"><div className="admin-page-header__title"><span className="admin-eyebrow">Müşteri hesapları</span><h1>Üyeler</h1><p>Kayıt olan kullanıcıları, hesap doğrulamalarını, oturumlarını ve rezervasyon sayılarını takip edin.</p></div></header>
+    <header className="admin-page-header"><div className="admin-page-header__title"><span className="admin-eyebrow">Kullanıcı hesapları</span><h1>Üyeler</h1><p>Yönetim, personel, yolcu, rehber ve acente hesaplarını rollerine göre sınıflandırın ve takip edin.</p></div></header>
     <section className="admin-kpi-grid" aria-label="Üye özeti">
       <article className="admin-kpi"><div className="admin-kpi__top"><span>Toplam üye</span><span className="admin-kpi__icon"><Users size={18}/></span></div><strong>{totalMembers}</strong><small>Kayıtlı kullanıcı hesabı</small></article>
       <article className="admin-kpi"><div className="admin-kpi__top"><span>Doğrulanmış</span><span className="admin-kpi__icon"><MailCheck size={18}/></span></div><strong>{verifiedMembers}</strong><small>E-posta doğrulaması tamamlanan</small></article>
@@ -58,8 +63,9 @@ export default async function AdminMembersPage({ searchParams }: { searchParams:
     <form className="panel admin-filter-panel">
       <label><span>Üye ara</span><input className="input" name="q" defaultValue={q} placeholder="Ad veya e-posta"/></label>
       <label><span>E-posta durumu</span><select className="input" name="verified" defaultValue={params.verified || ""}><option value="">Tümü</option><option value="1">Doğrulanmış</option><option value="0">Doğrulanmamış</option></select></label>
+      <label><span>Üye rolü</span><select className="input" name="role" defaultValue={role || ""}><option value="">Tüm roller</option>{memberRoles.map((item) => <option value={item} key={item}>{memberRoleLabels[item]}</option>)}</select></label>
       <button className="btn-primary">Filtrele</button>
-      {(q || params.verified) ? <Link className="btn" href="/admin/members">Temizle</Link> : null}
+      {(q || params.verified || role) ? <Link className="btn" href="/admin/members">Temizle</Link> : null}
     </form>
     <div className="admin-section-heading"><div><h2>Üye listesi</h2><p>{filteredCount} kayıt · Sayfa {page}/{totalPages}</p></div></div>
     <section className="admin-list">
@@ -68,7 +74,7 @@ export default async function AdminMembersPage({ searchParams }: { searchParams:
         const active = Boolean(lastSession && lastSession.expiresAt > now);
         return <article className="admin-list-item" key={member.id}>
           <div className="admin-list-item__main"><h3>{member.name || "İsimsiz üye"}</h3><p>{member.email} · {dateTime.format(member.createdAt)} tarihinde kayıt oldu</p><p>{member._count.reservations} rezervasyon · {member._count.sessions} oturum · {lastSession ? `Son hareket ${dateTime.format(lastSession.updatedAt)}` : "Henüz giriş yapmadı"}</p></div>
-          <div className="flex flex-wrap items-center justify-end gap-2"><span className="badge">{member.emailVerified ? "E-posta doğrulandı" : "Doğrulanmadı"}</span><span className={`badge ${active ? "text-emerald-700" : "text-slate-500"}`}>{active ? "Oturum aktif" : "Çevrimdışı"}</span></div>
+          <div className="member-list-actions"><div className="flex flex-wrap items-center justify-end gap-2"><span className={`badge member-role-badge member-role-badge--${member.role.toLowerCase()}`}>{memberRoleLabels[member.role]}</span><span className="badge">{member.emailVerified ? "E-posta doğrulandı" : "Doğrulanmadı"}</span><span className={`badge ${active ? "text-emerald-700" : "text-slate-500"}`}>{active ? "Oturum aktif" : "Çevrimdışı"}</span></div><MemberRoleSelect memberId={member.id} role={member.role}/></div>
         </article>;
       })}
       {!members.length ? <div className="panel p-8 text-center text-slate-500">Filtrelere uygun üye bulunamadı.</div> : null}
