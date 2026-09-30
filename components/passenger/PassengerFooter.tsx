@@ -5,7 +5,7 @@ const tourLinks = [
   { label: "2027 Turları", href: "/passenger/tours/2027" },
   { label: "2026 Turları", href: "/passenger/tours/2026" },
   { label: "EJDER VIP", href: "/passenger/tours/vip" },
-  { label: "Tur Talep Formu", href: "https://www.ejderturizm.com.tr/talep_1000.html" },
+  { label: "Tur Talep Formu", href: "/passenger/tour-request?source=footer" },
   { label: "Bize Ulaşın", href: "https://www.ejderturizm.com.tr/Bize-ulasin.html" }
 ];
 
@@ -22,9 +22,9 @@ export function PassengerFooter() {
           <Link href={tourLinks[0].href} className="passenger-footer__button passenger-footer__button--light">
             2027 Turlarını Gör <ArrowUpRight size={17} aria-hidden="true" />
           </Link>
-          <a href="https://www.ejderturizm.com.tr/talep_1000.html" className="passenger-footer__button passenger-footer__button--outline">
+          <Link href="/passenger/tour-request?source=footer" className="passenger-footer__button passenger-footer__button--outline">
             Tur Talep Formu <ArrowRight size={17} aria-hidden="true" />
-          </a>
+          </Link>
         </div>
       </div>
       <div className="passenger-footer__inner">

@@ -81,6 +81,7 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
           <h1>{tour.name}</h1>
           <p>{countries.length ? countries.slice(0, 4).join(" · ") : "Yeni bir yolculuk için rotayı keşfedin"}</p>
           <div className="tour-detail__hero-actions">
+            <Link className="tour-detail__button tour-detail__button--light" href={`/passenger/tour-request?tour=${encodeURIComponent(tour.slug)}&source=tour-detail`}>Bu tur için talep oluştur <ArrowUpRight size={18} aria-hidden="true" /></Link>
             {officialUrl ? <a className="tour-detail__button tour-detail__button--light" href={officialUrl}>Resmî tur sayfasını incele <ArrowUpRight size={18} aria-hidden="true" /></a> : null}
             <a className="tour-detail__button tour-detail__button--outline" href="#program">Programı keşfet <ArrowUpRight size={17} aria-hidden="true" /></a>
           </div>
@@ -125,7 +126,7 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
 
         {tour.images.length ? <section className="tour-detail__section" aria-labelledby="tour-gallery-heading"><div className="tour-detail__section-heading"><div><span className="tour-detail__section-kicker">YOLCULUKTAN KARELER</span><h2 id="tour-gallery-heading">Fotoğraf galerisi</h2></div></div><div className="tour-detail__gallery">{tour.images.map((image: any) => <div key={image.id}><img src={image.url} alt={image.alt || tour.name} loading="lazy" /></div>)}</div></section> : null}
 
-        <section className="tour-detail__closing"><div><span className="tour-detail__section-kicker">SIRADAKİ MACERA</span><h2>Bu rotayı yakından tanıyın</h2><p>Güncel tur ve rezervasyon bilgilerini resmî Ejder Turizm sayfasından inceleyin.</p></div><div className="tour-detail__closing-actions">{officialUrl ? <a className="tour-detail__button tour-detail__button--light" href={officialUrl}>Resmî tur sayfası <ArrowUpRight size={18} aria-hidden="true" /></a> : null}<Link className="tour-detail__button tour-detail__button--outline" href={`/passenger/${tour.id}`}>Rotayı haritada izle</Link></div></section>
+        <section className="tour-detail__closing"><div><span className="tour-detail__section-kicker">SIRADAKİ MACERA</span><h2>Bu rotayı yakından tanıyın</h2><p>Güncel tur ve rezervasyon bilgileri için talebinizi bize iletin.</p></div><div className="tour-detail__closing-actions"><Link className="tour-detail__button tour-detail__button--light" href={`/passenger/tour-request?tour=${encodeURIComponent(tour.slug)}&source=tour-detail`}>Tur talebi oluştur <ArrowUpRight size={18} aria-hidden="true" /></Link><Link className="tour-detail__button tour-detail__button--outline" href={`/passenger/${tour.id}`}>Rotayı haritada izle</Link></div></section>
       </div>
     </main>
   );

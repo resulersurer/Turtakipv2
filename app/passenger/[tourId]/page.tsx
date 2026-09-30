@@ -49,7 +49,7 @@ export default async function PassengerTourPage({ params, searchParams }: { para
           <span className="tracker-detail__eyebrow"><Route size={15} aria-hidden="true" /> İNTERAKTİF TUR ROTASI</span>
           <h1>{tour.name}</h1>
           <p>{countries.length ? countries.slice(0, 5).join(" · ") : "Rotayı gün gün harita üzerinde keşfedin"}</p>
-          <div className="tracker-detail__hero-actions"><a href="#tracker" className="tracker-detail__button tracker-detail__button--light">Haritada keşfet <ArrowUpRight size={17} aria-hidden="true" /></a>{tour.slug ? <Link href={`/tour/${tour.slug}`} className="tracker-detail__button tracker-detail__button--outline">Tur programını incele</Link> : null}</div>
+          <div className="tracker-detail__hero-actions"><Link href={`/passenger/tour-request?tour=${encodeURIComponent(tour.slug || tour.id)}&source=route-detail`} className="tracker-detail__button tracker-detail__button--light">Bu tur için talep oluştur <ArrowUpRight size={17} aria-hidden="true" /></Link>{tour.slug ? <Link href={`/tour/${tour.slug}`} className="tracker-detail__button tracker-detail__button--outline">Tur programını incele</Link> : null}</div>
         </div>
       </header>
 
