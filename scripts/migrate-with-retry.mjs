@@ -1,14 +1,28 @@
 import { spawnSync } from "node:child_process";
 import { setTimeout } from "node:timers/promises";
 
+export function migrationEnvironment(environment) {
+  if (!environment.DATABASE_URL) return { ...environment };
+  const url = new URL(environment.DATABASE_URL);
+  // Neon poolers use transaction pooling; migrations need session-scoped locks.
+  if (url.hostname.endsWith(".neon.tech") && url.hostname.split(".")[0].endsWith("-pooler")) {
+    url.hostname = url.hostname.replace(/-pooler(?=\.)/, "");
+    url.searchParams.delete("pgbouncer");
+    return { ...environment, DATABASE_URL: url.toString() };
+  }
+  return { ...environment };
+}
+
 export async function migrateWithRetry(prismaCli, {
   execute = spawnSync,
+  environment = process.env,
   wait = setTimeout,
   stdout = process.stdout,
   stderr = process.stderr
 } = {}) {
   for (let attempt = 1; attempt <= 3; attempt++) {
     const result = execute(process.execPath, [prismaCli, "migrate", "deploy"], {
+      env: migrationEnvironment(environment),
       encoding: "utf8",
       stdio: ["ignore", "pipe", "pipe"]
     });

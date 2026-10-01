@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { migrateWithRetry } from "./migrate-with-retry.mjs";
+import { migrationEnvironment, migrateWithRetry } from "./migrate-with-retry.mjs";
 
 const success = { status: 0, stdout: "No pending migrations.", stderr: "" };
 const locked = { status: 1, stderr: "Error: P1002\nTimed out trying to acquire a postgres advisory lock (SELECT pg_advisory_lock(72707369))." };
@@ -52,4 +52,36 @@ test("SQL errors, other timeouts and process failures are not retried", async ()
     assert.deepEqual(run.delays, []);
     assert.equal(run.result, failure);
   }
+});
+
+test("Neon migrations use the same database directly without changing runtime configuration", () => {
+  const environment = { DATABASE_URL: "postgresql://user:password@ep-example-pooler.eu-central-1.aws.neon.tech/neondb?sslmode=require&pgbouncer=true", OTHER: "retained" };
+  const result = migrationEnvironment(environment);
+  const direct = new URL(result.DATABASE_URL);
+  assert.equal(direct.hostname, "ep-example.eu-central-1.aws.neon.tech");
+  assert.equal(direct.username, "user");
+  assert.equal(direct.password, "password");
+  assert.equal(direct.pathname, "/neondb");
+  assert.equal(direct.searchParams.get("sslmode"), "require");
+  assert.equal(direct.searchParams.has("pgbouncer"), false);
+  assert.equal(result.OTHER, "retained");
+  assert.ok(environment.DATABASE_URL.includes("-pooler"));
+});
+
+test("direct, non-Neon and unset connections remain unchanged", () => {
+  for (const environment of [{}, { DATABASE_URL: "postgresql://user:password@localhost/db" }, { DATABASE_URL: "postgresql://user:password@ep-example.eu-central-1.aws.neon.tech/db" }, { DATABASE_URL: "postgresql://user:password@pooler.example.com/db" }]) {
+    assert.deepEqual(migrationEnvironment(environment), environment);
+  }
+});
+
+test("migration subprocess receives the direct connection on every retry", async () => {
+  const environment = { DATABASE_URL: "postgresql://user:password@ep-example-pooler.eu-central-1.aws.neon.tech/db" };
+  const connections = [];
+  await migrateWithRetry("prisma-cli", {
+    environment,
+    execute: (_command, _args, options) => { connections.push(options.env.DATABASE_URL); return connections.length === 1 ? locked : success; },
+    wait: async () => {}, stdout: { write() {} }, stderr: { write() {} }
+  });
+  assert.equal(connections.length, 2);
+  assert.ok(connections.every((connection) => !connection.includes("-pooler")));
 });
