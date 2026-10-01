@@ -367,7 +367,7 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
                 return (
                   <Link
                     className="group relative block overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-[#7f1d1d]/10 hover:border-[#7f1d1d]/30"
-                    href={`/passenger/${tour.id}?departureId=${departure.id}`}
+                    href={`/tour/${encodeURIComponent(tour.slug)}`}
                     key={`${tour.id}-${departure.id}`}
                     style={{ aspectRatio: "3/4" }}
                   >
