@@ -1,8 +1,7 @@
 import { MemberNav } from "@/components/members/MemberNav";
 import Link from "next/link";
-import Image from "next/image";
 import type { Metadata } from "next";
-import { ArrowRight, ArrowUpRight, Bot, Headset, Mail } from "lucide-react";
+import { ArrowUpRight, Bot, Headset, Mail } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { serializeTour, tourInclude } from "@/lib/tours";
 import { PublicMap } from "@/components/maps/PublicMap";
@@ -13,18 +12,12 @@ import { classifyDeparture, departureRelativeLabel, formatDepartureRange } from 
 import { compactTourMeta } from "@/lib/display";
 import { PassengerSearchBox } from "@/components/PassengerSearchBox";
 import { PassengerFooter } from "@/components/passenger/PassengerFooter";
+import { CampaignSection } from "@/components/passenger/CampaignSection";
 import { FeaturedTours } from "@/components/passenger/FeaturedTours";
 
 export const dynamic = "force-dynamic";
 
-const campaignLinks = [
-  { title: "Latin Turları", image: "https://image.elitema.com.tr/db_images/154/21/245/2-360.jpg", href: "/passenger/collections/latin" },
-  { title: "Afrika Turları", image: "https://image.elitema.com.tr/db_images/154/21/246/3-360.jpg", href: "/passenger/collections/afrika" },
-  { title: "Asya Turları", image: "https://image.elitema.com.tr/db_images/154/21/247/1-360.jpg", href: "/passenger/collections/asya" },
-  { title: "Uzak Rotalar", image: "https://image.elitema.com.tr/db_images/154/21/268/img-5898.png", href: "/passenger/collections/uzak-rotalar" },
-  { title: "2026 Turları", image: "https://image.elitema.com.tr/db_images/154/21/269/img-5897.png", href: "/passenger/tours/2026" },
-  { title: "Vizesiz ve Kolay Vizeli Turlar", image: "https://image.elitema.com.tr/db_images/154/21/255/web2024-2--3.png", href: "/passenger/collections/vizesiz" }
-];
+
 
 export const metadata: Metadata = {
   title: "Canlı Tur Takibi ve Haftalık Rotalar",
@@ -341,79 +334,7 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
 
       <FeaturedTours tours={featuredTours} />
 
-      <section aria-labelledby="campaigns-heading" className="campaigns-section">
-        <div className="campaigns-inner">
-
-          {/* ── Başlık ── */}
-          <div className="campaigns-header">
-            <div className="campaigns-header__left">
-              <div className="campaigns-eyebrow">
-                <span className="campaigns-eyebrow__dot" aria-hidden="true" />
-                ÖZEL FIRSATLAR
-              </div>
-              <h2 id="campaigns-heading" className="campaigns-title">Kampanyalar</h2>
-              <p className="campaigns-subtitle">Seyahatinize avantaj katacak fırsatları keşfedin.</p>
-            </div>
-            <div className="campaigns-badge" aria-hidden="true">
-              <span className="campaigns-badge__count">7</span>
-              Aktif Kampanya
-            </div>
-          </div>
-
-          {/* ── Tek Grid: Halkbank (2 sütun) + Tur Kartları ── */}
-          <div className="campaigns-grid">
-
-            {/* Halkbank — İlk satırda ilk 2 sütunu kaplıyor */}
-            <Link
-              href="/passenger/campaigns/halkbank-parafpara"
-              className="campaign-hero campaign-hero--span2"
-            >
-              <div className="campaign-hero__img-wrap">
-                <Image
-                  src="https://image.elitema.com.tr/db_images/154/21/273/h-banner.png"
-                  alt="Halkbank ParafPara kampanyası"
-                  width={1920}
-                  height={652}
-                  unoptimized
-                />
-                <div className="campaign-hero__shimmer" aria-hidden="true" />
-              </div>
-              <div className="campaign-hero__body">
-                <div className="campaign-hero__info">
-                  <div className="campaign-hero__label">Banka Kampanyası</div>
-                  <h3 className="campaign-hero__title">Halkbank ParafPara Kampanyası</h3>
-                </div>
-                <span className="campaign-hero__cta">
-                  Detayları İncele <ArrowRight size={15} aria-hidden="true" />
-                </span>
-              </div>
-            </Link>
-
-            {/* 6 Tur Kampanya Kartı: Asya, Uzak Rotalar, 2026, Vizesiz, Latin, Afrika */}
-            {[...campaignLinks.slice(2), ...campaignLinks.slice(0, 2)].map((campaign) => (
-              <Link
-                key={campaign.href}
-                href={campaign.href}
-                aria-label={campaign.title}
-                className="campaign-grid-card"
-              >
-                <div className="campaign-grid-card__img-wrap">
-                  <Image
-                    src={campaign.image}
-                    alt={campaign.title}
-                    width={438}
-                    height={620}
-                    unoptimized
-                  />
-                  <div className="campaign-grid-card__glow" aria-hidden="true" />
-                </div>
-              </Link>
-            ))}
-
-          </div>
-
-        </div>
-      </section>
+      <CampaignSection />
 
       <div className="w-full px-4 py-8 sm:px-8 lg:px-10 space-y-8">
         {/* Arama sonucu bulunamadı */}
