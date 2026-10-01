@@ -63,7 +63,7 @@ export function PassengerFooter() {
         <div>
           <Link href="/passenger">Ana sayfa</Link>
           <Link href="/passenger/tour-request?source=footer">Tur Talep Formu</Link>
-          <a href="https://www.ejderturizm.com.tr/Bize-ulasin.html">Bize Ulaşın</a>
+          <Link href="/passenger/contact">Bize Ulaşın</Link>
         </div>
       </div>
     </footer>

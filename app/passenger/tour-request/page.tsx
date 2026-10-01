@@ -11,14 +11,14 @@ import "./tour-request.css";
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Tur Talep Formu | Ejder Turizm", description: "Hayalinizdeki turu ve seyahat tercihlerinizi paylaşın; Ejder Turizm danışmanları size uygun seçenekleri hazırlasın." };
 
-const sourceLabels: Record<string, string> = { menu: "Ana menü", footer: "Sayfa altı", "tour-detail": "Tur detay sayfası", "route-detail": "Rota takip sayfası" };
+const sourceLabels: Record<string, string> = { contact: "Bize Ulaşın", menu: "Ana menü", footer: "Sayfa altı", "tour-detail": "Tur detay sayfası", "route-detail": "Rota takip sayfası" };
 
 export default async function TourRequestPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const params = await searchParams;
   const tours = hasDatabaseUrl() && await isDatabaseSchemaReady() ? await prisma.tour.findMany({ where: { status: "PUBLISHED" }, select: { id: true, name: true, slug: true }, orderBy: { name: "asc" } }) : [];
   const selected = tours.find((tour) => tour.slug === params.tour || tour.id === params.tour);
   const sourceKey = params.source || (selected ? "tour-detail" : "menu");
-  const sourcePage = sourceKey === "tour-detail" && selected ? `/tour/${selected.slug}` : sourceKey === "route-detail" && selected ? `/passenger/${selected.id}` : "/passenger";
+  const sourcePage = sourceKey === "tour-detail" && selected ? `/tour/${selected.slug}` : sourceKey === "route-detail" && selected ? `/passenger/${selected.id}` : sourceKey === "contact" ? "/passenger/contact" : "/passenger";
 
   return <main className="tour-request-page">
     <header className="tour-request-topbar"><Link href="/passenger" className="tour-request-brand"><img src="/logo.png" alt="Ejder Turizm"/></Link><nav><Link href="/passenger"><ArrowLeft size={16}/>Turlara dön</Link><MemberNav/></nav></header>
