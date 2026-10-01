@@ -1,12 +1,13 @@
 import Link from "next/link";
+import { tourCollections } from "@/lib/tour-collections";
 import { ArrowRight, ArrowUpRight, Mail, Phone } from "lucide-react";
 
 const tourLinks = [
   { label: "2027 Turları", href: "/passenger/tours/2027" },
   { label: "2026 Turları", href: "/passenger/tours/2026" },
   { label: "EJDER VIP", href: "/passenger/tours/vip" },
-  { label: "Tur Talep Formu", href: "/passenger/tour-request?source=footer" },
-  { label: "Bize Ulaşın", href: "https://www.ejderturizm.com.tr/Bize-ulasin.html" }
+  { label: "Tüm Turlar", href: "/tours" },
+  { label: "Halkbank ParafPara Kampanyası", href: "/passenger/campaigns/halkbank-parafpara" }
 ];
 
 export function PassengerFooter() {
@@ -34,9 +35,16 @@ export function PassengerFooter() {
         </div>
 
         <nav aria-label="Footer tur bağlantıları" className="passenger-footer__column">
-          <h2>Keşfet</h2>
+          <h2>Turlar ve kampanyalar</h2>
           <div className="passenger-footer__links">
-            {tourLinks.map(({ label, href }) => href.startsWith("/") ? <Link key={href} href={href}><span>{label}</span><ArrowUpRight size={14} aria-hidden="true" /></Link> : <a key={href} href={href}><span>{label}</span><ArrowUpRight size={14} aria-hidden="true" /></a>)}
+            {tourLinks.map(({ label, href }) => <Link key={href} href={href}><span>{label}</span><ArrowUpRight size={14} aria-hidden="true" /></Link>)}
+          </div>
+        </nav>
+
+        <nav aria-label="Footer rota bağlantıları" className="passenger-footer__column">
+          <h2>Rotalar</h2>
+          <div className="passenger-footer__links">
+            {tourCollections.map((collection) => <Link key={collection.slug} href={`/passenger/collections/${collection.slug}`}><span>{collection.title}</span><ArrowUpRight size={14} aria-hidden="true" /></Link>)}
           </div>
         </nav>
 
@@ -53,8 +61,8 @@ export function PassengerFooter() {
       <div className="passenger-footer__bottom">
         <span>© {new Date().getFullYear()} Ejder Turizm. Tüm hakları saklıdır.</span>
         <div>
-          <a href="https://www.ejderturizm.com.tr/">Anasayfa</a>
-          <Link href="/tours">Tur Listesi</Link>
+          <Link href="/passenger">Ana sayfa</Link>
+          <Link href="/passenger/tour-request?source=footer">Tur Talep Formu</Link>
           <a href="https://www.ejderturizm.com.tr/Bize-ulasin.html">Bize Ulaşın</a>
         </div>
       </div>

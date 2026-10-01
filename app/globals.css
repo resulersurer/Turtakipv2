@@ -335,7 +335,7 @@ a {
 
 .passenger-footer__inner {
   display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 1.2fr);
+  grid-template-columns: minmax(0, 1.15fr) repeat(3, minmax(0, 1fr));
   gap: clamp(24px, 5vw, 80px);
   max-width: 1500px;
   margin: 0 auto;
