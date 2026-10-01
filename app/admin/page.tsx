@@ -6,6 +6,7 @@ import { AdminLogin } from "@/components/AdminLogin";
 import { hasDatabaseUrl, isDatabaseSchemaReady } from "@/lib/db-ready";
 import { SetupNotice } from "@/components/SetupNotice";
 import { isPrismaSetupError } from "@/lib/db-errors";
+import { AdminNotifications } from "@/components/admin/AdminNotifications";
 import { occupancy } from "@/lib/reservations/domain";
 
 export const dynamic = "force-dynamic";
@@ -20,7 +21,7 @@ export default async function AdminPage() {
   today.setHours(0, 0, 0, 0);
 
   try {
-    const [published, drafts, members, upcoming, recentReservations, recentImports, draftTours] = await Promise.all([
+    const [published, drafts, members, upcoming, recentReservations, recentImports, draftTours, changeLogs, notifications] = await Promise.all([
       prisma.tour.count({ where: { status: "PUBLISHED" } }),
       prisma.tour.count({ where: { status: "DRAFT" } }),
       prisma.member.count(),
@@ -37,19 +38,27 @@ export default async function AdminPage() {
       prisma.tour.findMany({
         where: { status: "DRAFT" }, orderBy: { updatedAt: "desc" }, take: 5,
         include: { departures: { orderBy: { startDate: "asc" } }, days: { select: { id: true } } }
-      })
+      }),
+      prisma.importLog.findMany({
+        where: { OR: ["CREATED", "UPDATED", "ARCHIVED"].map((type) => ({ rawSummary: { path: ["changeType"], equals: type } })) },
+        orderBy: { createdAt: "desc" }, take: 20, include: { tour: { select: { id: true, name: true } } }
+      }),
+      prisma.adminNotification.findMany({ orderBy: { createdAt: "desc" }, take: 20, include: { tour: { select: { id: true, name: true } } } })
     ]);
     const summaries = upcoming.map((departure) => occupancy(departure.capacity, departure.blockedSeats, departure.reservations));
     const missingCapacity = upcoming.filter((departure) => departure.capacity === null).length;
     const availableSeats = summaries.reduce((total, summary) => total + Math.max(0, summary.available || 0), 0);
     const activeBookings = summaries.reduce((total, summary) => total + summary.confirmed + summary.held, 0);
     const nextDepartures = upcoming.slice(0, 6);
+    const fullDepartures = upcoming.filter((_, index) => summaries[index].available !== null && summaries[index].available! <= 0);
 
     return <main className="page-shell space-y-7">
       <header className="admin-page-header">
         <div className="admin-page-header__title"><span className="admin-eyebrow">Operasyon merkezi</span><h1>Genel bakış</h1><p>Tur yayınları, yaklaşan çıkışlar, koltuk durumu ve üye rezervasyonlarını tek ekrandan takip edin.</p></div>
         <div className="admin-page-actions"><Link className="btn" href="/admin/import">Tur içe aktar</Link><Link className="btn-primary" href="/admin/tours/new"><Plus size={17} />Yeni tur</Link></div>
       </header>
+
+      <AdminNotifications logs={changeLogs} notifications={notifications} fullDepartures={fullDepartures} />
 
       <section className="admin-kpi-grid" aria-label="Operasyon özeti">
         {[

@@ -14,7 +14,8 @@
     "test:reservations": "tsx --test scripts/reservations.test.ts",
     "test:reservations:integration": "tsx --test scripts/reservations.integration.test.ts",
     "test:members": "tsx --test scripts/members.test.ts",
-    "test:members:integration": "tsx --test scripts/members.integration.test.ts"
+    "test:members:integration": "tsx --test scripts/members.integration.test.ts",
+    "test:notifications": "tsx --tsconfig tsconfig.tests.json --test scripts/admin-notifications.test.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",

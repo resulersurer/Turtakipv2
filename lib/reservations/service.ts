@@ -2,6 +2,7 @@ import { createHash, randomUUID } from "node:crypto";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { assertBookable, assertCapacity, effectiveStatus, occupancy, ReservationError } from "./domain";
+import { capacityTransition } from "@/lib/admin/notifications";
 import { capacitySchema, memberReservationSchema, reservationSchema, statusSchema } from "./validators";
 
 const reservationInclude = {
@@ -16,6 +17,18 @@ async function lockDeparture(tx: Prisma.TransactionClient, id: string) {
   if (!rows.length) throw new ReservationError("Çıkış bulunamadı.", 404);
   return tx.tourDeparture.findUniqueOrThrow({ where: { id }, include: { tour: { select: { status: true } }, reservations: true } });
 }
+async function recordCapacityTransition(tx: Prisma.TransactionClient, departure: { id: string; tourId: string; startDate: Date; capacity: number | null; blockedSeats: number; reservations: Parameters<typeof occupancy>[2] }, now: Date) {
+  const before = occupancy(departure.capacity, departure.blockedSeats, departure.reservations, now).available;
+  const current = await tx.tourDeparture.findUniqueOrThrow({ where: { id: departure.id }, include: { reservations: true } });
+  const after = occupancy(current.capacity, current.blockedSeats, current.reservations, now).available;
+  const type = capacityTransition(before, after);
+  if (!type) return;
+  await tx.adminNotification.create({ data: {
+    type, tourId: departure.tourId, departureId: departure.id, startDate: departure.startDate,
+    message: type === "CAPACITY_FULL" ? "Kontenjan doldu." : `Kontenjan yeniden açıldı: ${after} müsait koltuk.`
+  } });
+}
+
 const transactionOptions = { isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted, maxWait: 10000, timeout: 15000 };
 
 export async function getReservationDashboard(departureId?: string) {
@@ -40,8 +53,11 @@ export async function setCapacity(id: string, input: unknown) {
   const data = capacitySchema.parse(input);
   return prisma.$transaction(async (tx) => {
     const departure = await lockDeparture(tx, id);
-    assertCapacity(data.capacity, data.blockedSeats, departure.reservations);
-    return tx.tourDeparture.update({ where: { id }, data });
+    const now = new Date();
+    assertCapacity(data.capacity, data.blockedSeats, departure.reservations, 0, now);
+    const updated = await tx.tourDeparture.update({ where: { id }, data });
+    await recordCapacityTransition(tx, departure, now);
+    return updated;
   }, transactionOptions);
 }
 
@@ -61,7 +77,7 @@ export async function createReservation(input: unknown, memberId?: string, requi
     const expires = data.status === "HOLD" ? new Date(data.holdExpiresAt!) : null;
     if (expires && expires <= now) throw new ReservationError("Opsiyon bitişi gelecekte olmalıdır.", 400);
     assertCapacity(departure.capacity, departure.blockedSeats, departure.reservations, data.passengers.length, now);
-    return tx.reservation.create({ data: {
+    const created = await tx.reservation.create({ data: {
       requestId: data.requestId,
       requestHash,
       code: `R-${randomUUID().replace(/-/g, "").slice(0, 12).toUpperCase()}`,
@@ -77,6 +93,8 @@ export async function createReservation(input: unknown, memberId?: string, requi
       passengers: { create: data.passengers.map((fullName, sortOrder) => ({ fullName, sortOrder })) },
       events: { create: { message: data.status === "HOLD" ? "Opsiyonlu rezervasyon oluşturuldu." : "Kesin rezervasyon oluşturuldu." } }
     }, include: reservationInclude });
+    await recordCapacityTransition(tx, departure, now);
+    return created;
   }, transactionOptions);
 }
 
@@ -114,12 +132,14 @@ export async function changeReservationStatus(id: string, input: unknown) {
     const reservation = await tx.reservation.findUniqueOrThrow({ where: { id } });
     if (reservation.status === status) return reservation;
     if (reservation.status === "CANCELLED") throw new ReservationError("İptal edilen rezervasyon yeniden açılamaz. Yeni rezervasyon oluşturun.");
+    const now = new Date();
     if (status === "CONFIRMED") {
-      const now = new Date();
       assertBookable(departure.startDate, departure.tour.status, now);
       if (effectiveStatus(reservation, now) === "EXPIRED") throw new ReservationError("Opsiyon süresi doldu. Müsaitliğe göre yeni rezervasyon oluşturun.");
       assertCapacity(departure.capacity, departure.blockedSeats, departure.reservations, 0, now);
     }
-    return tx.reservation.update({ where: { id }, data: { status, events: { create: { message: status === "CONFIRMED" ? "Rezervasyon kesinleştirildi." : "Rezervasyon iptal edildi; koltuklar serbest bırakıldı." } } } });
+    const updated = await tx.reservation.update({ where: { id }, data: { status, events: { create: { message: status === "CONFIRMED" ? "Rezervasyon kesinleştirildi." : "Rezervasyon iptal edildi; koltuklar serbest bırakıldı." } } } });
+    await recordCapacityTransition(tx, departure, now);
+    return updated;
   }, transactionOptions);
 }

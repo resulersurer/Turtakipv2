@@ -5,25 +5,32 @@ import { AUTOMATIC_IMPORT_SOURCES, syncAutomaticTour, type AutomaticTourResult }
 type Trigger = "CRON" | "MANUAL";
 type Prepared = { runId: string; urls: string[] };
 
-async function prepare(trigger: Trigger, sourceKey?: string): Promise<Prepared> {
+async function prepare(trigger: Trigger, sourceKey?: string): Promise<Prepared | null> {
   "use step";
   const configs = sourceKey ? AUTOMATIC_IMPORT_SOURCES.filter((source) => source.key === sourceKey) : [...AUTOMATIC_IMPORT_SOURCES];
   if (!configs.length) throw new Error("Bilinmeyen otomatik içe aktarma kaynağı.");
+  const run = await prisma.importSyncRun.create({ data: { trigger, status: "RUNNING", sourceKey: sourceKey || null, sources: configs.length } });
   const urls = new Set<string>();
-  for (const config of configs) {
-    const source = await prisma.importSource.upsert({ where: { key: config.key }, update: { label: config.label, listUrl: config.listUrl, active: true }, create: { ...config } });
-    const links = await parseTourList(config.listUrl);
-    if (!links.length) throw new Error(`${config.label} listesinde tur bağlantısı bulunamadı.`);
-    const checkedAt = new Date();
-    for (const detailUrl of links) {
-      urls.add(detailUrl);
-      await prisma.importSourceTour.upsert({ where: { sourceId_detailUrl: { sourceId: source.id, detailUrl } }, update: { active: true, lastSeenAt: checkedAt, missingSince: null }, create: { sourceId: source.id, detailUrl, lastSeenAt: checkedAt } });
+  try {
+    for (const config of configs) {
+      const source = await prisma.importSource.upsert({ where: { key: config.key }, update: { label: config.label, listUrl: config.listUrl, active: true }, create: { ...config } });
+      const links = await parseTourList(config.listUrl);
+      if (!links.length) throw new Error(`${config.label} listesinde tur bağlantısı bulunamadı.`);
+      const checkedAt = new Date();
+      for (const detailUrl of links) {
+        urls.add(detailUrl);
+        await prisma.importSourceTour.upsert({ where: { sourceId_detailUrl: { sourceId: source.id, detailUrl } }, update: { active: true, lastSeenAt: checkedAt, missingSince: null }, create: { sourceId: source.id, detailUrl, lastSeenAt: checkedAt } });
+      }
+      await prisma.importSourceTour.updateMany({ where: { sourceId: source.id, detailUrl: { notIn: links }, active: true }, data: { active: false, missingSince: checkedAt } });
+      await prisma.importSource.update({ where: { id: source.id }, data: { lastCheckedAt: checkedAt, lastSuccessAt: checkedAt, lastError: null } });
     }
-    await prisma.importSourceTour.updateMany({ where: { sourceId: source.id, detailUrl: { notIn: links }, active: true }, data: { active: false, missingSince: checkedAt } });
-    await prisma.importSource.update({ where: { id: source.id }, data: { lastCheckedAt: checkedAt, lastSuccessAt: checkedAt, lastError: null } });
+    await prisma.importSyncRun.update({ where: { id: run.id }, data: { discovered: urls.size } });
+    return { runId: run.id, urls: [...urls] };
+  } catch (error) {
+    await prisma.importSyncRun.update({ where: { id: run.id }, data: { status: "FAILED", error: error instanceof Error ? error.message : "Kaynak listesi alınamadı.", finishedAt: new Date() } });
+    if (sourceKey) await prisma.importSource.updateMany({ where: { key: sourceKey }, data: { lastCheckedAt: new Date(), lastError: error instanceof Error ? error.message : "Kaynak listesi alınamadı." } });
+    return null;
   }
-  const run = await prisma.importSyncRun.create({ data: { trigger, status: "RUNNING", sources: configs.length, discovered: urls.size } });
-  return { runId: run.id, urls: [...urls] };
 }
 
 async function syncOne(url: string, trigger: Trigger): Promise<AutomaticTourResult> {
@@ -53,13 +60,24 @@ async function finish(runId: string, results: AutomaticTourResult[]) {
   return prisma.importSyncRun.update({ where: { id: runId }, data: { ...counts, archived, status: counts.failed ? "PARTIAL" : "COMPLETED", finishedAt: new Date() } });
 }
 
+async function getSourceKeys(sourceKey?: string) {
+  "use step";
+  const configs = sourceKey ? AUTOMATIC_IMPORT_SOURCES.filter((source) => source.key === sourceKey) : AUTOMATIC_IMPORT_SOURCES;
+  if (!configs.length) throw new Error("Bilinmeyen otomatik içe aktarma kaynağı.");
+  return configs.map((source) => source.key);
+}
+
 export async function automaticImportWorkflow(trigger: Trigger, sourceKey?: string) {
   "use workflow";
-  const prepared = await prepare(trigger, sourceKey);
-  const results: AutomaticTourResult[] = [];
-  for (const url of prepared.urls) {
-    results.push(await syncOne(url, trigger));
-    if (results.length % 5 === 0 || results.length === prepared.urls.length) await updateProgress(prepared.runId, results);
+  const sourceKeys = await getSourceKeys(sourceKey);
+  for (const key of sourceKeys) {
+    const prepared = await prepare(trigger, key);
+    if (!prepared) continue;
+    const results: AutomaticTourResult[] = [];
+    for (const url of prepared.urls) {
+      results.push(await syncOne(url, trigger));
+      if (results.length % 5 === 0 || results.length === prepared.urls.length) await updateProgress(prepared.runId, results);
+    }
+    await finish(prepared.runId, results);
   }
-  return finish(prepared.runId, results);
 }

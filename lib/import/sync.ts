@@ -72,11 +72,12 @@ async function mapWithConcurrency<T>(items: T[], concurrency: number, worker: (i
 }
 
 export async function getAutomaticImportStatus() {
-  const [sources, runs] = await Promise.all([
+  const [sources, runs, sourceRuns] = await Promise.all([
     prisma.importSource.findMany({ include: { _count: { select: { tours: { where: { active: true } } } } }, orderBy: { key: "asc" } }),
-    prisma.importSyncRun.findMany({ orderBy: { startedAt: "desc" }, take: 10 })
+    prisma.importSyncRun.findMany({ orderBy: { startedAt: "desc" }, take: 10 }),
+    Promise.all(AUTOMATIC_IMPORT_SOURCES.map((source) => prisma.importSyncRun.findFirst({ where: { sourceKey: source.key }, orderBy: { startedAt: "desc" } })))
   ]);
-  return { configuredSources: AUTOMATIC_IMPORT_SOURCES, sources, runs };
+  return { configuredSources: AUTOMATIC_IMPORT_SOURCES, sources, runs, sourceRuns: sourceRuns.filter((run) => run !== null) };
 }
 
 export async function runAutomaticImport(trigger: "CRON" | "MANUAL", sourceKey?: string) {
@@ -84,7 +85,7 @@ export async function runAutomaticImport(trigger: "CRON" | "MANUAL", sourceKey?:
   if (!sourceConfigs.length) throw new Error("Bilinmeyen otomatik içe aktarma kaynağı.");
   const running = await prisma.importSyncRun.findFirst({ where: { status: "RUNNING", startedAt: { gt: new Date(Date.now() - 30 * 60 * 1000) } }, orderBy: { startedAt: "desc" } });
   if (running) throw new Error("Başka bir otomatik senkronizasyon halen çalışıyor.");
-  const run = await prisma.importSyncRun.create({ data: { trigger, status: "RUNNING", sources: sourceConfigs.length } });
+  const run = await prisma.importSyncRun.create({ data: { trigger, status: "RUNNING", sourceKey: sourceKey || null, sources: sourceConfigs.length } });
   const stats = { discovered: 0, created: 0, updated: 0, unchanged: 0, archived: 0, failed: 0 };
   const discoveredUrls = new Set<string>();
   let allListsSucceeded = true;

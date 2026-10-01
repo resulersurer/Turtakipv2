@@ -66,6 +66,7 @@ model Tour {
   days          TourDay[]
   images        TourImage[]
   prices        TourPrice[]
+  adminNotifications AdminNotification[]
   importLogs    ImportLog[]
   sourceLinks   ImportSourceTour[]
   requests      TourRequest[]
@@ -348,6 +349,7 @@ model ImportSourceTour {
 }
 
 model ImportSyncRun {
+  sourceKey  String?
   id         String    @id @default(cuid())
   trigger    String
   status     String
@@ -363,6 +365,7 @@ model ImportSyncRun {
   finishedAt DateTime?
 
   @@index([startedAt])
+  @@index([sourceKey, startedAt])
 }
 
 model Member {
@@ -469,4 +472,17 @@ model MemberRateLimit {
   lastRequest BigInt
 
   @@index([lastRequest])
+}
+
+model AdminNotification {
+  id          String   @id @default(cuid())
+  type        String
+  message     String
+  tourId      String?
+  departureId String?
+  startDate   DateTime?
+  createdAt   DateTime @default(now())
+  tour        Tour?    @relation(fields: [tourId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
 }

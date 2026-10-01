@@ -31,7 +31,7 @@ function uniqueBy<T>(items: T[], key: (item: T) => string) {
   });
 }
 
-export async function saveTour(input: unknown, id?: string, options: { preserveBookedRemovedDepartures?: boolean } = {}) {
+export async function saveTour(input: unknown, id?: string, options: { preserveBookedRemovedDepartures?: boolean; recordNotifications?: boolean } = {}) {
   const data = tourWriteSchema.parse(input);
   const departures = uniqueBy(data.departures, (departure) => departure.startDate.toISOString());
   const days = uniqueBy(data.days, (day) => String(day.dayNumber));
@@ -97,6 +97,15 @@ export async function saveTour(input: unknown, id?: string, options: { preserveB
       }
       if (bookedIds.length) await tx.tourDeparture.updateMany({ where: { id: { in: bookedIds } }, data: { availabilityStatus: "SOURCE_REMOVED" } });
       await tx.tourDeparture.deleteMany({ where: { id: { in: removed.filter((id) => !bookedIds.includes(id)) } } });
+    }
+    if (existingId && options.recordNotifications !== false) {
+      const beforeDates = new Set(previous.map((row) => row.startDate.toISOString().slice(0, 10)));
+      const afterDates = new Set(departures.map((row) => row.startDate.toISOString().slice(0, 10)));
+      const events = [
+        ...departures.filter((row) => !beforeDates.has(row.startDate.toISOString().slice(0, 10))).map((row) => ({ type: "DATE_ADDED", message: "Yeni çıkış tarihi eklendi.", startDate: row.startDate })),
+        ...previous.filter((row) => !afterDates.has(row.startDate.toISOString().slice(0, 10))).map((row) => ({ type: "DATE_REMOVED", message: "Çıkış tarihi kaldırıldı.", startDate: row.startDate }))
+      ];
+      if (events.length) await tx.adminNotification.createMany({ data: events.map((event) => ({ ...event, tourId: tour.id })) });
     }
     await tx.tourDay.deleteMany({ where: { tourId: tour.id } });
     await tx.tourImage.deleteMany({ where: { tourId: tour.id } });
@@ -182,7 +191,7 @@ export async function upsertImportedTour(parsed: ParsedTour, options: { automati
       importedAt: new Date()
     },
     existing?.id,
-    { preserveBookedRemovedDepartures: options.automatic }
+    { preserveBookedRemovedDepartures: options.automatic, recordNotifications: !options.automatic }
   );
   await prisma.tour.update({ where: { id: saved.id }, data: { importedAt: new Date(), sourceHash: options.sourceHash } });
   return prisma.tour.findUniqueOrThrow({ where: { id: saved.id }, include: tourInclude });

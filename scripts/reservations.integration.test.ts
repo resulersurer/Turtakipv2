@@ -22,6 +22,7 @@ before(async () => {
 });
 after(async () => {
   if (!prisma) return;
+  await prisma.adminNotification.deleteMany({ where: { tourId: { in: tourIds } } });
   await prisma.reservation.deleteMany({ where: { departure: { tourId: { in: tourIds } } } });
   await prisma.tour.deleteMany({ where: { id: { in: tourIds } } });
   await prisma.member.deleteMany({ where: { id: { in: memberIds } } });
@@ -162,4 +163,31 @@ test("departure IDs from another tour cannot be attached through an edit", async
   const two = await fixture();
   await assert.rejects(tours.saveTour(edit(one.tour, [{ id: two.departure.id, startDate: future }]), one.tour.id), /bu tura ait değil/);
   assert.equal((await prisma.tourDeparture.findUniqueOrThrow({ where: { id: two.departure.id } })).tourId, two.tour.id);
+});
+
+test("last-seat booking creates one full notification and cancellation creates a reopening notification", async () => {
+  const { tour, departure } = await fixture(1);
+  const payload = booking(departure.id);
+  const reservation = await service.createReservation(payload);
+  await service.createReservation(payload);
+  let notifications = await prisma.adminNotification.findMany({ where: { tourId: tour.id } });
+  assert.equal(notifications.length, 1);
+  assert.equal(notifications[0].type, "CAPACITY_FULL");
+  assert.equal(notifications[0].departureId, departure.id);
+  await service.changeReservationStatus(reservation.id, { status: "CANCELLED" });
+  notifications = await prisma.adminNotification.findMany({ where: { tourId: tour.id } });
+  assert.equal(notifications.length, 2);
+  assert.ok(notifications.some((item) => item.type === "CAPACITY_AVAILABLE"));
+});
+
+test("capacity edits notify only when availability crosses full", async () => {
+  const { tour, departure } = await fixture(2);
+  await service.createReservation(booking(departure.id));
+  await service.setCapacity(departure.id, { capacity: 1, blockedSeats: 0 });
+  await service.setCapacity(departure.id, { capacity: 1, blockedSeats: 0 });
+  await service.setCapacity(departure.id, { capacity: 3, blockedSeats: 0 });
+  const notifications = await prisma.adminNotification.findMany({ where: { tourId: tour.id } });
+  assert.equal(notifications.length, 2);
+  assert.ok(notifications.some((item) => item.type === "CAPACITY_FULL"));
+  assert.ok(notifications.some((item) => item.type === "CAPACITY_AVAILABLE"));
 });
