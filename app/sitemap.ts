@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { tourCollections } from "@/lib/tour-collections";
 import { prisma } from "@/lib/prisma";
 import { hasDatabaseUrl, isDatabaseSchemaReady } from "@/lib/db-ready";
 import { officialTourUrl, siteUrl } from "@/lib/seo";
@@ -14,6 +15,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${siteUrl}/passenger/tour-request`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${siteUrl}/tours`, changeFrequency: "daily", priority: 0.8 }
   ];
+  pages.push(...tourCollections.map((collection) => ({ url: `${siteUrl}/passenger/collections/${collection.slug}`, changeFrequency: "daily" as const, priority: 0.8 })));
   if (!hasDatabaseUrl() || !(await isDatabaseSchemaReady())) return pages;
   try {
     const tours = await prisma.tour.findMany({

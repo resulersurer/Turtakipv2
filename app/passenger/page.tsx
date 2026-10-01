@@ -18,12 +18,12 @@ import { FeaturedTours } from "@/components/passenger/FeaturedTours";
 export const dynamic = "force-dynamic";
 
 const campaignLinks = [
-  { title: "Latin Turları", image: "https://image.elitema.com.tr/db_images/154/21/245/2-360.jpg", href: "https://www.ejderturizm.com.tr/TourList.aspx?contpg=227&pcsbcat=130" },
-  { title: "Afrika Turları", image: "https://image.elitema.com.tr/db_images/154/21/246/3-360.jpg", href: "https://www.ejderturizm.com.tr/TourList.aspx?contpg=232&pcmncat=16,1&pcsbcat=19" },
-  { title: "Asya Turları", image: "https://image.elitema.com.tr/db_images/154/21/247/1-360.jpg", href: "https://www.ejderturizm.com.tr/TourList.aspx?contpg=226&pcsbcat=129" },
-  { title: "Uzak Rotalar", image: "https://image.elitema.com.tr/db_images/154/21/268/img-5898.png", href: "https://www.ejderturizm.com.tr/TourList.aspx?contpg=269&pcmncat=1&pcsbcat=143" },
+  { title: "Latin Turları", image: "https://image.elitema.com.tr/db_images/154/21/245/2-360.jpg", href: "/passenger/collections/latin" },
+  { title: "Afrika Turları", image: "https://image.elitema.com.tr/db_images/154/21/246/3-360.jpg", href: "/passenger/collections/afrika" },
+  { title: "Asya Turları", image: "https://image.elitema.com.tr/db_images/154/21/247/1-360.jpg", href: "/passenger/collections/asya" },
+  { title: "Uzak Rotalar", image: "https://image.elitema.com.tr/db_images/154/21/268/img-5898.png", href: "/passenger/collections/uzak-rotalar" },
   { title: "2026 Turları", image: "https://image.elitema.com.tr/db_images/154/21/269/img-5897.png", href: "/passenger/tours/2026" },
-  { title: "Vizesiz ve Kolay Vizeli Turlar", image: "https://image.elitema.com.tr/db_images/154/21/255/web2024-2--3.png", href: "https://www.ejderturizm.com.tr/TourList.aspx?contpg=252&pcsbcat=137" }
+  { title: "Vizesiz ve Kolay Vizeli Turlar", image: "https://image.elitema.com.tr/db_images/154/21/255/web2024-2--3.png", href: "/passenger/collections/vizesiz" }
 ];
 
 export const metadata: Metadata = {
@@ -394,8 +394,6 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
               <Link
                 key={campaign.href}
                 href={campaign.href}
-                target={campaign.href.startsWith("http") ? "_blank" : undefined}
-                rel={campaign.href.startsWith("http") ? "noopener noreferrer" : undefined}
                 aria-label={campaign.title}
                 className="campaign-grid-card"
               >

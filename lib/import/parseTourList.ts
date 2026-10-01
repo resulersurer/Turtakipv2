@@ -29,15 +29,15 @@ function collectTourLinks(html: string, sourceUrl: string, links: Set<string>) {
   for (const href of rawMatches) addLink(href);
 }
 
-async function fetchText(url: string) {
-  const response = await fetch(url, { headers: { "User-Agent": "ejder-tour-tracker-import/1.0" }, cache: "no-store" });
+async function fetchText(url: string, timeoutMs?: number) {
+  const response = await fetch(url, { headers: { "User-Agent": "ejder-tour-tracker-import/1.0" }, cache: "no-store", ...(timeoutMs ? { signal: AbortSignal.timeout(timeoutMs) } : {}) });
   if (!response.ok) throw new Error(`Liste alınamadı: ${response.status}`);
   return response.text();
 }
 
-export async function parseTourList(sourceUrl: string) {
+export async function parseTourList(sourceUrl: string, options: { timeoutMs?: number } = {}) {
   const links = new Set<string>();
-  const html = await fetchText(sourceUrl);
+  const html = await fetchText(sourceUrl, options.timeoutMs);
   collectTourLinks(html, sourceUrl, links);
 
   const url = new URL(sourceUrl);
@@ -51,7 +51,7 @@ export async function parseTourList(sourceUrl: string) {
       center.searchParams.set("pacntid", "");
       center.searchParams.set("paregid", "");
       for (const [key, value] of url.searchParams.entries()) center.searchParams.set(key, value);
-      const centerHtml = await fetchText(center.toString());
+      const centerHtml = await fetchText(center.toString(), options.timeoutMs);
       collectTourLinks(centerHtml, center.toString(), links);
     }
   }

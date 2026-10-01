@@ -1,0 +1,10 @@
+.collection-tours .year-tours__hero h1 { max-width: 1000px; font-size: clamp(38px, 6vw, 76px); line-height: 1.08; font-weight: 800; }
+.collection-tours--asya .year-tours__hero { background: linear-gradient(120deg, #24352e, #3d6550 58%, #789279); }
+.collection-tours--uzak-rotalar .year-tours__hero { background: linear-gradient(120deg, #17243b, #2c5270 58%, #769aaa); }
+.collection-tours--vizesiz .year-tours__hero { background: linear-gradient(120deg, #203c41, #307078 58%, #79a5a6); }
+.collection-tours--latin .year-tours__hero { background: linear-gradient(120deg, #512a20, #98532e 58%, #c68e65); }
+.collection-tours--afrika .year-tours__hero { background: linear-gradient(120deg, #382a20, #78613a 58%, #b2996f); }
+.collection-tours__nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; width: min(100% - 32px, 1280px); margin: 34px auto 0; }
+.collection-tours__nav a { padding: 10px 14px; border: 1px solid #e4d8da; border-radius: 999px; background: #fff; font-size: 13px; font-weight: 650; }
+.collection-tours__nav a[aria-current="page"] { background: #762030; color: #fff; border-color: #762030; }
+.collection-tours .year-tours__content { padding-top: 42px; }
