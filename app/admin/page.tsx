@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AlertTriangle, Armchair, CalendarDays, FileClock, PlaneTakeoff, Plus, TicketCheck, UsersRound } from "lucide-react";
+import { AlertTriangle, Armchair, CalendarDays, PlaneTakeoff, Plus, TicketCheck, UsersRound } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { isAdmin } from "@/lib/auth";
 import { AdminLogin } from "@/components/AdminLogin";
@@ -21,7 +21,7 @@ export default async function AdminPage() {
   today.setHours(0, 0, 0, 0);
 
   try {
-    const [published, drafts, members, upcoming, recentReservations, recentImports, draftTours, changeLogs, notifications] = await Promise.all([
+    const [published, drafts, members, upcoming, recentReservations, draftTours, changeLogs, notifications] = await Promise.all([
       prisma.tour.count({ where: { status: "PUBLISHED" } }),
       prisma.tour.count({ where: { status: "DRAFT" } }),
       prisma.member.count(),
@@ -34,7 +34,6 @@ export default async function AdminPage() {
         orderBy: { createdAt: "desc" }, take: 6,
         include: { member: { select: { name: true } }, departure: { include: { tour: { select: { name: true } } } } }
       }),
-      prisma.importLog.findMany({ orderBy: { createdAt: "desc" }, take: 5, include: { tour: true } }),
       prisma.tour.findMany({
         where: { status: "DRAFT" }, orderBy: { updatedAt: "desc" }, take: 5,
         include: { departures: { orderBy: { startDate: "asc" } }, days: { select: { id: true } } }
@@ -69,7 +68,7 @@ export default async function AdminPage() {
         ].map((item) => { const Icon = item.icon; return <article className="admin-kpi" key={item.label}><div className="admin-kpi__top"><span>{item.label}</span><span className="admin-kpi__icon"><Icon size={18} /></span></div><strong>{item.value}</strong><small>{item.detail}</small></article>; })}
       </section>
 
-      {missingCapacity > 0 ? <div className="admin-alert"><AlertTriangle size={19} /><div><strong>{missingCapacity} yaklaşan çıkış rezervasyona kapalı</strong><p>Üyelerin boş koltuk görebilmesi ve rezervasyon yapabilmesi için toplam kapasiteyi tanımlayın.</p></div><Link className="btn admin-list-item__action" href="/admin/reservations">Kapasiteleri düzenle</Link></div> : null}
+      {missingCapacity > 0 ? <div className="admin-alert"><AlertTriangle size={19} /><div><strong>{missingCapacity} yaklaşan çıkış rezervasyona kapalı</strong><p>Üyelerin boş koltuk görebilmesi ve rezervasyon yapabilmesi için toplam kapasiteyi tanımlayın.</p></div><Link className="btn admin-list-item__action" href="/admin/capacities">Kapasiteleri düzenle</Link></div> : null}
 
       <div className="admin-dashboard-grid">
         <section className="panel p-5">
@@ -86,14 +85,10 @@ export default async function AdminPage() {
         </section>
       </div>
 
-      <div className="admin-dashboard-grid">
+      <div>
         <section className="panel p-5">
           <div className="admin-section-heading"><div><h2>Yayın bekleyen taslaklar</h2><p>Eksik bilgileri tamamlayıp yayına alın</p></div>{drafts > 0 ? <form action="/api/tours/publish-drafts" method="post"><button className="btn-primary" type="submit">Tümünü yayınla</button></form> : null}</div>
           <div className="admin-list">{draftTours.length ? draftTours.map((tour) => <article className="admin-list-item" key={tour.id}><div className="admin-list-item__main"><h3>{tour.name}</h3><p>{tour.departures.length} çıkış · {tour.days.length} program günü</p></div><Link className="btn admin-list-item__action" href={`/admin/tours/${tour.id}`}>Düzenle</Link></article>) : <p className="py-8 text-center text-sm text-slate-500">Yayın bekleyen taslak yok.</p>}</div>
-        </section>
-        <section className="panel p-5">
-          <div className="admin-section-heading"><div><h2>İçe aktarma geçmişi</h2><p>Son veri aktarım sonuçları</p></div><FileClock size={20} /></div>
-          <div className="admin-list">{recentImports.length ? recentImports.map((log) => <article className="admin-list-item" key={log.id}><div className="admin-list-item__main"><h3>{log.tour?.name || log.message}</h3><p>{dateFormat.format(log.createdAt)} · {log.status}</p></div><span className="badge">{log.status}</span></article>) : <p className="py-8 text-center text-sm text-slate-500">İçe aktarma kaydı yok.</p>}</div>
         </section>
       </div>
     </main>;

@@ -28,19 +28,6 @@ async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
   return data as T;
 }
 
-function CapacityForm({ departure, busy, onSave }: { departure: Departure; busy: boolean; onSave: (capacity: number, blockedSeats: number) => Promise<void> }) {
-  const [capacity, setCapacity] = useState(departure.capacity?.toString() || "");
-  const [blocked, setBlocked] = useState(String(departure.blockedSeats));
-  return <form className="panel space-y-4 p-5" onSubmit={(event) => { event.preventDefault(); void onSave(Number(capacity), Number(blocked)); }}>
-    <div><h2 className="font-semibold">Kapasite ayarları</h2><p className="mt-1 text-sm text-slate-500">Rehber ve operasyon için ayrılan yerleri satışa kapatabilirsiniz.</p></div>
-    <fieldset disabled={busy} className="flex flex-wrap items-end gap-4">
-      <label className="flex-1 space-y-1 text-sm"><span>Toplam koltuk</span><input className="input w-full" type="number" required min={0} max={10000} step={1} value={capacity} onChange={(e) => setCapacity(e.target.value)} placeholder="Örn. 46" /></label>
-      <label className="flex-1 space-y-1 text-sm"><span>Satışa kapalı</span><input className="input w-full" type="number" required min={0} max={capacity || 10000} step={1} value={blocked} onChange={(e) => setBlocked(e.target.value)} /></label>
-      <button className="btn" type="submit">Kapasiteyi kaydet</button>
-    </fieldset>
-  </form>;
-}
-
 function BookingForm({ departureId, available, busy, onSave, onClose }: {
   departureId: string; available: number; busy: boolean;
   onSave: (payload: object) => Promise<boolean>; onClose: () => void;
@@ -168,7 +155,7 @@ export function ReservationDashboard() {
   };
 
   return <main className="page-shell space-y-6">
-    <header className="admin-page-header"><div className="admin-page-header__title"><span className="admin-eyebrow">Koltuk operasyonu</span><h1>Rezervasyonlar</h1><p>Çıkış kapasitesi, doluluk, opsiyonlar ve yolcu kayıtlarını tek ekrandan yönetin.</p></div><div className="admin-page-actions"><button className="btn" disabled={busy || loading} onClick={() => { setLoading(true); void load(); }}><RefreshCw size={16} />Yenile</button></div></header>
+    <header className="admin-page-header"><div className="admin-page-header__title"><span className="admin-eyebrow">Koltuk operasyonu</span><h1>Rezervasyonlar</h1><p>Rezervasyonları, opsiyonları ve yolcu kayıtlarını yönetin.</p></div><div className="admin-page-actions"><Link className="btn" href="/admin/capacities">Kontenjanlar</Link><button className="btn" disabled={busy || loading} onClick={() => { setLoading(true); void load(); }}><RefreshCw size={16} />Yenile</button></div></header>
     {error && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-red-800">{error}</div>}
     {notice && <div role="status" className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-800">{notice}</div>}
     {loading && <p role="status" className="text-slate-500">Rezervasyonlar yükleniyor…</p>}
@@ -180,9 +167,8 @@ export function ReservationDashboard() {
       <section aria-label="Koltuk özeti" className="grid grid-cols-2 gap-3 lg:grid-cols-5">{[
         ["Toplam koltuk", summary.capacity ?? "—"], ["Kesin rezervasyon", summary.confirmed], ["Opsiyonda", summary.held], ["Satışa kapalı", summary.blockedSeats], ["Müsait koltuk", summary.available ?? "—"]
       ].map(([label, value]) => <div className="panel p-4" key={label}><p className="text-sm text-slate-500">{label}</p><p className="mt-2 text-3xl font-semibold">{value}</p></div>)}</section>
-      {departure.capacity === null && <p className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-amber-900">Bu çıkışın kapasitesi henüz tanımlanmadı. Rezervasyon açmak için aşağıdan toplam koltuk sayısını girin.</p>}
+      {departure.capacity === null && <p className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-amber-900">Bu çıkışın kapasitesi henüz tanımlanmadı. Rezervasyon açmak için <Link className="font-semibold underline" href={`/admin/capacities#departure-${departure.id}`}>Kontenjanlar sayfasından kapasiteyi tanımlayın</Link>.</p>}
       {bookingRestriction && <p className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-amber-900">{bookingRestriction} Mevcut kayıtları görüntüleyebilir ve iptal edebilirsiniz.</p>}
-      <CapacityForm key={`${departure.id}-${departure.capacity}-${departure.blockedSeats}`} departure={departure} busy={busy || loading} onSave={async (capacity, blockedSeats) => { await mutate(`/api/reservations/departures/${departure.id}`, "PATCH", { capacity, blockedSeats }, "Kapasite güncellendi."); }} />
       {showForm && <BookingForm key={departure.id} departureId={departure.id} available={bookingRestriction ? 0 : summary.available ?? 0} busy={busy || loading} onClose={() => setShowForm(false)} onSave={(payload) => mutate("/api/reservations", "POST", payload, "Rezervasyon kaydedildi.")} />}
       <section className="panel p-5">
         <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-lg font-semibold">Rezervasyon listesi</h2><p className="text-sm text-slate-500">{reservations.length} kayıt · Liste 30 saniyede bir yenilenir.</p></div><div className="flex flex-wrap gap-2"><button className="btn" disabled={loading || !reservations.length} onClick={exportPassengers}><Download size={16} />Yolcuları CSV indir</button><button className="btn-primary" disabled={!canBook || busy || loading || showForm} onClick={() => { setShowForm(true); setNotice(""); }}><Plus size={16} />Yeni rezervasyon</button></div></div>
