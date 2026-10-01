@@ -59,8 +59,8 @@ export function departureRelativeLabel(departure: DepartureLike, now = new Date(
 }
 
 export function formatDepartureRange(departure: DepartureLike) {
-  const start = new Date(departure.startDate).toLocaleDateString("tr-TR", { day: "2-digit", month: "short", year: "numeric" });
+  const start = new Date(departure.startDate).toLocaleDateString("tr-TR", { day: "2-digit", month: "short", year: "numeric", timeZone: "Europe/Istanbul" });
   const endDate = departure.endDate ? new Date(departure.endDate) : null;
-  const end = endDate?.toLocaleDateString("tr-TR", { day: "2-digit", month: "short", year: "numeric" });
+  const end = endDate?.toLocaleDateString("tr-TR", { day: "2-digit", month: "short", year: "numeric", timeZone: "Europe/Istanbul" });
   return end ? `${start} - ${end}` : start;
 }

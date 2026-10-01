@@ -15,6 +15,7 @@ type FeaturedTour = {
   departureDate?: string | null;
   route?: string;
   countryCount?: number;
+  priceLabel?: string;
 };
 
 export function FeaturedTours({ tours }: { tours: FeaturedTour[] }) {
@@ -96,6 +97,7 @@ export function FeaturedTours({ tours }: { tours: FeaturedTour[] }) {
         <h3>{tour.name}</h3>
         {tour.route ? <div className="featured-tours__fact"><MapPin size={14} aria-hidden="true" /><span>{tour.route}{tour.countryCount && tour.countryCount > 2 ? ` +${tour.countryCount - 2} ülke` : ""}</span></div> : null}
         {tour.departureDate ? <div className="featured-tours__fact"><CalendarDays size={14} aria-hidden="true" /><span>Yakın çıkış: {tour.departureDate}</span></div> : null}
+        {tour.priceLabel ? <div className="featured-tours__fact"><span>{tour.priceLabel}</span></div> : null}
         <div className="featured-tours__card-bottom">
           <span>{tour.departureCity ? `${tour.departureCity} kalkışlı` : "Tur programı"}</span>
           <span className="featured-tours__card-action">Turu incele <ArrowUpRight aria-hidden="true" size={16} /></span>
@@ -109,7 +111,7 @@ export function FeaturedTours({ tours }: { tours: FeaturedTour[] }) {
       <div className="featured-tours__heading">
         <div>
           <span className="featured-tours__kicker"><Sparkles aria-hidden="true" size={14} /> ÖNE ÇIKAN ROTALAR</span>
-          <h2 id="featured-tours-title">Çok Satan Turlar</h2>
+          <h2 id="featured-tours-title">Keşfedilecek Turlar</h2>
           <p>Yeni bir yolculuk için ilham veren tur programlarını keşfedin.</p>
         </div>
         <div className="featured-tours__actions">

@@ -9,7 +9,7 @@ import { hasDatabaseUrl, isDatabaseSchemaReady } from "@/lib/db-ready";
 import { SetupNotice } from "@/components/SetupNotice";
 import { isPrismaSetupError } from "@/lib/db-errors";
 import { classifyDeparture, departureRelativeLabel, formatDepartureRange } from "@/lib/departure-status";
-import { compactTourMeta } from "@/lib/display";
+import { PassengerTourCard, departurePriceLabel } from "@/components/passenger/PassengerTourCard";
 import { PassengerSearchBox } from "@/components/PassengerSearchBox";
 import { PassengerFooter } from "@/components/passenger/PassengerFooter";
 import { CampaignSection } from "@/components/passenger/CampaignSection";
@@ -111,7 +111,7 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
   const params = await searchParams;
   let tours: any[];
   try {
-    tours = serializeTour(await prisma.tour.findMany({ where: { status: "PUBLISHED" }, include: tourInclude, orderBy: { updatedAt: "desc" } })) as any[];
+    tours = serializeTour(await prisma.tour.findMany({ where: { status: "PUBLISHED" }, include: { ...tourInclude, departures: { orderBy: { startDate: "asc" }, include: { reservations: { where: { status: { in: ["HOLD", "CONFIRMED"] } }, select: { status: true, seats: true, holdExpiresAt: true } } } } }, orderBy: { updatedAt: "desc" } })) as any[];
   } catch (error) {
     if (isPrismaSetupError(error)) return <SetupNotice />;
     throw error;
@@ -180,7 +180,7 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
     .slice(0, 10)
     .map(({ tour }) => {
       const nextDeparture = tour.departures
-        .filter((departure: any) => ["today", "future"].includes(classifyDeparture(departure)))
+        .filter((departure: any) => departure.availabilityStatus !== "SOURCE_REMOVED" && ["today", "future"].includes(classifyDeparture(departure)))
         .sort((a: any, b: any) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())[0];
       const countries = [...new Set<string>(tour.days.map((day: any) => day.country).filter(Boolean))];
       return {
@@ -192,7 +192,8 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
         departureCity: tour.departureCity,
         departureDate: nextDeparture ? new Date(nextDeparture.startDate).toLocaleDateString("tr-TR", { day: "numeric", month: "short", year: "numeric", timeZone: "Europe/Istanbul" }) : null,
         route: countries.slice(0, 2).join(" · "),
-        countryCount: countries.length
+        countryCount: countries.length,
+        priceLabel: nextDeparture ? departurePriceLabel(nextDeparture) : "Yeni tarih için bilgi alın"
       };
     });
 
@@ -352,120 +353,9 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
             TUR GRUPLARI & KARTLAR
         ═══════════════════════════════════════════════ */}
         {groups.map((group) => {
-          const tourCards = group.items.map(({ tour, departure, relative, range }) => {
-                const otherMeta = compactTourMeta([tour.durationDays ? `${tour.durationDays} gün` : null, tour.departureCity]);
-                const mapPoints = tour.days.filter((day: any) => day.lat != null && day.lng != null).length;
-                return (
-                  <Link
-                    className="group relative block overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-[#7f1d1d]/10 hover:border-[#7f1d1d]/30"
-                    href={`/passenger/${tour.id}?departureId=${departure.id}`}
-                    key={`${tour.id}-${departure.id}`}
-                    style={{ aspectRatio: "3/4" }}
-                  >
-                    {/* ── ARKA PLAN GÖRSELI (tam kaplama) ── */}
-                    <div className="absolute inset-0">
-                      {tour.coverImageUrl ? (
-                        <>
-                          <img
-                            src={tour.coverImageUrl}
-                            alt={tour.name}
-                            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.06]"
-                          />
-                          {/* Renk tonu overlay */}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                        </>
-                      ) : (
-                        <div
-                          className="h-full w-full"
-                          style={{
-                            background: `radial-gradient(ellipse at 30% 20%, ${group.color}25 0%, transparent 60%), linear-gradient(160deg, #f5f5f7 0%, #e5e5ea 100%)`
-                          }}
-                        >
-                          {/* Dekoratif şekil */}
-                          <div className="absolute inset-0 flex items-center justify-center opacity-10">
-                            <svg viewBox="0 0 100 100" className="h-48 w-48" fill="currentColor" style={{ color: group.color }}>
-                              <circle cx="50" cy="50" r="40" />
-                            </svg>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* ── ÜST ROW: status badge + tarih ── */}
-                    <div className="absolute left-0 right-0 top-0 z-10 flex items-start justify-between p-4">
-                      {/* Status ikonu */}
-                      <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#7f1d1d]/25 bg-white/95 shadow-md backdrop-blur-md">
-                        <img src={group.iconSrc} alt="" className="h-6 w-6 object-contain drop-shadow-sm transition-transform duration-300 group-hover:scale-110" />
-                      </span>
-                      {/* Tarih aralığı */}
-                      <span className="rounded-full border border-[#7f1d1d]/25 bg-white/95 px-3 py-1 text-xs font-semibold text-[#7f1d1d] shadow-sm backdrop-blur-md">
-                        {range}
-                      </span>
-                    </div>
-
-                    {/* ── ALT GRADIENT (metin alanı) ── */}
-                    <div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-white/95 via-white/85 to-transparent px-5 pb-5 pt-20">
-                      {/* Relative zaman */}
-                      <span
-                        className="mb-2.5 inline-block rounded-full border border-[#7f1d1d]/20 bg-[#7f1d1d]/5 px-2.5 py-0.5 text-[11px] font-bold tracking-wide text-[#7f1d1d]"
-                      >
-                        {relative}
-                      </span>
-
-                      {/* Tur adı */}
-                      <h3 className="text-lg font-bold leading-snug text-[#7f1d1d] transition-colors duration-200 group-hover:text-[#7f1d1d]">
-                        {tour.name}
-                      </h3>
-
-                      {/* Havayolu badge */}
-                      {tour.airline ? (
-                        <div className="mt-2.5 inline-flex items-center gap-1.5 rounded-lg border border-[#7f1d1d]/15 bg-[#7f1d1d]/5 px-2.5 py-1">
-                          <svg className="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: group.color, opacity: 0.85 }}>
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                          </svg>
-                          <span className="text-xs font-semibold tracking-wide text-[#7f1d1d]">{tour.airline}</span>
-                        </div>
-                      ) : null}
-
-                      {/* Diğer meta (süre + şehir) */}
-                      {otherMeta ? (
-                        <p className="mt-1.5 text-xs font-medium text-slate-700 leading-relaxed">
-                          {otherMeta}
-                        </p>
-                      ) : null}
-
-                      {/* Alt istatistik çubuğu */}
-                      <div className="mt-4 flex items-center gap-4 border-t border-[#7f1d1d]/10 pt-3.5">
-                        <span className="flex items-center gap-1.5 text-xs font-semibold text-[#7f1d1d]">
-                          <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
-                          {tour.days.length} gün
-                        </span>
-                        <span className="flex items-center gap-1.5 text-xs font-semibold text-[#7f1d1d]">
-                          <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                          </svg>
-                          {mapPoints} nokta
-                        </span>
-                        {/* Sağda ok ikonu */}
-                        <span className="ml-auto flex h-8 w-8 items-center justify-center rounded-full border border-[#7f1d1d]/20 bg-[#7f1d1d]/5 transition-all duration-200 group-hover:border-[#7f1d1d]/40 group-hover:bg-[#7f1d1d]/10">
-                          <svg className="h-3.5 w-3.5 text-[#7f1d1d] transition-transform duration-200 group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-                          </svg>
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* ── HOVER GLOW BORDER ── */}
-                    <div
-                      className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-                      style={{ boxShadow: `inset 0 0 0 1.5px ${group.color}50` }}
-                    />
-                  </Link>
-                );
-              });
+          const tourCards = group.items.map(({ tour, departure, relative, range }) => (
+            <PassengerTourCard key={`${tour.id}-${departure.id}`} tour={tour} departure={departure} relative={relative} range={range} status={group.key} />
+          ));
           return (
         <section className="space-y-4" key={group.key}>
           {/* Grup başlığı */}
@@ -478,16 +368,16 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
             </div>
             <div className="flex-1 h-px bg-gradient-to-r from-[#7f1d1d]/40 via-[#7f1d1d]/15 to-transparent" />
             <span className={`rounded-full border px-3 py-1 text-xs font-bold tracking-wide ${group.count}`}>
-              {group.items.length} tur
+              {group.items.length} çıkış
             </span>
           </div>
 
           {group.items.length ? (
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4">
+            <div className="passenger-tour-grid">
               {tourCards.slice(0, 8)}
             </div>
           ) : !q ? (
-            <div className="rounded-xl border border-slate-700/40 bg-slate-900/40 p-6 text-sm text-slate-500 backdrop-blur">
+            <div className="rounded-xl border border-[#e9e1e3] bg-white p-6 text-sm text-[#8b777e]">
               Bu bölümde tur çıkışı bulunmuyor.
             </div>
           ) : null}
@@ -502,7 +392,7 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
               </svg>
             </summary>
             <div className="pt-4">
-              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4">
+              <div className="passenger-tour-grid">
                 {tourCards.slice(8)}
               </div>
             </div>
