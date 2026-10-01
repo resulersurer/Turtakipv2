@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ArrowRight, ArrowUpRight, CalendarDays, MapPin, Pause, Play, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, CalendarDays, MapPin, Sparkles } from "lucide-react";
 
 type FeaturedTour = {
   id: string;
@@ -19,14 +19,9 @@ type FeaturedTour = {
 
 export function FeaturedTours({ tours }: { tours: FeaturedTour[] }) {
   const router = useRouter();
-  const sectionRef = useRef<HTMLElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
-  const [paused, setPaused] = useState(false);
-  const [reducedMotion, setReducedMotion] = useState(false);
-  const hovered = useRef(false);
-  const focused = useRef(false);
-  const visible = useRef(false);
-  const manualUntil = useRef(0);
+  const position = useRef(0);
+  const [copyCount, setCopyCount] = useState(2);
 
   useEffect(() => {
     const parts = new Intl.DateTimeFormat("en-GB", {
@@ -40,39 +35,56 @@ export function FeaturedTours({ tours }: { tours: FeaturedTour[] }) {
   }, [router, tours]);
 
   useEffect(() => {
-    const section = sectionRef.current;
     const viewport = viewportRef.current;
-    if (!section || !viewport) return;
-    const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const updateMotion = () => setReducedMotion(motion.matches);
-    updateMotion();
-    motion.addEventListener("change", updateMotion);
-    const observer = new IntersectionObserver(([entry]) => { visible.current = entry.isIntersecting; }, { threshold: 0.05 });
-    observer.observe(section);
+    if (!viewport) return;
+    const set = viewport.querySelector<HTMLElement>(".featured-tours__set");
+    if (!set) return;
+    const updateCopies = () => {
+      if (set.offsetWidth > 0) {
+        setCopyCount(Math.max(2, Math.ceil(viewport.clientWidth / set.offsetWidth) + 1));
+      }
+    };
+    updateCopies();
+    const observer = new ResizeObserver(updateCopies);
+    observer.observe(viewport);
+    observer.observe(set);
     let frame = 0;
     let previous = 0;
+    let lastScroll = viewport.scrollLeft;
+    position.current = lastScroll;
     const tick = (now: number) => {
       const elapsed = previous ? Math.min(now - previous, 50) : 0;
       previous = now;
-      if (visible.current && !paused && !motion.matches && !hovered.current && !focused.current && !document.hidden && now > manualUntil.current) {
-        const loopWidth = viewport.scrollWidth / 2;
-        if (loopWidth > 0) viewport.scrollLeft = (viewport.scrollLeft + elapsed * 0.035) % loopWidth;
+      const loopWidth = set.offsetWidth;
+      if (loopWidth > 0) {
+        // Preserve fractional movement while accepting manual scrolling.
+        if (Math.abs(viewport.scrollLeft - lastScroll) > 1) {
+          position.current = viewport.scrollLeft;
+        }
+        position.current = ((position.current + elapsed * 0.035) % loopWidth + loopWidth) % loopWidth;
+        viewport.scrollLeft = position.current;
+        lastScroll = viewport.scrollLeft;
       }
       frame = window.requestAnimationFrame(tick);
     };
     frame = window.requestAnimationFrame(tick);
-    return () => { window.cancelAnimationFrame(frame); observer.disconnect(); motion.removeEventListener("change", updateMotion); };
-  }, [paused]);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      observer.disconnect();
+    };
+  }, [tours.length]);
 
   const move = (direction: -1 | 1) => {
     const viewport = viewportRef.current;
     if (!viewport) return;
+    const set = viewport.querySelector<HTMLElement>(".featured-tours__set");
     const card = viewport.querySelector<HTMLElement>(".featured-tours__card");
-    const distance = (card?.offsetWidth || 274) + 18;
-    const loopWidth = viewport.scrollWidth / 2;
-    if (direction < 0 && viewport.scrollLeft < distance) viewport.scrollLeft += loopWidth;
-    viewport.scrollBy({ left: distance * direction, behavior: reducedMotion ? "instant" : "smooth" });
-    manualUntil.current = performance.now() + 3500;
+    const loopWidth = set?.offsetWidth || 0;
+    if (!loopWidth) return;
+    const gap = set ? Number.parseFloat(window.getComputedStyle(set).columnGap) || 0 : 0;
+    const distance = (card?.offsetWidth || 274) + gap;
+    position.current = ((position.current + distance * direction) % loopWidth + loopWidth) % loopWidth;
+    viewport.scrollLeft = position.current;
   };
 
   if (!tours.length) return null;
@@ -105,7 +117,7 @@ export function FeaturedTours({ tours }: { tours: FeaturedTour[] }) {
   ));
 
   return (
-    <section ref={sectionRef} className="featured-tours" aria-labelledby="featured-tours-title">
+    <section className="featured-tours" aria-labelledby="featured-tours-title">
       <div className="featured-tours__heading">
         <div>
           <span className="featured-tours__kicker"><Sparkles aria-hidden="true" size={14} /> ÖNE ÇIKAN ROTALAR</span>
@@ -114,15 +126,16 @@ export function FeaturedTours({ tours }: { tours: FeaturedTour[] }) {
         </div>
         <div className="featured-tours__actions">
           <button type="button" onClick={() => move(-1)} aria-label="Önceki turlar" className="featured-tours__control"><ArrowLeft size={18} /></button>
-          <button type="button" onClick={() => setPaused((value) => !value)} aria-label={paused ? "Kaydırmayı başlat" : "Kaydırmayı duraklat"} aria-pressed={paused} className="featured-tours__control">{paused ? <Play size={18} /> : <Pause size={18} />}</button>
           <button type="button" onClick={() => move(1)} aria-label="Sonraki turlar" className="featured-tours__control"><ArrowRight size={18} /></button>
           <Link href="/tours" className="featured-tours__all">Tüm turları gör <ArrowUpRight aria-hidden="true" size={17} /></Link>
         </div>
       </div>
-      <div ref={viewportRef} className="featured-tours__viewport" onMouseEnter={() => { hovered.current = true; }} onMouseLeave={() => { hovered.current = false; }} onFocusCapture={() => { focused.current = true; }} onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) focused.current = false; }} onTouchStart={() => { manualUntil.current = performance.now() + 5000; }}>
+      <div ref={viewportRef} className="featured-tours__viewport">
         <div className="featured-tours__track">
           <div className="featured-tours__set">{cards(false)}</div>
-          <div className="featured-tours__set" aria-hidden="true">{cards(true)}</div>
+          {Array.from({ length: copyCount - 1 }, (_, index) => (
+            <div key={index} className="featured-tours__set" aria-hidden="true">{cards(true)}</div>
+          ))}
         </div>
       </div>
     </section>
