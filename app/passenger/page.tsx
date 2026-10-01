@@ -10,6 +10,7 @@ import { SetupNotice } from "@/components/SetupNotice";
 import { isPrismaSetupError } from "@/lib/db-errors";
 import { classifyDeparture, departureRelativeLabel, formatDepartureRange } from "@/lib/departure-status";
 import { compactTourMeta } from "@/lib/display";
+import { occupancy } from "@/lib/reservations/domain";
 import { PassengerSearchBox } from "@/components/PassengerSearchBox";
 import { PassengerFooter } from "@/components/passenger/PassengerFooter";
 import { CampaignSection } from "@/components/passenger/CampaignSection";
@@ -111,7 +112,7 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
   const params = await searchParams;
   let tours: any[];
   try {
-    tours = serializeTour(await prisma.tour.findMany({ where: { status: "PUBLISHED" }, include: tourInclude, orderBy: { updatedAt: "desc" } })) as any[];
+    tours = serializeTour(await prisma.tour.findMany({ where: { status: "PUBLISHED" }, include: { ...tourInclude, departures: { orderBy: { startDate: "asc" }, include: { reservations: { where: { status: { in: ["HOLD", "CONFIRMED"] } }, select: { status: true, seats: true, holdExpiresAt: true } } } } }, orderBy: { updatedAt: "desc" } })) as any[];
   } catch (error) {
     if (isPrismaSetupError(error)) return <SetupNotice />;
     throw error;
@@ -354,7 +355,15 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
         {groups.map((group) => {
           const tourCards = group.items.map(({ tour, departure, relative, range }) => {
                 const otherMeta = compactTourMeta([tour.durationDays ? `${tour.durationDays} gün` : null, tour.departureCity]);
-                const mapPoints = tour.days.filter((day: any) => day.lat != null && day.lng != null).length;
+                const countries = [...new Set<string>(tour.days.map((day: any) => day.country).filter(Boolean))];
+                const available = occupancy(departure.capacity, departure.blockedSeats, departure.reservations).available;
+                const showAvailability = group.key === "today" || group.key === "future";
+                const closed = departure.availabilityStatus === "SOURCE_REMOVED" || (available !== null && available <= 0);
+                const availability = departure.availabilityStatus === "SOURCE_REMOVED" ? "Çıkış satışa kapalı" : available === null ? "Kontenjan için bilgi alın" : available <= 0 ? "Kontenjan doldu" : `${available} kişilik yer var`;
+                const amount = Number(departure.price);
+                const price = departure.price != null && Number.isFinite(amount) && amount > 0
+                  ? `${new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 2 }).format(amount)} ${departure.currency || ""}`.trim()
+                  : "Fiyat için bilgi alın";
                 return (
                   <Link
                     className="group relative block overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-[#7f1d1d]/10 hover:border-[#7f1d1d]/30"
@@ -404,7 +413,7 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
                     </div>
 
                     {/* ── ALT GRADIENT (metin alanı) ── */}
-                    <div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-white/95 via-white/85 to-transparent px-5 pb-5 pt-20">
+                    <div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-white/95 via-white/85 to-transparent px-5 pb-5 pt-12">
                       {/* Relative zaman */}
                       <span
                         className="mb-2.5 inline-block rounded-full border border-[#7f1d1d]/20 bg-[#7f1d1d]/5 px-2.5 py-0.5 text-[11px] font-bold tracking-wide text-[#7f1d1d]"
@@ -413,7 +422,7 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
                       </span>
 
                       {/* Tur adı */}
-                      <h3 className="text-lg font-bold leading-snug text-[#7f1d1d] transition-colors duration-200 group-hover:text-[#7f1d1d]">
+                      <h3 className="line-clamp-2 text-lg font-bold leading-snug text-[#7f1d1d] transition-colors duration-200 group-hover:text-[#7f1d1d]">
                         {tour.name}
                       </h3>
 
@@ -434,20 +443,21 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
                         </p>
                       ) : null}
 
-                      {/* Alt istatistik çubuğu */}
+                      {countries.length ? (
+                        <p className="mt-1 truncate text-[11px] text-slate-600" title={countries.join(" · ")}>{countries.join(" · ")}</p>
+                      ) : null}
+                      {tour.visaStatus ? (
+                        <p className="mt-1 truncate text-[11px] text-slate-600" title={tour.visaStatus}>{tour.visaStatus}</p>
+                      ) : null}
+                      {showAvailability ? (
+                        <p className={`mt-1 text-[11px] font-semibold ${closed ? "text-[#9b283d]" : "text-emerald-800"}`}>{availability}</p>
+                      ) : null}
+
+                      {/* Çıkış fiyatı ve rota bağlantısı */}
                       <div className="mt-4 flex items-center gap-4 border-t border-[#7f1d1d]/10 pt-3.5">
-                        <span className="flex items-center gap-1.5 text-xs font-semibold text-[#7f1d1d]">
-                          <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
-                          {tour.days.length} gün
-                        </span>
-                        <span className="flex items-center gap-1.5 text-xs font-semibold text-[#7f1d1d]">
-                          <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                          </svg>
-                          {mapPoints} nokta
+                        <span className="min-w-0 text-sm font-bold text-[#7f1d1d]">
+                          <span className="block text-[10px] font-medium text-slate-500">Çıkış fiyatı</span>
+                          {price}
                         </span>
                         {/* Sağda ok ikonu */}
                         <span className="ml-auto flex h-8 w-8 items-center justify-center rounded-full border border-[#7f1d1d]/20 bg-[#7f1d1d]/5 transition-all duration-200 group-hover:border-[#7f1d1d]/40 group-hover:bg-[#7f1d1d]/10">
