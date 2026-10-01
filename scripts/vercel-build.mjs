@@ -1,7 +1,8 @@
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { migrateWithRetry } from "./migrate-with-retry.mjs";
+import { migrationsCurrent } from "./migration-state.mjs";
+import { migrationEnvironment, migrateWithRetry } from "./migrate-with-retry.mjs";
 
 function loadLocalEnv() {
   if (!existsSync(".env")) return;
@@ -33,9 +34,14 @@ const nextCli = join(process.cwd(), "node_modules", "next", "dist", "bin", "next
 run(process.execPath, [prismaCli, "generate"]);
 
 if (process.env.DATABASE_URL) {
-  const result = await migrateWithRetry(prismaCli);
-  if (result.error) console.error(result.error.message);
-  if (result.error || result.status !== 0) process.exit(result.status || 1);
+  const current = await migrationsCurrent(join(process.cwd(), "prisma", "migrations"), migrationEnvironment(process.env).DATABASE_URL);
+  if (current) {
+    console.log("All migration files match applied database migrations. No migration needed.");
+  } else {
+    const result = await migrateWithRetry(prismaCli);
+    if (result.error) console.error(result.error.message);
+    if (result.error || result.status !== 0) process.exit(result.status || 1);
+  }
 } else {
   console.warn("DATABASE_URL is not set. Skipping prisma migrate deploy during build.");
 }
