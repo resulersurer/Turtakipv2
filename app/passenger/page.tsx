@@ -301,6 +301,13 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
               Tur Listesi
             </Link>
           </nav>
+          <img
+            src="/turkish-flag.svg"
+            alt="Türk bayrağı"
+            width={150}
+            height={100}
+            className="passenger-header__flag"
+          />
         </div>
       </section>
 
