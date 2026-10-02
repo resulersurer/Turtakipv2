@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { CountryName } from "./CountryName";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, ArrowUpRight, CalendarDays, MapPin, Sparkles } from "lucide-react";
 
@@ -14,6 +15,7 @@ type FeaturedTour = {
   departureCity?: string | null;
   departureDate?: string | null;
   route?: string;
+  countries?: string[];
   countryCount?: number;
 };
 
@@ -106,7 +108,7 @@ export function FeaturedTours({ tours }: { tours: FeaturedTour[] }) {
       <div className="featured-tours__card-body">
         <span className="featured-tours__eyebrow">EJDER TURİZM · TUR PROGRAMI</span>
         <h3>{tour.name}</h3>
-        {tour.route ? <div className="featured-tours__fact"><MapPin size={14} aria-hidden="true" /><span>{tour.route}{tour.countryCount && tour.countryCount > 2 ? ` +${tour.countryCount - 2} ülke` : ""}</span></div> : null}
+        {tour.route ? <div className="featured-tours__fact"><MapPin size={14} aria-hidden="true" /><span>{tour.countries?.length ? tour.countries.map((country, index) => <span key={country}>{index > 0 ? " · " : null}<CountryName name={country} /></span>) : tour.route}{tour.countryCount && tour.countryCount > 2 ? ` +${tour.countryCount - 2} ülke` : ""}</span></div> : null}
         {tour.departureDate ? <div className="featured-tours__fact"><CalendarDays size={14} aria-hidden="true" /><span>Yakın çıkış: {tour.departureDate}</span></div> : null}
         <div className="featured-tours__card-bottom">
           <span>{tour.departureCity ? `${tour.departureCity} kalkışlı` : "Tur programı"}</span>

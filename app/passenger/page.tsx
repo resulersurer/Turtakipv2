@@ -1,3 +1,4 @@
+import { CountryName } from "@/components/passenger/CountryName";
 import { MemberNav } from "@/components/members/MemberNav";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -193,6 +194,7 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
         departureCity: tour.departureCity,
         departureDate: nextDeparture ? new Date(nextDeparture.startDate).toLocaleDateString("tr-TR", { day: "numeric", month: "short", year: "numeric", timeZone: "Europe/Istanbul" }) : null,
         route: countries.slice(0, 2).join(" · "),
+        countries: countries.slice(0, 2),
         countryCount: countries.length
       };
     });
@@ -218,7 +220,7 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
                   <span className="text-[11px] font-medium uppercase tracking-wider text-[#7f1d1d]/60">Bu hafta:</span>
                   {weeklyCountries.slice(0, 6).map((c) => (
                     <span key={c.country} className="rounded-md border border-[#7f1d1d]/15 bg-[#7f1d1d]/5 px-2 py-0.5 text-[11px] font-medium text-[#7f1d1d]/80">
-                      {c.country}
+                      <CountryName name={c.country} />
                     </span>
                   ))}
                   {weeklyCountries.length > 6 && (
@@ -444,7 +446,7 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
                       ) : null}
 
                       {countries.length ? (
-                        <p className="mt-1 truncate text-[11px] text-slate-600" title={countries.join(" · ")}>{countries.join(" · ")}</p>
+                        <p className="mt-1 truncate text-[11px] text-slate-600" title={countries.join(" · ")}>{countries.map((country, index) => <span key={country}>{index > 0 ? " · " : null}<CountryName name={country} /></span>)}</p>
                       ) : null}
                       {tour.visaStatus ? (
                         <p className="mt-1 truncate text-[11px] text-slate-600" title={tour.visaStatus}>{tour.visaStatus}</p>
