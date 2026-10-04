@@ -661,3 +661,18 @@ a {
 .member-nav-links .member-nav-link--primary:hover { color: #fff; background: #641c28; }
 .member-nav-links a:focus-visible { outline: 3px solid #b86c76; outline-offset: 3px; }
 .passenger-header__nav .member-nav-links { justify-content: flex-end; }
+
+/* Weekly country summaries in map popups */
+.country-map-popup .leaflet-popup-content-wrapper { border-radius: 16px; padding: 1px; box-shadow: 0 12px 32px #49192426; }
+.country-map-popup .leaflet-popup-content { margin: 18px; }
+.country-map-popup__card { color: #491924; }
+.country-map-popup__card h3 { margin: 0 20px 8px 0; font-size: 18px; font-weight: 800; }
+.country-map-popup__card p { margin: 5px 0; font-size: 12px; line-height: 1.5; color: #6e5d63; }
+.country-map-popup__tours { list-style: none; padding: 0; margin: 12px 0 0; max-height: 245px; overflow-y: auto; }
+.country-map-popup__tours li { padding: 12px 0; border-top: 1px solid #eadde0; }
+.country-map-popup__tours strong { font-size: 13px; line-height: 1.4; }
+.country-map-popup__card a { color: #7f1d1d; text-decoration: none; font-weight: 700; }
+.country-map-popup__link, .country-map-popup__all { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 40px; }
+.country-map-popup__all { border-top: 1px solid #eadde0; }
+.country-map-popup__card a:hover { text-decoration: underline; }
+.country-map-popup__card a:focus-visible { outline: 2px solid #b83242; outline-offset: 2px; }

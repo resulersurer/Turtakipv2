@@ -114,7 +114,7 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
   const q = params.q?.trim();
   const visibleTours = q ? tours.filter((tour) => matchesTourSearch(tour, q)) : tours;
   const today = dayNumber(dayKey(new Date()));
-  const countriesThisWeek = new Map<string, { country: string; lat: number; lng: number; tourNames: Set<string> }>();
+  const countriesThisWeek = new Map<string, { country: string; lat: number; lng: number; tourNames: Set<string>; visits: Map<string, { id: string; slug: string; name: string; cities: Set<string>; dates: Set<string> }> }>();
 
   for (const tour of visibleTours) {
     for (const departure of tour.departures) {
@@ -129,8 +129,12 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
           const lat = day.lat ?? fallback?.lat;
           const lng = day.lng ?? fallback?.lng;
           if (lat == null || lng == null) continue;
-          const current = countriesThisWeek.get(key) || { country: fallback?.label || day.country, lat, lng, tourNames: new Set<string>() };
-          current.tourNames.add(tour.name);
+          const current = countriesThisWeek.get(key) || { country: fallback?.label || day.country, lat, lng, tourNames: new Set<string>(), visits: new Map() };
+          current.tourNames.add(tour.id);
+          const visit = current.visits.get(tour.id) || { id: tour.id, slug: tour.slug, name: tour.name, cities: new Set<string>(), dates: new Set<string>() };
+          if (day.city) visit.cities.add(day.city);
+          visit.dates.add(dayKey(date));
+          current.visits.set(tour.id, visit);
           countriesThisWeek.set(key, current);
         }
       }
@@ -147,7 +151,14 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
     lat: country.lat,
     lng: country.lng,
     highlightPulse: true,
-    markerStyle: "pin" as const
+    markerStyle: "pin" as const,
+    countryTours: Array.from(country.visits.values()).map((visit) => ({
+      id: visit.id,
+      slug: visit.slug,
+      name: visit.name,
+      cities: Array.from(visit.cities),
+      visitDates: Array.from(visit.dates).sort()
+    })).sort((a, b) => a.visitDates[0].localeCompare(b.visitDates[0]))
   }));
   const departures = visibleTours.flatMap((tour) =>
     tour.departures.map((departure: any) => ({

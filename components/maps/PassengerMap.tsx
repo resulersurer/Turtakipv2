@@ -2,6 +2,8 @@
 
 import { MapContainer, Marker, Polyline, Popup, TileLayer, useMap } from "react-leaflet";
 import L from "leaflet";
+import Link from "next/link";
+import { CountryName } from "@/components/passenger/CountryName";
 import { useEffect } from "react";
 
 export type MapDay = {
@@ -14,6 +16,13 @@ export type MapDay = {
   lng?: number | null;
   highlightPulse?: boolean;
   markerStyle?: "pulse" | "pin";
+  countryTours?: Array<{
+    id: string;
+    slug: string;
+    name: string;
+    cities: string[];
+    visitDates: string[];
+  }>;
 };
 
 const pulseIcon = L.divIcon({
@@ -96,14 +105,34 @@ export default function PassengerMap({
       {days.map((day) =>
         day.lat != null && day.lng != null ? (
           <Marker key={day.id || day.dayNumber} position={[day.lat, day.lng]} icon={day.markerStyle === "pin" || !day.highlightPulse ? redPinIcon(day.dayNumber, selectedDay === day.dayNumber, day.highlightPulse) : pulseIcon} eventHandlers={{ click: () => onSelect?.(day.dayNumber) }}>
-            <Popup>
-              <strong>
-                {day.dayNumber}. Gün {selectedDay === day.dayNumber ? "•" : ""}
-              </strong>
-              <br />
-              {day.title}
-              <br />
-              {[day.city, day.country].filter(Boolean).join(", ")}
+            <Popup className={day.countryTours ? "country-map-popup" : undefined} minWidth={240} maxWidth={300}>
+              {day.countryTours ? (
+                <div className="country-map-popup__card">
+                  <h3><CountryName name={day.country || day.title} /></h3>
+                  <p className="country-map-popup__summary">Bugün ve önümüzdeki 7 gün içinde bu ülkede {day.countryTours.length} tur var.</p>
+                  <ul className="country-map-popup__tours">
+                    {day.countryTours.slice(0, 3).map((tour) => (
+                      <li key={tour.id}>
+                        <strong>{tour.name}</strong>
+                        {tour.cities.length ? <p>{tour.cities.join(" · ")}</p> : null}
+                        <p className="country-map-popup__dates">Ziyaret: {tour.visitDates.map((date) => new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "short", timeZone: "Europe/Istanbul" }).format(new Date(`${date}T12:00:00+03:00`))).join(" · ")}</p>
+                        <Link href={`/tour/${encodeURIComponent(tour.slug)}`} className="country-map-popup__link">Turu incele <span aria-hidden="true">→</span></Link>
+                      </li>
+                    ))}
+                  </ul>
+                  {day.countryTours.length > 3 ? (
+                    <Link href={`/passenger?q=${encodeURIComponent(day.country || day.title)}`} className="country-map-popup__all">Diğer {day.countryTours.length - 3} turu da gör <span aria-hidden="true">→</span></Link>
+                  ) : null}
+                </div>
+              ) : (
+                <>
+                  <strong>{day.dayNumber}. Gün {selectedDay === day.dayNumber ? "•" : ""}</strong>
+                  <br />
+                  {day.title}
+                  <br />
+                  {[day.city, day.country].filter(Boolean).join(", ")}
+                </>
+              )}
             </Popup>
           </Marker>
         ) : null
