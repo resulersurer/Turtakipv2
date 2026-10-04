@@ -1,3 +1,4 @@
+import { matchesTourSearch } from "@/lib/tour-search";
 import { AirlineName } from "@/components/passenger/AirlineName";
 import { CountryName } from "@/components/passenger/CountryName";
 import { MemberNav } from "@/components/members/MemberNav";
@@ -99,16 +100,6 @@ function departureSortValue(item: { status: StatusKey; departure: { startDate: s
   return item.status === "ongoing" ? end : start;
 }
 
-function tourSearchText(tour: any) {
-  return [
-    tour.name,
-    tour.departureCity,
-    tour.airline,
-    tour.visaStatus,
-    ...tour.days.flatMap((day: any) => [day.title, day.city, day.country, day.description])
-  ].filter(Boolean).join(" ").toLocaleLowerCase("tr-TR");
-}
-
 export default async function PassengerPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   if (!hasDatabaseUrl() || !(await isDatabaseSchemaReady())) return <SetupNotice />;
   const params = await searchParams;
@@ -121,8 +112,7 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
   }
 
   const q = params.q?.trim();
-  const normalizedQuery = q?.toLocaleLowerCase("tr-TR");
-  const visibleTours = normalizedQuery ? tours.filter((tour) => tourSearchText(tour).includes(normalizedQuery)) : tours;
+  const visibleTours = q ? tours.filter((tour) => matchesTourSearch(tour, q)) : tours;
   const today = dayNumber(dayKey(new Date()));
   const countriesThisWeek = new Map<string, { country: string; lat: number; lng: number; tourNames: Set<string> }>();
 

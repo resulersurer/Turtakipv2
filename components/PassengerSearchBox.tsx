@@ -1,33 +1,50 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 
 export function PassengerSearchBox({ defaultValue = "" }: { defaultValue?: string }) {
   const router = useRouter();
   const [value, setValue] = useState(defaultValue);
+  const [pending, startTransition] = useTransition();
+  const lastRequested = useRef(defaultValue);
+  const previousDefault = useRef(defaultValue);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    if (timer.current) clearTimeout(timer.current);
-    const trimmed = value.trim();
-    if (trimmed.length >= 3) {
-      timer.current = setTimeout(() => {
-        router.push(`/passenger?q=${encodeURIComponent(trimmed)}`);
-      }, 400);
+    if (previousDefault.current !== defaultValue) {
+      previousDefault.current = defaultValue;
+      // A response to our own search must not overwrite newer typing.
+      if (defaultValue !== lastRequested.current) setValue(defaultValue);
     }
+  }, [defaultValue]);
+
+  useEffect(() => {
+    const trimmed = value.trim();
+    if (trimmed === defaultValue.trim()) return;
+    timer.current = setTimeout(() => {
+      lastRequested.current = trimmed;
+      startTransition(() => router.replace(trimmed ? `/passenger?q=${encodeURIComponent(trimmed)}` : "/passenger", { scroll: false }));
+    }, 400);
     return () => {
       if (timer.current) clearTimeout(timer.current);
     };
-  }, [value, router]);
+  }, [value, defaultValue, router]);
+
+  const search = (query: string) => {
+    if (timer.current) clearTimeout(timer.current);
+    const trimmed = query.trim();
+    lastRequested.current = trimmed;
+    startTransition(() => router.replace(trimmed ? `/passenger?q=${encodeURIComponent(trimmed)}` : "/passenger", { scroll: false }));
+  };
 
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        const trimmed = value.trim();
-        if (trimmed.length > 0) router.push(`/passenger?q=${encodeURIComponent(trimmed)}`);
+        search(value);
       }}
+      aria-busy={pending}
       className="flex flex-col gap-3 sm:flex-row"
     >
       <div className="group relative min-w-0 flex-1">
@@ -48,7 +65,7 @@ export function PassengerSearchBox({ defaultValue = "" }: { defaultValue?: strin
               type="button"
               onClick={() => {
                 setValue("");
-                router.push("/passenger");
+                search("");
               }}
               className="mr-2 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-100 hover:text-[#7f1d1d]"
               aria-label="Temizle"
@@ -58,6 +75,8 @@ export function PassengerSearchBox({ defaultValue = "" }: { defaultValue?: strin
           )}
         </div>
       </div>
+      <button type="submit" className="rounded-xl bg-[#7f1d1d] px-5 py-3 text-sm font-semibold text-white hover:bg-[#991b1b]">Ara</button>
+      <span role="status" className="sr-only">{pending ? "Turlar aranıyor…" : ""}</span>
     </form>
   );
 }
