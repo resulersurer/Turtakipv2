@@ -1,3 +1,4 @@
+import { countryMapLocation } from "@/lib/country-map-location";
 import { matchesTourSearch } from "@/lib/tour-search";
 import { AirlineName } from "@/components/passenger/AirlineName";
 import { CountryName } from "@/components/passenger/CountryName";
@@ -28,16 +29,6 @@ export const metadata: Metadata = {
   description: "Ejder Turizm turlarının güncel rotalarını haritada görün; yaklaşan çıkışları ve bu hafta keşfedilen ülkeleri inceleyin.",
   alternates: { canonical: "/passenger" },
   openGraph: { title: "Canlı Tur Takibi ve Haftalık Rotalar | Ejder Turizm", description: "Güncel tur rotalarını ve yaklaşan çıkışları keşfedin.", url: "/passenger" }
-};
-
-const countryCenters: Record<string, { lat: number; lng: number; label: string }> = {
-  japonya: { lat: 36.2048, lng: 138.2529, label: "Japonya" },
-  "güney kore": { lat: 36.5, lng: 127.9, label: "Güney Kore" },
-  avustralya: { lat: -25.2744, lng: 133.7751, label: "Avustralya" },
-  "yeni zelanda": { lat: -40.9006, lng: 174.886, label: "Yeni Zelanda" },
-  çin: { lat: 35.8617, lng: 104.1954, label: "Çin" },
-  küba: { lat: 21.5218, lng: -77.7812, label: "Küba" },
-  türkiye: { lat: 39.0, lng: 35.0, label: "Türkiye" }
 };
 
 const statusUi = {
@@ -124,12 +115,10 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
         date.setDate(date.getDate() + (day.dateOffset ?? day.dayNumber - 1));
         const diff = dayNumber(dayKey(date)) - today;
         if (diff >= 0 && diff <= 7) {
-          const key = day.country.toLocaleLowerCase("tr-TR");
-          const fallback = countryCenters[key];
-          const lat = day.lat ?? fallback?.lat;
-          const lng = day.lng ?? fallback?.lng;
-          if (lat == null || lng == null) continue;
-          const current = countriesThisWeek.get(key) || { country: fallback?.label || day.country, lat, lng, tourNames: new Set<string>(), visits: new Map() };
+          const location = countryMapLocation(day.country);
+          if (!location) continue;
+          const key = location.code;
+          const current = countriesThisWeek.get(key) || { country: location.label, lat: location.lat, lng: location.lng, tourNames: new Set<string>(), visits: new Map() };
           current.tourNames.add(tour.id);
           const visit = current.visits.get(tour.id) || { id: tour.id, slug: tour.slug, name: tour.name, cities: new Set<string>(), dates: new Set<string>() };
           if (day.city) visit.cities.add(day.city);
