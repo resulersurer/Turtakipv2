@@ -311,7 +311,7 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
             { label: "EJDER VIP", href: "/passenger/tours/vip" },
             { label: "Tur Talep Formu", href: "/passenger/tour-request?source=menu" },
             { label: "Bize Ulaşın", href: "/passenger/contact" }
-          ].map(({ label, href }, index) => index < 2 ? (
+          ].map(({ label, href }, index) => index < 3 ? (
             <YearTourMenu key={href} label={label} href={href} featured={index === 0} />
           ) : (
             <div key={href} className="passenger-links__group"><Link href={href} className={`passenger-links__item${index === 0 ? " passenger-links__item--featured" : ""}`}>
