@@ -1,3 +1,4 @@
+import { YearTourMenu } from "@/components/passenger/YearTourMenu";
 import { countryMapLocation } from "@/lib/country-map-location";
 import { matchesTourSearch } from "@/lib/tour-search";
 import { AirlineName } from "@/components/passenger/AirlineName";
@@ -310,12 +311,13 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
             { label: "EJDER VIP", href: "/passenger/tours/vip" },
             { label: "Tur Talep Formu", href: "/passenger/tour-request?source=menu" },
             { label: "Bize Ulaşın", href: "/passenger/contact" }
-          ].map(({ label, href }, index) => (
+          ].map(({ label, href }, index) => index < 2 ? (
+            <YearTourMenu key={href} label={label} href={href} featured={index === 0} />
+          ) : (
             <div key={href} className="passenger-links__group"><Link href={href} className={`passenger-links__item${index === 0 ? " passenger-links__item--featured" : ""}`}>
               <span>{label}</span>
               <ArrowUpRight aria-hidden="true" className="passenger-links__arrow" />
             </Link>
-            {index < 2 ? <Link href={`${href}/son-koltuklar`} className="passenger-links__subitem">Son Koltuklar <ArrowUpRight size={13} aria-hidden="true" /></Link> : null}
             </div>
           ))}
         </div>
