@@ -311,10 +311,12 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
             { label: "Tur Talep Formu", href: "/passenger/tour-request?source=menu" },
             { label: "Bize Ulaşın", href: "/passenger/contact" }
           ].map(({ label, href }, index) => (
-            <Link key={href} href={href} className={`passenger-links__item${index === 0 ? " passenger-links__item--featured" : ""}`}>
+            <div key={href} className="passenger-links__group"><Link href={href} className={`passenger-links__item${index === 0 ? " passenger-links__item--featured" : ""}`}>
               <span>{label}</span>
               <ArrowUpRight aria-hidden="true" className="passenger-links__arrow" />
             </Link>
+            {index < 2 ? <Link href={`${href}/son-koltuklar`} className="passenger-links__subitem">Son Koltuklar <ArrowUpRight size={13} aria-hidden="true" /></Link> : null}
+            </div>
           ))}
         </div>
       </nav>

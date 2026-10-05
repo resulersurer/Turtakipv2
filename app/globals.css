@@ -676,3 +676,10 @@ a {
 .country-map-popup__all { border-top: 1px solid #eadde0; }
 .country-map-popup__card a:hover { text-decoration: underline; }
 .country-map-popup__card a:focus-visible { outline: 2px solid #b83242; outline-offset: 2px; }
+
+.passenger-links__group { display: flex; flex-direction: column; min-width: 0; }
+.passenger-links__subitem { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 7px 10px; color: #7f1d1d; font-size: 11px; font-weight: 750; }
+.passenger-links__subitem:hover { background: #fbf0f2; }
+.passenger-links__subitem:focus-visible { outline: 2px solid #b83242; outline-offset: -2px; }
+
+@media (max-width: 639px) { .passenger-links__group { flex: 0 0 auto; } }

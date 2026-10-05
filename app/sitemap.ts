@@ -16,6 +16,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${siteUrl}/passenger/tour-request`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${siteUrl}/tours`, changeFrequency: "daily", priority: 0.8 }
   ];
+  pages.push(...[2026, 2027].map((year) => ({ url: `${siteUrl}/passenger/tours/${year}/son-koltuklar`, changeFrequency: "daily" as const, priority: 0.8 })));
   pages.push(...tourCollections.map((collection) => ({ url: `${siteUrl}/passenger/collections/${collection.slug}`, changeFrequency: "daily" as const, priority: 0.8 })));
   if (!hasDatabaseUrl() || !(await isDatabaseSchemaReady())) return pages;
   try {
