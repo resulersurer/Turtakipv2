@@ -26,3 +26,19 @@
 .last-seats-dates strong { border-radius: 999px; background: #fff0e6; color: #933c1a; padding: 6px 9px; white-space: nowrap; }
 .last-seats-navigation { margin: 0 auto 40px; width: min(calc(100% - 32px),1280px); }
 .last-seats-navigation a { color: #762030; border-color: #dac8cd; }
+
+.last-seats-list { border-block: 1px solid #e4d8da; background: #fff; }
+.last-seats-row { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1.25fr) auto; align-items: center; gap: 24px; padding: 24px 20px; border-bottom: 1px solid #eee5e6; }
+.last-seats-row:last-child { border-bottom: 0; }
+.last-seats-row:hover { background: #fcf8f8; }
+.last-seats-row__tour h3 { margin: 0 0 6px; font-size: 18px; line-height: 1.4; color: #762030; }
+.last-seats-row__tour p { margin: 0 0 6px; color: #77696d; font-size: 12px; }
+.last-seats-row__tour small { color: #77696d; }
+.last-seats-row__departures { list-style: none; margin: 0; padding: 0; }
+.last-seats-row__departures li { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px; padding: 8px 0; font-size: 12px; }
+.last-seats-row__departures strong { color: #933c1a; white-space: nowrap; }
+.last-seats-row__price { text-align: right; color: #762030; }
+.last-seats-row__action { display: inline-flex; align-items: center; gap: 7px; min-height: 44px; font-size: 12px; font-weight: 800; color: #762030; }
+.last-seats-row a:focus-visible { outline: 2px solid #b83242; outline-offset: 4px; }
+@media(max-width:950px) { .last-seats-row { grid-template-columns: minmax(0,1fr) auto; gap: 12px; } .last-seats-row__departures { grid-column: 1 / -1; grid-row: 2; } }
+@media(max-width:640px) { .last-seats-row { grid-template-columns: minmax(0,1fr); padding: 20px 14px; } .last-seats-row__action { grid-row: 3; } .last-seats-row__departures li { grid-template-columns: 1fr auto; } .last-seats-row__price { grid-column: 1 / -1; text-align: left; } }

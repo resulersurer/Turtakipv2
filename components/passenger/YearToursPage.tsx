@@ -41,7 +41,7 @@ export default async function YearToursPage({ params, searchParams, lastSeats = 
     <header className="year-tours__hero"><div className="year-tours__orb year-tours__orb--one"/><div className="year-tours__orb year-tours__orb--two"/><div className="year-tours__hero-inner"><span className="year-tours__eyebrow"><Sparkles size={15}/>{lastSeats ? "SINIRLI KONTENJAN · YENİ YOLCULUKLAR" : "YENİ ROTALAR · GÜNCEL TARİHLER"}</span><h1><strong>{year}</strong> {lastSeats ? "Son Koltuklar" : "Turları"}</h1><p>{lastSeats ? "Yolculuğa son bir adım: 5 veya daha az koltuğu kalan çıkış tarihlerini keşfedin, size uygun rotada yerinizi ayırtın." : year === 2026 ? "Bu yılın en özel yolculuklarını, uzak coğrafyaları ve kültürleri güncel çıkış tarihleriyle keşfedin." : "Yeni yılın büyük rotalarını erkenden planlayın; seçkin programlar ve farklı kıtalarda unutulmaz deneyimler sizi bekliyor."}</p><div className="year-tours__hero-actions"><a href="#turlar">{lastSeats ? "Son koltukları keşfet" : "Turları keşfet"} <ArrowRight size={17}/></a><Link href={`/passenger/tours/${nextYear}`}>{nextYear} koleksiyonuna geç</Link></div></div></header>
     <section className="year-tours__stats" aria-label={`${year} tur özeti`}><div><PlaneTakeoff/><strong>{tours.length}</strong><span>özgün tur programı</span></div><div><CalendarDays/><strong>{departures.length}</strong><span>planlı çıkış tarihi</span></div><div><Globe2/><strong>{countries.size}</strong><span>farklı ülke</span></div></section>
     <section className="year-tours__content" id="turlar"><div className="year-tours__heading"><div><span>SEYAHAT TAKVİMİ</span><h2>{lastSeats ? "Yeriniz ayrılmadan rotanızı seçin" : "Size uygun yolculuğu seçin"}</h2><p>{lastSeats ? "Kalan koltuk sayıları sistemdeki kapasite ve aktif rezervasyonlara göre hesaplanır." : "Tarihler her gün resmî tur kaynağıyla karşılaştırılarak güncellenir."}</p></div><div className="year-tours__months"><Link className={!selectedMonth ? "is-active" : ""} href={basePath}>Tüm aylar</Link>{months.map((month) => <Link className={selectedMonth === month ? "is-active" : ""} href={`${basePath}?month=${month}`} key={month}>{monthNames[month - 1]}</Link>)}</div></div>
-      <div className="year-tours__grid">{visible.map((tour) => {
+      <div className={lastSeats ? "last-seats-list" : "year-tours__grid"} role={lastSeats ? "list" : undefined} aria-label={lastSeats ? "Son koltukları kalan turlar" : undefined}>{visible.map((tour) => {
         const tourDepartures = selectedMonth ? tour.departures.filter((item) => item.startDate.getUTCMonth() + 1 === selectedMonth) : tour.departures;
         const first = tourDepartures[0];
         const prices = tourDepartures.map((item) => item.price?.toNumber()).filter((item): item is number => item != null);
@@ -50,6 +50,25 @@ export default async function YearToursPage({ params, searchParams, lastSeats = 
         const currency = first?.currency || tour.prices[0]?.currency || "EUR";
         const route = [...new Set(tour.days.map((item) => item.country).filter(Boolean))].slice(0, 3).join(" · ");
         const cover = tour.coverImageUrl || tour.images[0]?.url;
+        if (lastSeats) return (
+          <article key={tour.id} className="last-seats-row" role="listitem">
+            <div className="last-seats-row__tour">
+              <h3><Link href={`/tour/${tour.slug}`}>{tour.name}</Link></h3>
+              {route ? <p>{route}</p> : null}
+              {tour.durationDays ? <small>{tour.durationDays} gün{tour.departureCity ? ` · ${tour.departureCity} kalkışlı` : ""}</small> : null}
+            </div>
+            <ul className="last-seats-row__departures" aria-label="Çıkış tarihleri ve kalan koltuklar">
+              {tourDepartures.map((departure) => (
+                <li key={departure.id}>
+                  <span>{date(departure.startDate)}</span>
+                  <strong>Son {lastSeatsAvailable(departure, now)} koltuk</strong>
+                  <span className="last-seats-row__price">{departure.price ? money(departure.price.toNumber(), departure.currency) : "Fiyat için bilgi alın"}</span>
+                </li>
+              ))}
+            </ul>
+            <Link className="last-seats-row__action" href={`/tour/${tour.slug}`}>Turu incele <ArrowRight size={16} aria-hidden="true" /></Link>
+          </article>
+        );
         return <article className="year-tour-card" key={tour.id}><Link className="year-tour-card__image" href={`/tour/${tour.slug}`}>{cover ? <img src={cover} alt="" loading="lazy"/> : <span><Globe2/></span>}<span className="year-tour-card__shade"/><span className="year-tour-card__year">{year}</span>{tour.durationDays ? <span className="year-tour-card__duration">{tour.durationDays} gün</span> : null}</Link><div className="year-tour-card__body"><span className="year-tour-card__kicker">EJDER TURİZM · SEÇİLİ ROTA</span><h3><Link href={`/tour/${tour.slug}`}>{tour.name}</Link></h3>{route ? <p className="year-tour-card__route"><MapPin size={15}/>{route}</p> : null}<div className="year-tour-card__facts"><div><CalendarDays/><span><small>Yakın çıkış</small><strong>{first ? date(first.startDate) : "Tarih hazırlanıyor"}</strong></span></div><div><PlaneTakeoff/><span><small>Alternatif</small><strong>{tourDepartures.length} çıkış tarihi</strong></span></div></div>{lastSeats ? <ul className="last-seats-dates">{tourDepartures.map((departure) => <li key={departure.id}><span>{date(departure.startDate)}</span><strong>Son {lastSeatsAvailable(departure, now)} koltuk</strong></li>)}</ul> : null}<div className="year-tour-card__bottom"><div>{lowest ? <><small>Başlangıç fiyatı</small><strong>{money(lowest, currency)}</strong></> : <><small>Program</small><strong>Detayları inceleyin</strong></>}</div><Link href={`/tour/${tour.slug}`}>Turu incele <ArrowRight size={16}/></Link></div></div></article>;
       })}</div>{!visible.length ? <div className="year-tours__empty">{lastSeats ? "Şu anda bu dönem için 5 veya daha az koltuğu kalan bir çıkış bulunmuyor. Tüm yıl turlarına göz atabilirsiniz." : "Seçilen ay için yayınlanmış tur bulunmuyor. Diğer aylara göz atabilirsiniz."}</div> : null}
     </section>
