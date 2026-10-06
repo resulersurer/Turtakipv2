@@ -20,6 +20,8 @@ import { PassengerSearchBox } from "@/components/PassengerSearchBox";
 import { PassengerFooter } from "@/components/passenger/PassengerFooter";
 import { CampaignSection } from "@/components/passenger/CampaignSection";
 import { FeaturedTours } from "@/components/passenger/FeaturedTours";
+import { LastSeats, type LastSeatDeparture } from "@/components/passenger/LastSeats";
+import { lastSeatsAvailable } from "@/lib/last-seats";
 
 export const dynamic = "force-dynamic";
 
@@ -105,6 +107,17 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
 
   const q = params.q?.trim();
   const visibleTours = q ? tours.filter((tour) => matchesTourSearch(tour, q)) : tours;
+  const now = new Date();
+  const lastSeatDepartures: LastSeatDeparture[] = visibleTours.flatMap((tour) =>
+    tour.departures.flatMap((departure: any) => {
+      const available = lastSeatsAvailable(departure, now);
+      return available === null ? [] : [{
+        id: departure.id, slug: tour.slug, name: tour.name,
+        coverImageUrl: tour.coverImageUrl, startDate: departure.startDate,
+        available, durationDays: tour.durationDays, departureCity: tour.departureCity
+      }];
+    })
+  ).sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime() || a.available - b.available).slice(0, 8);
   const today = dayNumber(dayKey(new Date()));
   const countriesThisWeek = new Map<string, { country: string; lat: number; lng: number; tourNames: Set<string>; visits: Map<string, { id: string; slug: string; name: string; cities: Set<string>; dates: Set<string> }> }>();
 
@@ -337,6 +350,7 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
         </div>
       </section>
 
+      <LastSeats departures={lastSeatDepartures} />
       <FeaturedTours tours={featuredTours} />
 
       <CampaignSection />
