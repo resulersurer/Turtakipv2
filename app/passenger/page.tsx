@@ -111,10 +111,12 @@ export default async function PassengerPage({ searchParams }: { searchParams: Pr
   const lastSeatDepartures: LastSeatDeparture[] = visibleTours.flatMap((tour) =>
     tour.departures.flatMap((departure: any) => {
       const available = lastSeatsAvailable(departure, now);
+      const countries = [...new Set<string>(tour.days.map((day: any) => day.country).filter(Boolean))];
       return available === null ? [] : [{
         id: departure.id, slug: tour.slug, name: tour.name,
         coverImageUrl: tour.coverImageUrl, startDate: departure.startDate,
-        available, durationDays: tour.durationDays, departureCity: tour.departureCity
+        available, durationDays: tour.durationDays, departureCity: tour.departureCity,
+        route: countries.slice(0, 2).join(" · "), countries: countries.slice(0, 2), countryCount: countries.length
       }];
     })
   ).sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime() || a.available - b.available).slice(0, 8);

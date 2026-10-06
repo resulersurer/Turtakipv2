@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { CountryName } from "./CountryName";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ArrowRight, ArrowUpRight, CalendarDays, MapPin, Sparkles } from "lucide-react";
+import { Armchair, ArrowLeft, ArrowRight, ArrowUpRight, CalendarDays, MapPin, Sparkles } from "lucide-react";
 
 type FeaturedTour = {
   id: string;
@@ -17,9 +17,12 @@ type FeaturedTour = {
   route?: string;
   countries?: string[];
   countryCount?: number;
+  available?: number;
 };
 
-export function FeaturedTours({ tours }: { tours: FeaturedTour[] }) {
+export function FeaturedTours({ tours, variant = "featured" }: { tours: FeaturedTour[]; variant?: "featured" | "last-seats" }) {
+  const lastSeats = variant === "last-seats";
+  const titleId = `${variant}-tours-title`;
   const router = useRouter();
   const viewportRef = useRef<HTMLDivElement>(null);
   const position = useRef(0);
@@ -63,7 +66,7 @@ export function FeaturedTours({ tours }: { tours: FeaturedTour[] }) {
         if (Math.abs(viewport.scrollLeft - lastScroll) > 1) {
           position.current = viewport.scrollLeft;
         }
-        position.current = ((position.current + elapsed * 0.035) % loopWidth + loopWidth) % loopWidth;
+        position.current = ((position.current + elapsed * 0.035 * (lastSeats ? -1 : 1)) % loopWidth + loopWidth) % loopWidth;
         viewport.scrollLeft = position.current;
         lastScroll = viewport.scrollLeft;
       }
@@ -74,7 +77,7 @@ export function FeaturedTours({ tours }: { tours: FeaturedTour[] }) {
       window.cancelAnimationFrame(frame);
       observer.disconnect();
     };
-  }, [tours.length]);
+  }, [tours.length, lastSeats]);
 
   const move = (direction: -1 | 1) => {
     const viewport = viewportRef.current;
@@ -102,7 +105,7 @@ export function FeaturedTours({ tours }: { tours: FeaturedTour[] }) {
       <div className="featured-tours__image">
         {tour.coverImageUrl ? <img src={tour.coverImageUrl} alt="" loading="lazy" /> : <div className="featured-tours__placeholder"><Sparkles aria-hidden="true" /></div>}
         <span className="featured-tours__image-shade" />
-        <span className="featured-tours__image-top"><Sparkles size={13} aria-hidden="true" /> SEÇİLİ ROTA</span>
+        <span className="featured-tours__image-top">{lastSeats ? <><Armchair size={13} aria-hidden="true" /> Son {tour.available} koltuk</> : <><Sparkles size={13} aria-hidden="true" /> SEÇİLİ ROTA</>}</span>
         {tour.durationDays ? <span className="featured-tours__duration">{tour.durationDays} gün</span> : null}
       </div>
       <div className="featured-tours__card-body">
@@ -119,12 +122,12 @@ export function FeaturedTours({ tours }: { tours: FeaturedTour[] }) {
   ));
 
   return (
-    <section className="featured-tours" aria-labelledby="featured-tours-title">
+    <section className="featured-tours" aria-labelledby={titleId}>
       <div className="featured-tours__heading">
         <div>
-          <span className="featured-tours__kicker"><Sparkles aria-hidden="true" size={14} /> ÖNE ÇIKAN ROTALAR</span>
-          <h2 id="featured-tours-title">Çok Satan Turlar</h2>
-          <p>Yeni bir yolculuk için ilham veren tur programlarını keşfedin.</p>
+          <span className="featured-tours__kicker">{lastSeats ? <><Armchair aria-hidden="true" size={14} /> YOLCULUĞA SON BİR ADIM</> : <><Sparkles aria-hidden="true" size={14} /> ÖNE ÇIKAN ROTALAR</>}</span>
+          <h2 id={titleId}>{lastSeats ? "Son Koltuklar" : "Çok Satan Turlar"}</h2>
+          <p>{lastSeats ? "Rotanızı seçin, az kalan yerlerden birini ayırtın." : "Yeni bir yolculuk için ilham veren tur programlarını keşfedin."}</p>
         </div>
         <div className="featured-tours__actions">
           <button type="button" onClick={() => move(-1)} aria-label="Önceki turlar" className="featured-tours__control"><ArrowLeft size={18} /></button>
