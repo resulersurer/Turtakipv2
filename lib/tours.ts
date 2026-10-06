@@ -4,6 +4,7 @@ import { tourWriteSchema } from "@/lib/validators";
 import type { ParsedTour } from "@/lib/import/normalizeTour";
 import { cleanImportedText } from "@/lib/display";
 import { ReservationError } from "@/lib/reservations/domain";
+import { revalidatePath } from "next/cache";
 
 export const tourInclude = {
   departures: { orderBy: { startDate: "asc" } },
@@ -56,7 +57,7 @@ export async function saveTour(input: unknown, id?: string, options: { preserveB
     });
     if (duplicate) throw new ReservationError(`Aynı ad ve çıkış tarihine sahip bir tur zaten var: ${duplicate.name}`, 409);
   }
-  return prisma.$transaction(
+  const saved = await prisma.$transaction(
     async (tx) => {
     const tour = existingId
       ? await tx.tour.update({ where: { id: existingId }, data: base })
@@ -134,6 +135,10 @@ export async function saveTour(input: unknown, id?: string, options: { preserveB
       timeout: 60000
     }
   );
+  revalidatePath("/admin/tours", "layout");
+  revalidatePath("/admin/capacities");
+  revalidatePath("/admin/reservations");
+  return saved;
 }
 
 export async function deleteTour(id: string) {

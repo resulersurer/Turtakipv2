@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
 import { Armchair, RefreshCw } from "lucide-react";
+import { TourDataRefresh } from "@/components/admin/TourDataRefresh";
 
 type Departure = {
   id: string; startDate: string; capacity: number | null; blockedSeats: number;
@@ -14,8 +15,12 @@ const labels: Record<string, string> = { PUBLISHED: "Yayında", DRAFT: "Taslak",
 const dateFormat = new Intl.DateTimeFormat("tr-TR", { timeZone: "Europe/Istanbul", dateStyle: "medium" });
 
 function CapacityRow({ departure, tourName, onSaved }: { departure: Departure; tourName: string; onSaved: () => void }) {
-  const [capacity, setCapacity] = useState(departure.capacity?.toString() ?? "");
-  const [blocked, setBlocked] = useState(String(departure.blockedSeats));
+  const [draft, setDraft] = useState<{ capacity: string; blocked: string } | null>(null);
+  const capacity = draft?.capacity ?? departure.capacity?.toString() ?? "";
+  const blocked = draft?.blocked ?? String(departure.blockedSeats);
+  if (draft && draft.capacity === (departure.capacity?.toString() ?? "") && draft.blocked === String(departure.blockedSeats)) {
+    setDraft(null);
+  }
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -34,8 +39,7 @@ function CapacityRow({ departure, tourName, onSaved }: { departure: Departure; t
       });
       const body = await response.json();
       if (!response.ok) throw new Error(response.status === 401 ? "Oturumunuz sona erdi. Sayfayı yenileyip yeniden giriş yapın." : body.error || "Kontenjan kaydedilemedi.");
-      setCapacity(String(body.capacity));
-      setBlocked(String(body.blockedSeats));
+      setDraft({ capacity: String(body.capacity), blocked: String(body.blockedSeats) });
       setNotice("Kontenjan kaydedildi.");
       onSaved();
     } catch (reason) { setError(reason instanceof Error ? reason.message : "Kontenjan kaydedilemedi."); }
@@ -45,8 +49,8 @@ function CapacityRow({ departure, tourName, onSaved }: { departure: Departure; t
   return <form id={`departure-${departure.id}`} className="scroll-mt-6 rounded-xl border border-slate-200 p-4 target:border-blue-400 target:bg-blue-50" aria-label={`${tourName} · ${date} kontenjanı`} onSubmit={(event) => { event.preventDefault(); void save(); }}>
     <div className="mb-3 flex flex-wrap items-center justify-between gap-2"><div><h3 className="font-semibold">{date}</h3><p className="mt-1 text-sm text-slate-500">{departure.summary.confirmed} kesin · {departure.summary.held} opsiyon · {departure.summary.available === null ? "Kontenjan tanımsız" : `${Math.max(0, departure.summary.available)} müsait`}</p></div><Link className="text-sm underline" href={`/admin/reservations?departureId=${departure.id}`}>Rezervasyonları gör</Link></div>
     <fieldset disabled={busy} className="grid items-end gap-3 sm:grid-cols-[1fr_1fr_auto]">
-      <label className="space-y-1 text-sm"><span>Toplam koltuk</span><input className="input w-full" type="number" min={0} max={10000} step={1} required value={capacity} onChange={(event) => { setCapacity(event.target.value); setNotice(""); }} placeholder="Örn. 46" /></label>
-      <label className="space-y-1 text-sm"><span>Satışa kapalı koltuk</span><input className="input w-full" type="number" min={0} max={capacity === "" ? 10000 : Number(capacity)} step={1} required value={blocked} onChange={(event) => { setBlocked(event.target.value); setNotice(""); }} /></label>
+      <label className="space-y-1 text-sm"><span>Toplam koltuk</span><input className="input w-full" type="number" min={0} max={10000} step={1} required value={capacity} onChange={(event) => { setDraft({ capacity: event.target.value, blocked }); setNotice(""); }} placeholder="Örn. 46" /></label>
+      <label className="space-y-1 text-sm"><span>Satışa kapalı koltuk</span><input className="input w-full" type="number" min={0} max={capacity === "" ? 10000 : Number(capacity)} step={1} required value={blocked} onChange={(event) => { setDraft({ capacity, blocked: event.target.value }); setNotice(""); }} /></label>
       <button className="btn-primary" type="submit" disabled={!changed}>{busy ? "Kaydediliyor…" : "Kaydet"}</button>
     </fieldset>
     {error ? <p className="mt-3 text-sm text-red-700" role="alert">{error}</p> : null}
@@ -68,6 +72,7 @@ export function CapacityDashboard({ tours }: { tours: Tour[] }) {
   const missing = departures.filter((departure) => departure.capacity === null).length;
 
   return <main className="page-shell space-y-6">
+    <TourDataRefresh />
     <header className="admin-page-header"><div className="admin-page-header__title"><span className="admin-eyebrow">Koltuk yönetimi</span><h1>Kontenjanlar</h1><p>Tüm turların çıkış tarihleri için toplam ve satışa kapalı koltukları düzenleyin.</p></div><div className="admin-page-actions"><button className="btn" type="button" disabled={refreshing} onClick={refresh}><RefreshCw size={16} />{refreshing ? "Yenileniyor…" : "Yenile"}</button></div></header>
     <section className="panel space-y-4 p-5">
       <p className="flex items-center gap-2 text-sm text-slate-600"><Armchair size={18} />{tours.length} tur · {departures.length} çıkış · {missing} kontenjan tanımsız</p>

@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { isAdmin } from "@/lib/auth";
 import { AdminLogin } from "@/components/AdminLogin";
 import { TourCard } from "@/components/tours/TourCard";
+import { TourDataRefresh } from "@/components/admin/TourDataRefresh";
 import { tourInclude, serializeTour } from "@/lib/tours";
 import { hasDatabaseUrl, isDatabaseSchemaReady } from "@/lib/db-ready";
 import { SetupNotice } from "@/components/SetupNotice";
@@ -62,6 +63,7 @@ export default async function AdminToursPage({ searchParams }: { searchParams: P
   }).sort((a, b) => tourSortValue(a) - tourSortValue(b));
   return (
     <main className="page-shell space-y-6">
+      <TourDataRefresh />
       <header className="admin-page-header">
         <div className="admin-page-header__title"><span className="admin-eyebrow">Tur operasyonu</span><h1>Turlar</h1><p>Tur içeriklerini, çıkış tarihlerini, yayın durumunu ve kapasite hazırlığını yönetin.</p></div>
         <div className="admin-page-actions">
