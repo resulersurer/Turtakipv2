@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { hasValidIntegrationKey } from "@/lib/integration-auth";
 
@@ -6,8 +7,8 @@ export const dynamic = "force-dynamic";
 
 const number = (value: { toNumber(): number } | null | undefined) => value?.toNumber() ?? 0;
 
-export async function GET(request: Request) {
-  if (!hasValidIntegrationKey(request)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+// Authenticate each request before accessing this private server-side snapshot.
+const loadLeadData = unstable_cache(async () => {
   const now = new Date();
   const [tours, reservations] = await Promise.all([
     prisma.tour.findMany({
@@ -36,5 +37,11 @@ export async function GET(request: Request) {
     const paymentStatus = !finance ? "NO_PLAN" : paidAmount <= 0 ? "UNPAID" : paidAmount + 0.001 >= totalAmount ? "PAID" : "PARTIAL";
     return { ...reservation, finance: finance ? { totalAmount, paidAmount, remainingAmount: Math.max(0, totalAmount - paidAmount), currency: finance.currency, paymentStatus } : null };
   });
-  return NextResponse.json({ generatedAt: now.toISOString(), tours, purchases }, { headers: { "Cache-Control": "private, no-store" } });
+  // Store the JSON wire format so dates and Prisma decimals survive cache reads.
+  return JSON.parse(JSON.stringify({ generatedAt: now.toISOString(), tours, purchases }));
+}, ["lead-data-v1"], { revalidate: 60 });
+
+export async function GET(request: Request) {
+  if (!hasValidIntegrationKey(request)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  return NextResponse.json(await loadLeadData(), { headers: { "Cache-Control": "private, no-store" } });
 }

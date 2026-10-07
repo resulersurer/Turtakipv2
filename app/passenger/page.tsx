@@ -8,7 +8,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { ArrowUpRight, Bot, Headset, Mail } from "lucide-react";
 import { prisma } from "@/lib/prisma";
-import { serializeTour, tourInclude } from "@/lib/tours";
+import { serializeTour } from "@/lib/tours";
 import { PublicMap } from "@/components/maps/PublicMap";
 import { hasDatabaseUrl, isDatabaseSchemaReady } from "@/lib/db-ready";
 import { SetupNotice } from "@/components/SetupNotice";
@@ -97,15 +97,37 @@ function departureSortValue(item: { status: StatusKey; departure: { startDate: s
 export default async function PassengerPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   if (!hasDatabaseUrl() || !(await isDatabaseSchemaReady())) return <SetupNotice />;
   const params = await searchParams;
+  const q = params.q?.trim();
   let tours: any[];
   try {
-    tours = serializeTour(await prisma.tour.findMany({ where: { status: "PUBLISHED" }, include: { ...tourInclude, departures: { orderBy: { startDate: "asc" }, include: { reservations: { where: { status: { in: ["HOLD", "CONFIRMED"] } }, select: { status: true, seats: true, holdExpiresAt: true } } } } }, orderBy: { updatedAt: "desc" } })) as any[];
+    tours = serializeTour(await prisma.tour.findMany({
+      where: { status: "PUBLISHED" },
+      select: {
+        id: true, slug: true, name: true, coverImageUrl: true,
+        durationDays: true, departureCity: true, airline: true, visaStatus: true,
+        days: {
+          orderBy: { sortOrder: "asc" },
+          select: { dayNumber: true, dateOffset: true, city: true, country: true, title: Boolean(q), description: Boolean(q) }
+        },
+        departures: {
+          orderBy: { startDate: "asc" },
+          select: {
+            id: true, startDate: true, endDate: true, price: true, currency: true,
+            capacity: true, blockedSeats: true, availabilityStatus: true,
+            reservations: {
+              where: { OR: [{ status: "CONFIRMED" }, { status: "HOLD", holdExpiresAt: { gt: new Date() } }] },
+              select: { status: true, seats: true, holdExpiresAt: true }
+            }
+          }
+        }
+      },
+      orderBy: { updatedAt: "desc" }
+    })) as any[];
   } catch (error) {
     if (isPrismaSetupError(error)) return <SetupNotice />;
     throw error;
   }
 
-  const q = params.q?.trim();
   const visibleTours = q ? tours.filter((tour) => matchesTourSearch(tour, q)) : tours;
   const now = new Date();
   const lastSeatDepartures: LastSeatDeparture[] = visibleTours.flatMap((tour) =>
