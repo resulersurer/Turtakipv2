@@ -9,3 +9,5 @@ coverage
 pnpm-lock.yaml
 yarn.lock
 npm-debug.log
+.vercel
+.env*.local

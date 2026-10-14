@@ -24,8 +24,8 @@ export default function HomePage() {
                 Admin Paneline Git
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
-              <Link href="/tour/preview" className="inline-flex items-center justify-center rounded-3xl border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold text-slate-100 transition hover:border-brand-400/50 hover:text-brand-100">
-                Yolcu Panelini İncele
+              <Link href="/passenger" className="inline-flex items-center justify-center rounded-3xl border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold text-slate-100 transition hover:border-brand-400/50 hover:text-brand-100">
+                Yolcu Portalına Git (Canlı)
               </Link>
             </div>
           </div>

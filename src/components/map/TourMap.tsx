@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo } from 'react';
 import { MapContainer, Marker, Polyline, TileLayer, useMap, useMapEvent } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -50,10 +50,20 @@ function MapClickHandler({ onMapClick }: { onMapClick?: (lat: number, lng: numbe
 }
 
 export default function TourMap({ days, selectedDayId, onSelect, onMapClick }: TourMapProps) {
-  const points = useMemo(() => days.filter((day) => day.lat != null && day.lng != null).map((day) => [day.lat!, day.lng!] as [number, number]), [days]);
-  const activeDay = days.find((day) => day.id === selectedDayId) ?? days.find((day) => day.lat != null && day.lng != null);
+  const selectedDay = days.find((day) => day.id === selectedDayId);
+  const activeDay = (selectedDay && selectedDay.lat != null && selectedDay.lng != null)
+    ? selectedDay
+    : days.find((day) => day.lat != null && day.lng != null);
   const clickableMarkers = days.filter((day) => day.lat != null && day.lng != null);
-  const defaultPosition = activeDay ? [activeDay.lat!, activeDay.lng!] as [number, number] : defaultCenter;
+  const points = useMemo<[number, number][]>(
+    () => days
+      .filter((day) => day.lat != null && day.lng != null)
+      .map((day) => [day.lat!, day.lng!]),
+    [days]
+  );
+  const defaultPosition: [number, number] = (activeDay && activeDay.lat != null && activeDay.lng != null)
+    ? [activeDay.lat, activeDay.lng]
+    : defaultCenter;
 
   return (
     <div className="h-[420px] w-full overflow-hidden rounded-[28px] border border-white/10 shadow-panel">

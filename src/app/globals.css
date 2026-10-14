@@ -46,3 +46,26 @@ select {
 .shadow-panel {
   box-shadow: 0 18px 60px rgba(1, 9, 30, 0.32);
 }
+
+/* Custom Leaflet Map Popups */
+.leaflet-popup-content-wrapper {
+  background: #ffffff !important;
+  border-radius: 18px !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35) !important;
+  padding: 4px !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+.leaflet-popup-content {
+  margin: 10px 12px !important;
+  line-height: 1.4 !important;
+}
+
+.leaflet-popup-tip {
+  background: #ffffff !important;
+}
+
+.custom-world-marker {
+  background: transparent !important;
+  border: none !important;
+}
